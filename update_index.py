@@ -1405,8 +1405,7 @@ def generate_article_pages(files_with_time):
 
             for file_name in files:
 
-                path =
-                    os.path.normpath(
+                path =                    os.path.normpath(
                         os.path.join(
                             root,
                             file_name
