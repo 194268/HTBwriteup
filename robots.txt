@@ -1,3 +1,4 @@
 User-agent: *
 Allow: /
-Sitemap: https://syc-sigma.vercel.app/sitemap1.xml
+
+Sitemap: https://syc-sigma.vercel.app/sitemap.xml
