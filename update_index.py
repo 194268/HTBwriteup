@@ -1863,4 +1863,3 @@ def generate_site_assets():
 if __name__ == "__main__":
 
     generate_site_assets()
-```
