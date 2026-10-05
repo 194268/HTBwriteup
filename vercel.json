@@ -1,8 +1,10 @@
+```json
 {
   "rewrites": [
     {
       "source": "/p/:path*",
-      "destination": "/article.html?post=:path*.md"
+      "destination": "/articles/:path*/index.html"
     }
   ]
 }
+```
