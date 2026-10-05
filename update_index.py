@@ -1323,38 +1323,31 @@ def generate_article_pages(files_with_time):
             continue
 
 
-        title =
-            get_display_title(
+        title =            get_display_title(
                 file_name
             )
 
-        description =
-            generate_description(
+        description =            generate_description(
                 markdown_text,
                 title
             )
 
-        page_url =
-            get_page_url(
+        page_url =            get_page_url(
                 file_name
             )
 
-        canonical_url =
-            f"{BASE_URL}{page_url}"
+        canonical_url =            f"{BASE_URL}{page_url}"
 
 
-        article_content =
-            markdown_to_html(
+        article_content =            markdown_to_html(
                 markdown_text
             )
 
 
         # 为每篇文章创建独立目录
-        clean_name =
-            file_name[:-3]
+        clean_name =            file_name[:-3]
 
-        article_dir =
-            os.path.join(
+        article_dir =            os.path.join(
                 ARTICLES_DIR,
                 clean_name
             )
@@ -1365,15 +1358,13 @@ def generate_article_pages(files_with_time):
         )
 
 
-        output_file =
-            os.path.join(
+        output_file =            os.path.join(
                 article_dir,
                 "index.html"
             )
 
 
-        full_html =
-            generate_article_html(
+        full_html =            generate_article_html(
                 file_name=file_name,
                 title=title,
                 description=description,
