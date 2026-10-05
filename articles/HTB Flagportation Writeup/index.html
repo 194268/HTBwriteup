@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>HTB FLAGPORTATION WRITEUP | SYC</title>
+
+<meta
+    name="description"
+    content="Challenge Scenario Qubitrix transmits their most sensitive data to its partners using a strange quantum system through a terminal called QTT. The terminal access does not..."
+>
+
+<meta
+    name="robots"
+    content="index, follow"
+>
+
+<link
+    rel="canonical"
+    href="https://syc-sigma.vercel.app/p/HTB%20Flagportation%20Writeup"
+>
+
+<meta
+    property="og:title"
+    content="HTB FLAGPORTATION WRITEUP | SYC"
+>
+
+<meta
+    property="og:description"
+    content="Challenge Scenario Qubitrix transmits their most sensitive data to its partners using a strange quantum system through a terminal called QTT. The terminal access does not..."
+>
+
+<meta
+    property="og:type"
+    content="article"
+>
+
+<meta
+    property="og:url"
+    content="https://syc-sigma.vercel.app/p/HTB%20Flagportation%20Writeup"
+>
+
+<meta
+    property="og:site_name"
+    content="SYC"
+>
+
+<meta
+    name="twitter:card"
+    content="summary"
+>
+
+<meta
+    name="twitter:title"
+    content="HTB FLAGPORTATION WRITEUP | SYC"
+>
+
+<meta
+    name="twitter:description"
+    content="Challenge Scenario Qubitrix transmits their most sensitive data to its partners using a strange quantum system through a terminal called QTT. The terminal access does not..."
+>
+
+<link rel="icon" type="image/png" href="/favicon.png">
+
+<link
+    rel="shortcut icon"
+    href="/favicon.ico"
+    type="image/x-icon"
+>
+
+<link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&family=Fira+Code&display=swap"
+    rel="stylesheet"
+>
+
+<link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css"
+    id="hljs-style"
+>
+
+<script
+    src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"
+    defer
+></script>
+
+
+<style>
+
+:root[data-theme="dark"] {
+    --bg-1: #050505;
+    --bg-2: #0a0c1a;
+    --bg-3: #120d1a;
+    --text-main: #ffffff;
+    --text-dim: rgba(255, 255, 255, 0.5);
+    --accent: #ffffff;
+    --canvas-opacity: 0.9;
+    --code-bg: rgba(0, 0, 0, 0.5);
+}
+
+:root[data-theme="light"] {
+    --bg-1: #fdfdfd;
+    --bg-2: #f0f4ff;
+    --bg-3: #f9f0ff;
+    --text-main: #000000;
+    --text-dim: rgba(0, 0, 0, 0.5);
+    --accent: #000000;
+    --canvas-opacity: 0.5;
+    --code-bg: rgba(0, 0, 0, 0.05);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    transition:
+        background-color 0.6s,
+        color 0.4s;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background:
+        linear-gradient(
+            125deg,
+            var(--bg-1),
+            var(--bg-2),
+            var(--bg-3),
+            var(--bg-1)
+        );
+
+    background-size: 400% 400%;
+
+    animation:
+        spaceFlow 25s ease infinite;
+
+    color: var(--text-main);
+
+    font-family:
+        'Inter',
+        -apple-system,
+        BlinkMacSystemFont,
+        sans-serif;
+
+    line-height: 1.8;
+
+    overflow-x: hidden;
+}
+
+@keyframes spaceFlow {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+#article-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    z-index: -1;
+
+    pointer-events: none;
+
+    opacity: var(--canvas-opacity);
+}
+
+.theme-toggle {
+    position: fixed;
+
+    bottom: 30px;
+    right: 30px;
+
+    width: 48px;
+    height: 48px;
+
+    border-radius: 50%;
+
+    background: var(--text-main);
+    color: var(--bg-1);
+
+    border: none;
+
+    cursor: pointer;
+
+    z-index: 2000;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-family: 'Fira Code';
+
+    font-size: 10px;
+
+    font-weight: bold;
+
+    box-shadow:
+        0 10px 30px rgba(0,0,0,0.2);
+}
+
+#progress {
+    position: fixed;
+
+    top: 0;
+    left: 0;
+
+    height: 3px;
+
+    background: var(--accent);
+
+    width: 0%;
+
+    z-index: 2000;
+}
+
+nav {
+    padding: 25px 40px;
+
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+
+    position: sticky;
+
+    top: 0;
+
+    z-index: 1000;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+}
+
+nav a {
+    color: var(--text-dim);
+
+    text-decoration: none;
+
+    font-size: 11px;
+
+    font-family: 'Fira Code';
+
+    letter-spacing: 1px;
+}
+
+nav a:hover {
+    color: var(--text-main);
+}
+
+.content-wrapper {
+    max-width: 900px;
+
+    margin: 40px auto;
+
+    padding: 40px 24px;
+
+    min-height: 80vh;
+}
+
+.article-header {
+    margin-bottom: 70px;
+}
+
+.article-header h1 {
+    font-size:
+        clamp(32px, 7vw, 64px);
+
+    font-weight: 700;
+
+    color: var(--text-main);
+
+    letter-spacing: -4px;
+
+    line-height: 1;
+
+    text-transform: uppercase;
+}
+
+.article-meta {
+    margin-top: 20px;
+
+    color: var(--text-dim);
+
+    font-family: 'Fira Code';
+
+    font-size: 11px;
+
+    letter-spacing: 1px;
+}
+
+.markdown-body {
+    overflow-wrap: break-word;
+}
+
+.markdown-body img {
+    max-width: 100%;
+
+    height: auto;
+
+    border-radius: 12px;
+
+    margin: 30px 0;
+
+    display: block;
+
+    box-shadow:
+        0 20px 50px rgba(0,0,0,0.1);
+}
+
+.markdown-body h1 {
+    font-size: 38px;
+
+    margin: 50px 0 20px;
+
+    color: var(--text-main);
+}
+
+.markdown-body h2 {
+    font-size: 28px;
+
+    margin: 50px 0 20px;
+
+    color: var(--text-main);
+
+    border-bottom:
+        1px solid var(--text-dim);
+
+    padding-bottom: 8px;
+}
+
+.markdown-body h3 {
+    font-size: 22px;
+
+    margin: 40px 0 15px;
+
+    color: var(--text-main);
+}
+
+.markdown-body p {
+    margin-bottom: 25px;
+
+    font-size: 17px;
+
+    opacity: 0.85;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+    margin: 20px 0 25px;
+
+    padding-left: 30px;
+}
+
+.markdown-body li {
+    margin-bottom: 8px;
+}
+
+.markdown-body a {
+    color: var(--text-main);
+
+    text-decoration:
+        underline;
+
+    text-underline-offset: 4px;
+}
+
+.markdown-body blockquote {
+    margin: 25px 0;
+
+    padding: 15px 20px;
+
+    border-left:
+        3px solid var(--text-main);
+
+    color: var(--text-dim);
+}
+
+.markdown-body pre {
+    background:
+        var(--code-bg) !important;
+
+    padding: 25px;
+
+    border:
+        1px solid var(--text-dim);
+
+    border-radius: 12px;
+
+    margin: 30px 0;
+
+    overflow-x: auto;
+
+    backdrop-filter: blur(10px);
+}
+
+.markdown-body code {
+    font-family: 'Fira Code';
+
+    font-size: 14px;
+
+    background:
+        rgba(128,128,128,0.1);
+
+    padding: 3px 6px;
+
+    border-radius: 4px;
+}
+
+.markdown-body pre code {
+    background: transparent;
+
+    padding: 0;
+}
+
+.markdown-body table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    margin: 30px 0;
+
+    overflow-x: auto;
+}
+
+.markdown-body th,
+.markdown-body td {
+    border:
+        1px solid var(--text-dim);
+
+    padding: 10px;
+
+    text-align: left;
+}
+
+.markdown-body th {
+    color: var(--text-main);
+}
+
+@media (max-width: 768px) {
+
+    .content-wrapper {
+        padding: 20px;
+    }
+
+    nav {
+        padding: 15px 20px;
+    }
+
+    .article-header h1 {
+        letter-spacing: -2px;
+    }
+
+    .markdown-body p {
+        font-size: 16px;
+    }
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+<div id="progress"></div>
+
+<canvas id="article-canvas"></canvas>
+
+
+<button
+    class="theme-toggle"
+    onclick="toggleTheme()"
+>
+    MODE
+</button>
+
+
+<nav>
+
+<a href="/">
+    &lt;- BACK_TO_TERMINAL
+</a>
+
+<span
+    id="reading-id"
+    style="
+        font-family:'Fira Code';
+        font-size:10px;
+        color:var(--text-dim);
+    "
+>
+    SYSTEM: SYNCED
+</span>
+
+</nav>
+
+
+<main class="content-wrapper">
+
+<header class="article-header">
+
+<h1>
+HTB FLAGPORTATION WRITEUP
+</h1>
+
+<div class="article-meta">
+    HTB FLAGPORTATION WRITEUP.MD
+</div>
+
+</header>
+
+
+<article class="markdown-body">
+
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*8LNdwt4pH9PUAindGunS9A.png" /></p>
+<h4>Challenge Scenario</h4>
+<hr />
+<p>Qubitrix transmits their most sensitive data to its partners using a strange quantum system through a terminal called QTT. The terminal access does not require any authentication, so your first mission is to reverse-engineer the connection, and capture what was never meant to be seen.</p>
+<p>as usual</p>
+<p>check the website</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*tV-ZPqkc3oySInkqi5inFg.png" /></p>
+<p>ok,nc </p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*QBylYbmAKc5Jeg5DAmzGuQ.png" /></p>
+<p>so like the rules i mentioned at </p>
+<p><a href="https://syc-sigma.vercel.app/p/HTB%20Global%20Hyperlink%20Zone%20Writeup">https://syc-sigma.vercel.app/p/HTB%20Global%20Hyperlink%20Zone%20Writeup</a></p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*naBUUYJnq3PezTFMZprWUg.png" /></p>
+<p>here is the example </p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*bWOfevM4M1Zms7SmE01omQ.png" /></p>
+<p>so,in order to avoid doing so many rounds of hard labor</p>
+<p>we use a simple py</p>
+<blockquote>
+<p><strong>#!/usr/bin/env python3</strong></p>
+<p><strong>import socket<br />
+import re<br />
+import time</strong></p>
+<p>**def get_correction(basis: str, q0: int, q1: int):<br />
+ “””<br />
+ 根据量子隐形传态协议返回 (instructions, measurement_basis)<br />
+ “””<br />
+ bits = (q0, q1)  </p>
+<p>if bits == (0, 0):<br />
+ # 无操作 -&gt; 用 X:2;X:2 或 Z:2;Z:2 抵消<br />
+ instructions = “X:2;X:2” # 两次 X 门 = 恒等操作<br />
+ elif bits == (0, 1):<br />
+ instructions = “X:2”<br />
+ elif bits == (1, 0):<br />
+ instructions = “Z:2”<br />
+ elif bits == (1, 1):<br />
+ instructions = “X:2;Z:2”<br />
+ else:<br />
+ instructions = “X:2;X:2”  </p>
+<p>measure_basis = basis.strip()<br />
+ return instructions, measure_basis**</p>
+<p>**def main():<br />
+ host = “154.57.164.83”<br />
+ port = 30527  </p>
+<p>sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)<br />
+ sock.connect((host, port))  </p>
+<p># 接收初始欢迎信息<br />
+ data = sock.recv(4096).decode()<br />
+ print(data)  </p>
+<p># 循环处理 204 轮<br />
+ for round_num in range(1, 205):<br />
+ print(f”\n — — Round {round_num} — -”)  </p>
+<p># 接收直到出现 “Specify the instructions :”<br />
+ buffer = “”<br />
+ while “Specify the instructions :” not in buffer:<br />
+ chunk = sock.recv(1024).decode()<br />
+ if not chunk:<br />
+ print(“连接关闭”)<br />
+ return<br />
+ buffer += chunk<br />
+ print(chunk, end=””)  </p>
+<p># 解析 Basis 和测量结果<br />
+ basis_match = re.search(r”Basis\s<em>:\s</em>([ZX])”, buffer)<br />
+ q0_match = re.search(r”Measurement of qubit 0\s<em>:\s</em>([01])”, buffer)<br />
+ q1_match = re.search(r”Measurement of qubit 1\s<em>:\s</em>([01])”, buffer)  </p>
+<p>if not (basis_match and q0_match and q1_match):<br />
+ print(“解析失败，原始数据：”)<br />
+ print(buffer)<br />
+ return  </p>
+<p>basis = basis_match.group(1)<br />
+ q0 = int(q0_match.group(1))<br />
+ q1 = int(q1_match.group(1))  </p>
+<p>print(f”解析结果: Basis={basis}, q0={q0}, q1={q1}”)  </p>
+<p># 计算指令和测量基组<br />
+ instructions, measure_basis = get_correction(basis, q0, q1)<br />
+ print(f”发送指令: {instructions if instructions else ‘(空)’}”)  </p>
+<p># 发送指令<br />
+ sock.send((instructions + “\n”).encode())  </p>
+<p># 接收 “Specify the measurement basis :”<br />
+ buffer = “”<br />
+ while “Specify the measurement basis :” not in buffer:<br />
+ chunk = sock.recv(1024).decode()<br />
+ if not chunk:<br />
+ print(“连接关闭”)<br />
+ return<br />
+ buffer += chunk<br />
+ print(chunk, end=””)  </p>
+<p># 发送测量基组<br />
+ print(f”发送测量基组: {measure_basis}”)<br />
+ sock.send((measure_basis + “\n”).encode())  </p>
+<p># 接收本轮剩余输出<br />
+ time.sleep(0.1)<br />
+ # 非阻塞读取剩余数据<br />
+ sock.setblocking(False)<br />
+ try:<br />
+ while True:<br />
+ remaining = sock.recv(1024).decode()<br />
+ if remaining:<br />
+ print(remaining, end=””)<br />
+ else:<br />
+ break<br />
+ except BlockingIOError:<br />
+ pass<br />
+ sock.setblocking(True)  </p>
+<p># 接收最终输出<br />
+ time.sleep(0.5)<br />
+ final = sock.recv(4096).decode()<br />
+ print(final)<br />
+ sock.close()**</p>
+<p><strong>if <strong>name</strong> == “<strong>main</strong>”:<br />
+ main()</strong></p>
+</blockquote>
+<p>but no flag turns out </p>
+<p>check the source code </p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*tH_bGaBHaaCUH9IZcgS2AQ.png" /></p>
+<p>we should read the flag form it</p>
+<p>so,use </p>
+<blockquote>
+<p>import re</p>
+<p>def bits_to_string(bit_list):<br />
+ res = “”<br />
+ # 每 8 bits 提取一次<br />
+ for i in range(0, len(bit_list), 8):<br />
+ byte_bits = bit_list[i:i+8]<br />
+ if len(byte_bits) &lt; 8: break  </p>
+<p># 将 bit 列表转为 01 字符串并转为整数<br />
+ byte_str = “”.join(map(str, byte_bits))<br />
+ res += chr(int(byte_str, 2))<br />
+ return res</p>
+<p>def parse_and_fix(file_path):<br />
+ with open(file_path, ‘r’, encoding=’utf-8') as f:<br />
+ content = f.read()</p>
+<h1>1. 提取所有 Basis 和 Qubit 2 结果</h1>
+<p># 我们先拿到所有的匹配对，确保存储顺序与日志一致<br />
+ matches = re.findall(r”Basis\s<em>:\s</em>([ZX]).<em>?Measurement of qubit 2\s</em>:\s*([01])”, content, re.DOTALL)  </p>
+<p># 尝试方案：标准顺序 (Basis_bit, Q2_bit)<br />
+ bits = []<br />
+ for basis, q2 in matches:<br />
+ b_bit = 0 if basis == ‘Z’ else 1<br />
+ q2_bit = int(q2)<br />
+ bits.extend([b_bit, q2_bit])  </p>
+<p>return bits</p>
+<p>if <strong>name</strong> == “<strong>main</strong>”:<br />
+ file_name = “output.txt”<br />
+ try:<br />
+ raw_bits = parse_and_fix(file_name)  </p>
+<p>print(“-” * 30)<br />
+ print(f”[*] 提取到 {len(raw_bits)} bits (共 {len(raw_bits)//8} 字节)”)  </p>
+<p># 尝试标准还原<br />
+ print(“[*] 还原结果 (标准):”)<br />
+ print(bits_to_string(raw_bits))  </p>
+<p># 如果还是乱码，尝试位序翻转还原 (Q2_bit, Basis_bit)<br />
+ print(“\n[*] 还原结果 (如果上方不对，请看这个 — 位序翻转):”)<br />
+ flipped_bits = []<br />
+ for i in range(0, len(raw_bits), 2):<br />
+ flipped_bits.extend([raw_bits[i+1], raw_bits[i]])<br />
+ print(bits_to_string(flipped_bits))  </p>
+<p>except FileNotFoundError:<br />
+ print(“请确保 output.txt 存在”)</p>
+</blockquote>
+<p>to find the answer</p>
+<p>rememer save the all rounds result into output.txt</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*7l6X4bKuZPwnWAreEqCF0w.png" /></p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*ZXYNdeFlYSK02hNX8eCIHg.png" /></p>
+<p>it will show the answer</p>
+<p><strong><em>HTB{c0mpL371ng_7h3_qu4n7um_73L3p0r74710n_pr070c0L!}</em></strong></p>
+
+</article>
+
+</main>
+
+
+<script>
+
+/* ==========================================================
+   Theme
+   ========================================================== */
+
+function toggleTheme() {
+
+    const root =
+        document.documentElement;
+
+    const target =
+        root.getAttribute('data-theme') === 'dark'
+            ? 'light'
+            : 'dark';
+
+    root.setAttribute(
+        'data-theme',
+        target
+    );
+
+    localStorage.setItem(
+        'theme',
+        target
+    );
+
+    const style =
+        document.getElementById(
+            'hljs-style'
+        );
+
+    if (style) {
+
+        style.href =
+            target === 'dark'
+                ? "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css"
+                : "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css";
+    }
+}
+
+
+/* ==========================================================
+   Restore Theme
+   ========================================================== */
+
+try {
+
+    document.documentElement
+        .setAttribute(
+            'data-theme',
+            localStorage.getItem('theme') || 'dark'
+        );
+
+} catch (e) {
+
+    document.documentElement
+        .setAttribute(
+            'data-theme',
+            'dark'
+        );
+}
+
+
+/* ==========================================================
+   Code Highlight
+   ========================================================== */
+
+window.addEventListener(
+    'load',
+    () => {
+
+        if (
+            window.hljs
+        ) {
+
+            document
+                .querySelectorAll(
+                    'pre code'
+                )
+                .forEach(
+                    (el) => {
+                        hljs.highlightElement(el);
+                    }
+                );
+        }
+
+    }
+);
+
+
+/* ==========================================================
+   Reading ID
+   ========================================================== */
+
+document
+    .getElementById('reading-id')
+    .innerText =
+        'SYSTEM: HTB FLAGPORTATION WRITEUP.MD';
+
+
+/* ==========================================================
+   Reading Progress
+   ========================================================== */
+
+window.addEventListener(
+    'scroll',
+    () => {
+
+        const winScroll =
+            document.documentElement.scrollTop;
+
+        const height =
+            document.documentElement.scrollHeight -
+            document.documentElement.clientHeight;
+
+        const percentage =
+            height > 0
+                ? (winScroll / height) * 100
+                : 0;
+
+        document
+            .getElementById('progress')
+            .style.width =
+                percentage + '%';
+
+    }
+);
+
+
+/* ==========================================================
+   Dynamic Background
+   ========================================================== */
+
+const canvas =
+    document.getElementById(
+        'article-canvas'
+    );
+
+const ctx =
+    canvas.getContext('2d');
+
+let fluidNodes = [];
+
+let trailParticles = [];
+
+const mouse = {
+    x: -500,
+    y: -500
+};
+
+
+function initCanvas() {
+
+    canvas.width =
+        window.innerWidth;
+
+    canvas.height =
+        window.innerHeight;
+
+    fluidNodes =
+        Array.from(
+            { length: 3 },
+            () => ({
+
+                x:
+                    Math.random() *
+                    canvas.width,
+
+                y:
+                    Math.random() *
+                    canvas.height,
+
+                vx:
+                    (Math.random() - 0.5) *
+                    0.4,
+
+                vy:
+                    (Math.random() - 0.5) *
+                    0.4,
+
+                size:
+                    Math.random() *
+                    (canvas.width * 0.4) +
+                    canvas.width * 0.3
+            })
+        );
+}
+
+
+window.onmousemove =
+    (e) => {
+
+        mouse.x =
+            e.clientX;
+
+        mouse.y =
+            e.clientY;
+
+        for (
+            let i = 0;
+            i < 2;
+            i++
+        ) {
+
+            trailParticles.push(
+                new Particle(
+                    mouse.x,
+                    mouse.y
+                )
+            );
+        }
+    };
+
+
+class Particle {
+
+    constructor(x, y) {
+
+        this.x = x;
+
+        this.y = y;
+
+        this.vx =
+            (Math.random() - 0.5) *
+            1.5;
+
+        this.vy =
+            (Math.random() - 0.5) *
+            1.5;
+
+        this.life = 1.0;
+
+        this.decay =
+            0.015 +
+            Math.random() * 0.02;
+
+        this.size =
+            Math.random() * 2.5 +
+            0.5;
+    }
+
+    update() {
+
+        this.x += this.vx;
+
+        this.y += this.vy;
+
+        this.life -= this.decay;
+    }
+
+    draw(color) {
+
+        ctx.fillStyle =
+            `rgba(${color}, ${this.life * 0.4})`;
+
+        ctx.beginPath();
+
+        ctx.arc(
+            this.x,
+            this.y,
+            this.size,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fill();
+    }
+}
+
+
+function draw() {
+
+    const isDark =
+        document.documentElement
+            .getAttribute(
+                'data-theme'
+            ) === 'dark';
+
+    ctx.fillStyle =
+        isDark
+            ? "rgba(5, 5, 5, 0.15)"
+            : "rgba(253, 253, 253, 0.15)";
+
+    ctx.fillRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+    ctx.globalCompositeOperation =
+        isDark
+            ? "lighter"
+            : "multiply";
+
+
+    const colorRGB =
+        isDark
+            ? "60, 70, 100"
+            : "200, 210, 240";
+
+
+    fluidNodes.forEach(
+        node => {
+
+            node.x += node.vx;
+
+            node.y += node.vy;
+
+
+            if (
+                node.x < 0 ||
+                node.x > canvas.width
+            ) {
+                node.vx *= -1;
+            }
+
+
+            if (
+                node.y < 0 ||
+                node.y > canvas.height
+            ) {
+                node.vy *= -1;
+            }
+
+
+            const g =
+                ctx.createRadialGradient(
+                    node.x,
+                    node.y,
+                    0,
+                    node.x,
+                    node.y,
+                    node.size
+                );
+
+
+            g.addColorStop(
+                0,
+                `rgba(${colorRGB}, 0.3)`
+            );
+
+            g.addColorStop(
+                1,
+                "transparent"
+            );
+
+
+            ctx.fillStyle = g;
+
+            ctx.beginPath();
+
+            ctx.arc(
+                node.x,
+                node.y,
+                node.size,
+                0,
+                Math.PI * 2
+            );
+
+            ctx.fill();
+
+        }
+    );
+
+
+    ctx.globalCompositeOperation =
+        "source-over";
+
+
+    const particleRGB =
+        isDark
+            ? "255, 255, 255"
+            : "0, 0, 0";
+
+
+    trailParticles.forEach(
+        (p, i) => {
+
+            p.update();
+
+            p.draw(
+                particleRGB
+            );
+
+            if (
+                p.life <= 0
+            ) {
+                trailParticles.splice(
+                    i,
+                    1
+                );
+            }
+        }
+    );
+
+
+    requestAnimationFrame(
+        draw
+    );
+}
+
+
+window.addEventListener(
+    'resize',
+    initCanvas
+);
+
+initCanvas();
+
+draw();
+
+</script>
+
+</body>
+
+</html>

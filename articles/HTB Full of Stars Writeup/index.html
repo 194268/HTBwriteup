@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>HTB FULL OF STARS WRITEUP | SYC</title>
+
+<meta
+    name="description"
+    content="Challenge Scenario While density scanning the galaxy we’ve found something extraordinary! It seems that the stars in our local group are communicating a message: The star..."
+>
+
+<meta
+    name="robots"
+    content="index, follow"
+>
+
+<link
+    rel="canonical"
+    href="https://syc-sigma.vercel.app/p/HTB%20Full%20of%20Stars%20Writeup"
+>
+
+<meta
+    property="og:title"
+    content="HTB FULL OF STARS WRITEUP | SYC"
+>
+
+<meta
+    property="og:description"
+    content="Challenge Scenario While density scanning the galaxy we’ve found something extraordinary! It seems that the stars in our local group are communicating a message: The star..."
+>
+
+<meta
+    property="og:type"
+    content="article"
+>
+
+<meta
+    property="og:url"
+    content="https://syc-sigma.vercel.app/p/HTB%20Full%20of%20Stars%20Writeup"
+>
+
+<meta
+    property="og:site_name"
+    content="SYC"
+>
+
+<meta
+    name="twitter:card"
+    content="summary"
+>
+
+<meta
+    name="twitter:title"
+    content="HTB FULL OF STARS WRITEUP | SYC"
+>
+
+<meta
+    name="twitter:description"
+    content="Challenge Scenario While density scanning the galaxy we’ve found something extraordinary! It seems that the stars in our local group are communicating a message: The star..."
+>
+
+<link rel="icon" type="image/png" href="/favicon.png">
+
+<link
+    rel="shortcut icon"
+    href="/favicon.ico"
+    type="image/x-icon"
+>
+
+<link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&family=Fira+Code&display=swap"
+    rel="stylesheet"
+>
+
+<link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css"
+    id="hljs-style"
+>
+
+<script
+    src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"
+    defer
+></script>
+
+
+<style>
+
+:root[data-theme="dark"] {
+    --bg-1: #050505;
+    --bg-2: #0a0c1a;
+    --bg-3: #120d1a;
+    --text-main: #ffffff;
+    --text-dim: rgba(255, 255, 255, 0.5);
+    --accent: #ffffff;
+    --canvas-opacity: 0.9;
+    --code-bg: rgba(0, 0, 0, 0.5);
+}
+
+:root[data-theme="light"] {
+    --bg-1: #fdfdfd;
+    --bg-2: #f0f4ff;
+    --bg-3: #f9f0ff;
+    --text-main: #000000;
+    --text-dim: rgba(0, 0, 0, 0.5);
+    --accent: #000000;
+    --canvas-opacity: 0.5;
+    --code-bg: rgba(0, 0, 0, 0.05);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    transition:
+        background-color 0.6s,
+        color 0.4s;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background:
+        linear-gradient(
+            125deg,
+            var(--bg-1),
+            var(--bg-2),
+            var(--bg-3),
+            var(--bg-1)
+        );
+
+    background-size: 400% 400%;
+
+    animation:
+        spaceFlow 25s ease infinite;
+
+    color: var(--text-main);
+
+    font-family:
+        'Inter',
+        -apple-system,
+        BlinkMacSystemFont,
+        sans-serif;
+
+    line-height: 1.8;
+
+    overflow-x: hidden;
+}
+
+@keyframes spaceFlow {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+#article-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    z-index: -1;
+
+    pointer-events: none;
+
+    opacity: var(--canvas-opacity);
+}
+
+.theme-toggle {
+    position: fixed;
+
+    bottom: 30px;
+    right: 30px;
+
+    width: 48px;
+    height: 48px;
+
+    border-radius: 50%;
+
+    background: var(--text-main);
+    color: var(--bg-1);
+
+    border: none;
+
+    cursor: pointer;
+
+    z-index: 2000;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-family: 'Fira Code';
+
+    font-size: 10px;
+
+    font-weight: bold;
+
+    box-shadow:
+        0 10px 30px rgba(0,0,0,0.2);
+}
+
+#progress {
+    position: fixed;
+
+    top: 0;
+    left: 0;
+
+    height: 3px;
+
+    background: var(--accent);
+
+    width: 0%;
+
+    z-index: 2000;
+}
+
+nav {
+    padding: 25px 40px;
+
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+
+    position: sticky;
+
+    top: 0;
+
+    z-index: 1000;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+}
+
+nav a {
+    color: var(--text-dim);
+
+    text-decoration: none;
+
+    font-size: 11px;
+
+    font-family: 'Fira Code';
+
+    letter-spacing: 1px;
+}
+
+nav a:hover {
+    color: var(--text-main);
+}
+
+.content-wrapper {
+    max-width: 900px;
+
+    margin: 40px auto;
+
+    padding: 40px 24px;
+
+    min-height: 80vh;
+}
+
+.article-header {
+    margin-bottom: 70px;
+}
+
+.article-header h1 {
+    font-size:
+        clamp(32px, 7vw, 64px);
+
+    font-weight: 700;
+
+    color: var(--text-main);
+
+    letter-spacing: -4px;
+
+    line-height: 1;
+
+    text-transform: uppercase;
+}
+
+.article-meta {
+    margin-top: 20px;
+
+    color: var(--text-dim);
+
+    font-family: 'Fira Code';
+
+    font-size: 11px;
+
+    letter-spacing: 1px;
+}
+
+.markdown-body {
+    overflow-wrap: break-word;
+}
+
+.markdown-body img {
+    max-width: 100%;
+
+    height: auto;
+
+    border-radius: 12px;
+
+    margin: 30px 0;
+
+    display: block;
+
+    box-shadow:
+        0 20px 50px rgba(0,0,0,0.1);
+}
+
+.markdown-body h1 {
+    font-size: 38px;
+
+    margin: 50px 0 20px;
+
+    color: var(--text-main);
+}
+
+.markdown-body h2 {
+    font-size: 28px;
+
+    margin: 50px 0 20px;
+
+    color: var(--text-main);
+
+    border-bottom:
+        1px solid var(--text-dim);
+
+    padding-bottom: 8px;
+}
+
+.markdown-body h3 {
+    font-size: 22px;
+
+    margin: 40px 0 15px;
+
+    color: var(--text-main);
+}
+
+.markdown-body p {
+    margin-bottom: 25px;
+
+    font-size: 17px;
+
+    opacity: 0.85;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+    margin: 20px 0 25px;
+
+    padding-left: 30px;
+}
+
+.markdown-body li {
+    margin-bottom: 8px;
+}
+
+.markdown-body a {
+    color: var(--text-main);
+
+    text-decoration:
+        underline;
+
+    text-underline-offset: 4px;
+}
+
+.markdown-body blockquote {
+    margin: 25px 0;
+
+    padding: 15px 20px;
+
+    border-left:
+        3px solid var(--text-main);
+
+    color: var(--text-dim);
+}
+
+.markdown-body pre {
+    background:
+        var(--code-bg) !important;
+
+    padding: 25px;
+
+    border:
+        1px solid var(--text-dim);
+
+    border-radius: 12px;
+
+    margin: 30px 0;
+
+    overflow-x: auto;
+
+    backdrop-filter: blur(10px);
+}
+
+.markdown-body code {
+    font-family: 'Fira Code';
+
+    font-size: 14px;
+
+    background:
+        rgba(128,128,128,0.1);
+
+    padding: 3px 6px;
+
+    border-radius: 4px;
+}
+
+.markdown-body pre code {
+    background: transparent;
+
+    padding: 0;
+}
+
+.markdown-body table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    margin: 30px 0;
+
+    overflow-x: auto;
+}
+
+.markdown-body th,
+.markdown-body td {
+    border:
+        1px solid var(--text-dim);
+
+    padding: 10px;
+
+    text-align: left;
+}
+
+.markdown-body th {
+    color: var(--text-main);
+}
+
+@media (max-width: 768px) {
+
+    .content-wrapper {
+        padding: 20px;
+    }
+
+    nav {
+        padding: 15px 20px;
+    }
+
+    .article-header h1 {
+        letter-spacing: -2px;
+    }
+
+    .markdown-body p {
+        font-size: 16px;
+    }
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+<div id="progress"></div>
+
+<canvas id="article-canvas"></canvas>
+
+
+<button
+    class="theme-toggle"
+    onclick="toggleTheme()"
+>
+    MODE
+</button>
+
+
+<nav>
+
+<a href="/">
+    &lt;- BACK_TO_TERMINAL
+</a>
+
+<span
+    id="reading-id"
+    style="
+        font-family:'Fira Code';
+        font-size:10px;
+        color:var(--text-dim);
+    "
+>
+    SYSTEM: SYNCED
+</span>
+
+</nav>
+
+
+<main class="content-wrapper">
+
+<header class="article-header">
+
+<h1>
+HTB FULL OF STARS WRITEUP
+</h1>
+
+<div class="article-meta">
+    HTB FULL OF STARS WRITEUP.MD
+</div>
+
+</header>
+
+
+<article class="markdown-body">
+
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*Ym3HmYO1TE_N8rCK1yw49Q.png" /></p>
+<h4>Challenge Scenario</h4>
+<hr />
+<p>While density scanning the galaxy we’ve found something extraordinary! It seems that the stars in our local group are communicating a message: The stars, spread over 256 clusters, were seen to blink in a specific order. However, in our charts we have only one star per cluster to uniquely identify the cluster, which leaves us with &gt;99% stars uncategorized. Could you assist our researchers by identifying what stars belong to which cluster and deciphering the message left for us by mysterious extraterrestrial intelligence?</p>
+<p>check the zip file</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*Mah5xlsqVxupin-JxcDwtA.png" /></p>
+<p>we have got all these files</p>
+<p>so, i gave the challenge to my little helper</p>
+<p>but even though my helper tried her best,the challenge remains unresolved.</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*_375jpOYgSKCV_042Lqx9w.png" /></p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*wN2PsnrHGu2dYeE8CHaifw.png" /></p>
+<p>after a long stucking we found a important point</p>
+<blockquote>
+<p><em>💡 “Look at the shape of your data first, then pick the tool. Don’t use a hammer to turn a screw.”</em></p>
+</blockquote>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*i9-fS5G2S1R2BHSFwljQCg.png" /></p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*wctZrTNGSL-uBqEGSmwf6Q.png" /></p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*DHdWOT_cZmPt2n8kk1EfbQ.png" /></p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*LvA6XWo8HF56ywtM1z0fbQ.png" /></p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*ifYrCSn3i1Uwz1T_nfg7Rg.png" /></p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*Iq9pSjm5erSU5q1pg2wbNA.png" /></p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*hl5HW942qlM3eIoAL-SZdg.png" /></p>
+<p>and we finally got the flag</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*BGi8sLGiyaIf3CusxT-QYA.png" /></p>
+<p>here is the whole progress</p>
+<h1>📖 HTB Machine Learning Challenge: Full Writeup</h1>
+<h2>🎯 Challenge Overview</h2>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Detail</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Type</strong></td>
+<td>HTB Machine Learning (Medium)</td>
+</tr>
+<tr>
+<td><strong>Goal</strong></td>
+<td>Classify 131,527 3D points into 256 classes to reconstruct <code>flag.jpg</code> (512×512 progressive JPEG)</td>
+</tr>
+<tr>
+<td><strong>Given Data</strong></td>
+<td><code>known_samples.npy.gz</code> (256×3, only 1 anchor per class) + <code>data.npy.gz</code> (131527×3)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>🧠 The True Geometric Structure of the Data</h2>
+<blockquote>
+<p><strong>This is the core insight of the entire challenge.</strong>  </p>
+</blockquote>
+<p>The 256 classes are <strong>NOT</strong> spherical point clusters — they are <strong>curved filaments</strong>!  </p>
+<ul>
+<li>Filaments extend along the <strong>Y-axis</strong> (Y range 3500+), but are separated in the <strong>X-Z plane</strong>  </li>
+<li>Multiple filaments stack/overlap along the Y-axis  </li>
+<li>Each anchor (core) is just a <strong>random point</strong> on its filament, not a centroid  </li>
+</ul>
+<hr />
+<h2>❌ The Graveyard of Failed Approaches (20+)</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Method</th>
+<th>Why It Failed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>1-NN (Euclidean distance)</td>
+<td>Distal points on a filament are closer to a neighbor's anchor</td>
+</tr>
+<tr>
+<td>2</td>
+<td>KNN (K=5, 15)</td>
+<td>Only 1 sample per class; all neighbors belong to wrong classes</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Mahalanobis distance</td>
+<td>Fixed Byte 9, destroyed Byte 0 (global covariance is wrong)</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Z-score normalization</td>
+<td>Fixed Byte 9, destroyed Byte 0 (excessively weakened Y-axis)</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Weighted grid search</td>
+<td>No linear weight combination can fix all bytes simultaneously</td>
+</tr>
+<tr>
+<td>6</td>
+<td>QDA (Quadratic Discriminant Analysis)</td>
+<td>Assumes Gaussian ellipsoids ≠ curved manifolds</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Iterative QDA</td>
+<td>Oscillates without convergence</td>
+</tr>
+<tr>
+<td>8</td>
+<td>GMM (full/diag covariance)</td>
+<td>Gaussian assumption fundamentally wrong; unstable</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Iterative K-Means</td>
+<td>Error amplification — gets worse with each iteration</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Seeded K-Means</td>
+<td>Known-plaintext seeds contaminate other classes' centroids</td>
+</tr>
+<tr>
+<td>11</td>
+<td>SVM (RBF kernel)</td>
+<td>Exactly equivalent to 1-NN</td>
+</tr>
+<tr>
+<td>12</td>
+<td>Standard JPEG header replacement</td>
+<td>Original JPEG uses custom Huffman tables; standard tables don't match</td>
+</tr>
+<tr>
+<td>13</td>
+<td>JPEG structural repair</td>
+<td>Too many misclassifications in internal DHT/DQT data to fix</td>
+</tr>
+<tr>
+<td>14</td>
+<td>Polynomial regression</td>
+<td>No mathematical formula relates coordinates to byte values</td>
+</tr>
+<tr>
+<td>15</td>
+<td>KMeans / DBSCAN / Spectral Clustering</td>
+<td>Density/centroid assumptions all wrong</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Root cause</strong>: Every method based on "distance" or "density" fails on curved manifolds.  </p>
+</blockquote>
+<hr />
+<h2>✅ The Correct Solution: Multi-Source Dijkstra Geodesic Distance Propagation</h2>
+<h3>Core Idea</h3>
+<blockquote>
+<p><strong>Don't use straight-line distance. Propagate labels along the connectivity of the data manifold.</strong>  </p>
+</blockquote>
+<ol>
+<li>Connect all points (256 anchors + 131,527 data points) into a <strong>k-nearest neighbor graph</strong> (k=12~15)  </li>
+<li>Launch <strong>multi-source Dijkstra</strong> shortest path from all 256 anchors simultaneously  </li>
+<li>Each point is assigned to the anchor it can reach via the shortest path along the graph  </li>
+</ol>
+<h3>Two Critical Optimizations</h3>
+<table>
+<thead>
+<tr>
+<th>Optimization</th>
+<th>Parameter</th>
+<th>Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Anisotropic scaling</strong></td>
+<td><code>S = [1.0, 0.35, 1.0]</code></td>
+<td>Down-weight Y-axis to prevent kNN edges from bridging stacked filaments</td>
+</tr>
+<tr>
+<td><strong>Symmetric kNN graph</strong></td>
+<td><code>k = 14</code></td>
+<td>Bridges gaps within sparse filaments</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>📐 The Mathematical Essence</h2>
+<p>1-NN criterion: argmin_i ||x - core_i||² ← straight-line distance (ignores manifold shape)<br />
+Dijkstra criterion: argmin_i d_geodesic(x, core_i) ← shortest path along the manifold</p>
+<blockquote>
+<p>When classes are curved manifolds, <strong>geodesic distance ≠ straight-line distance</strong>.  </p>
+<p>A point at the far end of a filament may be closer to a neighbor's anchor in Euclidean distance, but the path along the manifold can only reach its own anchor.  </p>
+</blockquote>
+<hr />
+<h2>💡 Lessons Learned</h2>
+<ol>
+<li><strong>Understand the geometric structure of your data before choosing an algorithm</strong> — don't blindly throw classifiers at it  </li>
+<li><strong>Curved manifolds ≠ density clusters</strong> — when data forms elongated curves, connectivity is the correct inductive bias  </li>
+<li><strong>Anisotropic scaling</strong> is the key trick for handling "stacked filaments"  </li>
+<li><strong>Progressive JPEG is more fragile than baseline JPEG</strong> — even a small number of misclassifications causes visual corruption  </li>
+<li><strong>Known-plaintext attack</strong> (using a standard JPEG header) is an effective way to validate classification quality</li>
+</ol>
+<p>and the key point of this room</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*7yup7yQ1Hfpf50k2Sf6hjQ.png" /></p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*5lVhWfBu-mKwm9ZZGEYaUQ.png" /></p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*e2ax4OlcNVJphCzpkkMt6g.png" /></p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*onWsC_0gXm_ft2zynT834w.png" /></p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*yRj9x4VNvUMwddzj2WQ3Pg.png" /></p>
+<p><strong><em>HTB{4ll_7h3se_w0r1ds_4r3_y0Ur5_exc3p7_3Ur0P4}</em></strong></p>
+
+</article>
+
+</main>
+
+
+<script>
+
+/* ==========================================================
+   Theme
+   ========================================================== */
+
+function toggleTheme() {
+
+    const root =
+        document.documentElement;
+
+    const target =
+        root.getAttribute('data-theme') === 'dark'
+            ? 'light'
+            : 'dark';
+
+    root.setAttribute(
+        'data-theme',
+        target
+    );
+
+    localStorage.setItem(
+        'theme',
+        target
+    );
+
+    const style =
+        document.getElementById(
+            'hljs-style'
+        );
+
+    if (style) {
+
+        style.href =
+            target === 'dark'
+                ? "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css"
+                : "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css";
+    }
+}
+
+
+/* ==========================================================
+   Restore Theme
+   ========================================================== */
+
+try {
+
+    document.documentElement
+        .setAttribute(
+            'data-theme',
+            localStorage.getItem('theme') || 'dark'
+        );
+
+} catch (e) {
+
+    document.documentElement
+        .setAttribute(
+            'data-theme',
+            'dark'
+        );
+}
+
+
+/* ==========================================================
+   Code Highlight
+   ========================================================== */
+
+window.addEventListener(
+    'load',
+    () => {
+
+        if (
+            window.hljs
+        ) {
+
+            document
+                .querySelectorAll(
+                    'pre code'
+                )
+                .forEach(
+                    (el) => {
+                        hljs.highlightElement(el);
+                    }
+                );
+        }
+
+    }
+);
+
+
+/* ==========================================================
+   Reading ID
+   ========================================================== */
+
+document
+    .getElementById('reading-id')
+    .innerText =
+        'SYSTEM: HTB FULL OF STARS WRITEUP.MD';
+
+
+/* ==========================================================
+   Reading Progress
+   ========================================================== */
+
+window.addEventListener(
+    'scroll',
+    () => {
+
+        const winScroll =
+            document.documentElement.scrollTop;
+
+        const height =
+            document.documentElement.scrollHeight -
+            document.documentElement.clientHeight;
+
+        const percentage =
+            height > 0
+                ? (winScroll / height) * 100
+                : 0;
+
+        document
+            .getElementById('progress')
+            .style.width =
+                percentage + '%';
+
+    }
+);
+
+
+/* ==========================================================
+   Dynamic Background
+   ========================================================== */
+
+const canvas =
+    document.getElementById(
+        'article-canvas'
+    );
+
+const ctx =
+    canvas.getContext('2d');
+
+let fluidNodes = [];
+
+let trailParticles = [];
+
+const mouse = {
+    x: -500,
+    y: -500
+};
+
+
+function initCanvas() {
+
+    canvas.width =
+        window.innerWidth;
+
+    canvas.height =
+        window.innerHeight;
+
+    fluidNodes =
+        Array.from(
+            { length: 3 },
+            () => ({
+
+                x:
+                    Math.random() *
+                    canvas.width,
+
+                y:
+                    Math.random() *
+                    canvas.height,
+
+                vx:
+                    (Math.random() - 0.5) *
+                    0.4,
+
+                vy:
+                    (Math.random() - 0.5) *
+                    0.4,
+
+                size:
+                    Math.random() *
+                    (canvas.width * 0.4) +
+                    canvas.width * 0.3
+            })
+        );
+}
+
+
+window.onmousemove =
+    (e) => {
+
+        mouse.x =
+            e.clientX;
+
+        mouse.y =
+            e.clientY;
+
+        for (
+            let i = 0;
+            i < 2;
+            i++
+        ) {
+
+            trailParticles.push(
+                new Particle(
+                    mouse.x,
+                    mouse.y
+                )
+            );
+        }
+    };
+
+
+class Particle {
+
+    constructor(x, y) {
+
+        this.x = x;
+
+        this.y = y;
+
+        this.vx =
+            (Math.random() - 0.5) *
+            1.5;
+
+        this.vy =
+            (Math.random() - 0.5) *
+            1.5;
+
+        this.life = 1.0;
+
+        this.decay =
+            0.015 +
+            Math.random() * 0.02;
+
+        this.size =
+            Math.random() * 2.5 +
+            0.5;
+    }
+
+    update() {
+
+        this.x += this.vx;
+
+        this.y += this.vy;
+
+        this.life -= this.decay;
+    }
+
+    draw(color) {
+
+        ctx.fillStyle =
+            `rgba(${color}, ${this.life * 0.4})`;
+
+        ctx.beginPath();
+
+        ctx.arc(
+            this.x,
+            this.y,
+            this.size,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fill();
+    }
+}
+
+
+function draw() {
+
+    const isDark =
+        document.documentElement
+            .getAttribute(
+                'data-theme'
+            ) === 'dark';
+
+    ctx.fillStyle =
+        isDark
+            ? "rgba(5, 5, 5, 0.15)"
+            : "rgba(253, 253, 253, 0.15)";
+
+    ctx.fillRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+    ctx.globalCompositeOperation =
+        isDark
+            ? "lighter"
+            : "multiply";
+
+
+    const colorRGB =
+        isDark
+            ? "60, 70, 100"
+            : "200, 210, 240";
+
+
+    fluidNodes.forEach(
+        node => {
+
+            node.x += node.vx;
+
+            node.y += node.vy;
+
+
+            if (
+                node.x < 0 ||
+                node.x > canvas.width
+            ) {
+                node.vx *= -1;
+            }
+
+
+            if (
+                node.y < 0 ||
+                node.y > canvas.height
+            ) {
+                node.vy *= -1;
+            }
+
+
+            const g =
+                ctx.createRadialGradient(
+                    node.x,
+                    node.y,
+                    0,
+                    node.x,
+                    node.y,
+                    node.size
+                );
+
+
+            g.addColorStop(
+                0,
+                `rgba(${colorRGB}, 0.3)`
+            );
+
+            g.addColorStop(
+                1,
+                "transparent"
+            );
+
+
+            ctx.fillStyle = g;
+
+            ctx.beginPath();
+
+            ctx.arc(
+                node.x,
+                node.y,
+                node.size,
+                0,
+                Math.PI * 2
+            );
+
+            ctx.fill();
+
+        }
+    );
+
+
+    ctx.globalCompositeOperation =
+        "source-over";
+
+
+    const particleRGB =
+        isDark
+            ? "255, 255, 255"
+            : "0, 0, 0";
+
+
+    trailParticles.forEach(
+        (p, i) => {
+
+            p.update();
+
+            p.draw(
+                particleRGB
+            );
+
+            if (
+                p.life <= 0
+            ) {
+                trailParticles.splice(
+                    i,
+                    1
+                );
+            }
+        }
+    );
+
+
+    requestAnimationFrame(
+        draw
+    );
+}
+
+
+window.addEventListener(
+    'resize',
+    initCanvas
+);
+
+initCanvas();
+
+draw();
+
+</script>
+
+</body>
+
+</html>

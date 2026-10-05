@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>HTB ECHOES IN ORBIT WRITEUP | SYC</title>
+
+<meta
+    name="description"
+    content="Challenge Scenario A secondary onboard service has been discovered on spacecraft ID 12, running on APID 83 over virtual channel 4. It appears to implement a simple statef..."
+>
+
+<meta
+    name="robots"
+    content="index, follow"
+>
+
+<link
+    rel="canonical"
+    href="https://syc-sigma.vercel.app/p/HTB%20Echoes%20in%20Orbit%20Writeup"
+>
+
+<meta
+    property="og:title"
+    content="HTB ECHOES IN ORBIT WRITEUP | SYC"
+>
+
+<meta
+    property="og:description"
+    content="Challenge Scenario A secondary onboard service has been discovered on spacecraft ID 12, running on APID 83 over virtual channel 4. It appears to implement a simple statef..."
+>
+
+<meta
+    property="og:type"
+    content="article"
+>
+
+<meta
+    property="og:url"
+    content="https://syc-sigma.vercel.app/p/HTB%20Echoes%20in%20Orbit%20Writeup"
+>
+
+<meta
+    property="og:site_name"
+    content="SYC"
+>
+
+<meta
+    name="twitter:card"
+    content="summary"
+>
+
+<meta
+    name="twitter:title"
+    content="HTB ECHOES IN ORBIT WRITEUP | SYC"
+>
+
+<meta
+    name="twitter:description"
+    content="Challenge Scenario A secondary onboard service has been discovered on spacecraft ID 12, running on APID 83 over virtual channel 4. It appears to implement a simple statef..."
+>
+
+<link rel="icon" type="image/png" href="/favicon.png">
+
+<link
+    rel="shortcut icon"
+    href="/favicon.ico"
+    type="image/x-icon"
+>
+
+<link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&family=Fira+Code&display=swap"
+    rel="stylesheet"
+>
+
+<link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css"
+    id="hljs-style"
+>
+
+<script
+    src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"
+    defer
+></script>
+
+
+<style>
+
+:root[data-theme="dark"] {
+    --bg-1: #050505;
+    --bg-2: #0a0c1a;
+    --bg-3: #120d1a;
+    --text-main: #ffffff;
+    --text-dim: rgba(255, 255, 255, 0.5);
+    --accent: #ffffff;
+    --canvas-opacity: 0.9;
+    --code-bg: rgba(0, 0, 0, 0.5);
+}
+
+:root[data-theme="light"] {
+    --bg-1: #fdfdfd;
+    --bg-2: #f0f4ff;
+    --bg-3: #f9f0ff;
+    --text-main: #000000;
+    --text-dim: rgba(0, 0, 0, 0.5);
+    --accent: #000000;
+    --canvas-opacity: 0.5;
+    --code-bg: rgba(0, 0, 0, 0.05);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    transition:
+        background-color 0.6s,
+        color 0.4s;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background:
+        linear-gradient(
+            125deg,
+            var(--bg-1),
+            var(--bg-2),
+            var(--bg-3),
+            var(--bg-1)
+        );
+
+    background-size: 400% 400%;
+
+    animation:
+        spaceFlow 25s ease infinite;
+
+    color: var(--text-main);
+
+    font-family:
+        'Inter',
+        -apple-system,
+        BlinkMacSystemFont,
+        sans-serif;
+
+    line-height: 1.8;
+
+    overflow-x: hidden;
+}
+
+@keyframes spaceFlow {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+#article-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    z-index: -1;
+
+    pointer-events: none;
+
+    opacity: var(--canvas-opacity);
+}
+
+.theme-toggle {
+    position: fixed;
+
+    bottom: 30px;
+    right: 30px;
+
+    width: 48px;
+    height: 48px;
+
+    border-radius: 50%;
+
+    background: var(--text-main);
+    color: var(--bg-1);
+
+    border: none;
+
+    cursor: pointer;
+
+    z-index: 2000;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-family: 'Fira Code';
+
+    font-size: 10px;
+
+    font-weight: bold;
+
+    box-shadow:
+        0 10px 30px rgba(0,0,0,0.2);
+}
+
+#progress {
+    position: fixed;
+
+    top: 0;
+    left: 0;
+
+    height: 3px;
+
+    background: var(--accent);
+
+    width: 0%;
+
+    z-index: 2000;
+}
+
+nav {
+    padding: 25px 40px;
+
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+
+    position: sticky;
+
+    top: 0;
+
+    z-index: 1000;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+}
+
+nav a {
+    color: var(--text-dim);
+
+    text-decoration: none;
+
+    font-size: 11px;
+
+    font-family: 'Fira Code';
+
+    letter-spacing: 1px;
+}
+
+nav a:hover {
+    color: var(--text-main);
+}
+
+.content-wrapper {
+    max-width: 900px;
+
+    margin: 40px auto;
+
+    padding: 40px 24px;
+
+    min-height: 80vh;
+}
+
+.article-header {
+    margin-bottom: 70px;
+}
+
+.article-header h1 {
+    font-size:
+        clamp(32px, 7vw, 64px);
+
+    font-weight: 700;
+
+    color: var(--text-main);
+
+    letter-spacing: -4px;
+
+    line-height: 1;
+
+    text-transform: uppercase;
+}
+
+.article-meta {
+    margin-top: 20px;
+
+    color: var(--text-dim);
+
+    font-family: 'Fira Code';
+
+    font-size: 11px;
+
+    letter-spacing: 1px;
+}
+
+.markdown-body {
+    overflow-wrap: break-word;
+}
+
+.markdown-body img {
+    max-width: 100%;
+
+    height: auto;
+
+    border-radius: 12px;
+
+    margin: 30px 0;
+
+    display: block;
+
+    box-shadow:
+        0 20px 50px rgba(0,0,0,0.1);
+}
+
+.markdown-body h1 {
+    font-size: 38px;
+
+    margin: 50px 0 20px;
+
+    color: var(--text-main);
+}
+
+.markdown-body h2 {
+    font-size: 28px;
+
+    margin: 50px 0 20px;
+
+    color: var(--text-main);
+
+    border-bottom:
+        1px solid var(--text-dim);
+
+    padding-bottom: 8px;
+}
+
+.markdown-body h3 {
+    font-size: 22px;
+
+    margin: 40px 0 15px;
+
+    color: var(--text-main);
+}
+
+.markdown-body p {
+    margin-bottom: 25px;
+
+    font-size: 17px;
+
+    opacity: 0.85;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+    margin: 20px 0 25px;
+
+    padding-left: 30px;
+}
+
+.markdown-body li {
+    margin-bottom: 8px;
+}
+
+.markdown-body a {
+    color: var(--text-main);
+
+    text-decoration:
+        underline;
+
+    text-underline-offset: 4px;
+}
+
+.markdown-body blockquote {
+    margin: 25px 0;
+
+    padding: 15px 20px;
+
+    border-left:
+        3px solid var(--text-main);
+
+    color: var(--text-dim);
+}
+
+.markdown-body pre {
+    background:
+        var(--code-bg) !important;
+
+    padding: 25px;
+
+    border:
+        1px solid var(--text-dim);
+
+    border-radius: 12px;
+
+    margin: 30px 0;
+
+    overflow-x: auto;
+
+    backdrop-filter: blur(10px);
+}
+
+.markdown-body code {
+    font-family: 'Fira Code';
+
+    font-size: 14px;
+
+    background:
+        rgba(128,128,128,0.1);
+
+    padding: 3px 6px;
+
+    border-radius: 4px;
+}
+
+.markdown-body pre code {
+    background: transparent;
+
+    padding: 0;
+}
+
+.markdown-body table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    margin: 30px 0;
+
+    overflow-x: auto;
+}
+
+.markdown-body th,
+.markdown-body td {
+    border:
+        1px solid var(--text-dim);
+
+    padding: 10px;
+
+    text-align: left;
+}
+
+.markdown-body th {
+    color: var(--text-main);
+}
+
+@media (max-width: 768px) {
+
+    .content-wrapper {
+        padding: 20px;
+    }
+
+    nav {
+        padding: 15px 20px;
+    }
+
+    .article-header h1 {
+        letter-spacing: -2px;
+    }
+
+    .markdown-body p {
+        font-size: 16px;
+    }
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+<div id="progress"></div>
+
+<canvas id="article-canvas"></canvas>
+
+
+<button
+    class="theme-toggle"
+    onclick="toggleTheme()"
+>
+    MODE
+</button>
+
+
+<nav>
+
+<a href="/">
+    &lt;- BACK_TO_TERMINAL
+</a>
+
+<span
+    id="reading-id"
+    style="
+        font-family:'Fira Code';
+        font-size:10px;
+        color:var(--text-dim);
+    "
+>
+    SYSTEM: SYNCED
+</span>
+
+</nav>
+
+
+<main class="content-wrapper">
+
+<header class="article-header">
+
+<h1>
+HTB ECHOES IN ORBIT WRITEUP
+</h1>
+
+<div class="article-meta">
+    HTB ECHOES IN ORBIT WRITEUP.MD
+</div>
+
+</header>
+
+
+<article class="markdown-body">
+
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*8XEadk391dQ0M49b42uKOQ.png" /></p>
+<h4>Challenge Scenario</h4>
+<hr />
+<p>A secondary onboard service has been discovered on spacecraft ID 12, running on APID 83 over virtual channel 4. It appears to implement a simple stateful command interface used for ground testing and validation.</p>
+<p>The service accepts CCSDS space packets with payload format: <code>0x00:BEGIN</code></p>
+<p>where <code>0x00</code> is a packet counter starting at zero. The spacecraft replies with the incremented counter and an <code>ACK</code>.</p>
+<p>After synchronization, the command <code>GETFLAG</code> can be issued using the expected counter to retrieve the flag.</p>
+<p>Communication is done via AD-type telecommand frames with CRC, and responses must be parsed from CCSDS telemetry frames.</p>
+<p>A modem is available for sending telecommand frames of the type AD with a CRC, and receive the answer frame from the spacecraft.</p>
+<p>check the zip file</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*-iB3AJoB-dHHQQ14qOS3TA.png" /></p>
+<p>i decide handle this challenge to my helper</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*vOgMLS1iwepc_Nf8Lr143g.png" /></p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*WAXmvSjb7F6jS44_ETc45w.png" /></p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*_VecshyhE2e1YKYFcEe4_g.png" /></p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*_2YmgH1wEbVB-1lCULDjOQ.png" /></p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*kozknGzlfH-FcP2vsBnUTg.png" /></p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*emAnM-roZwzrHUPXjxIlPg.png" /></p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*x6sIrgSzcYU8GChHvMbtow.png" /></p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*7xikbw8YTgLLmdUGnTHV5A.png" /></p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*ofU-Di4HVWbgECC2RzN3yg.png" /></p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*5N_uLDjtjqxgYrXY7d71yg.png" /></p>
+<p>so,we get it </p>
+<p><strong><em>HTB{8c713f75388a66fd804f5ff27f21bbc6}</em></strong></p>
+<blockquote>
+<p><strong>Protocol State Machine &amp; Dual-Counter Synchronization (the hardest part of this challenge)<br />
+Why did it take so many attempts to get the flag? Because the target system is a stateful service, not a stateless HTTP API. It requires the client to perfectly follow the rhythm of its state machine.</strong></p>
+<p><strong>Link-layer counter (VCFC): To prevent frame loss or reordering, the Transfer Frame Header counter must increment by 1 for each frame (0, 1, 2…).</strong></p>
+<p><strong>Application-layer counter: This is the state maintained internally by the business logic. These two counters operate independently!</strong></p>
+<p><strong>State machine sequence:</strong></p>
+<p><strong>Client sends</strong> <code>**0x00:BEGIN**</code><strong>.</strong></p>
+<p><strong>Server processes it, advances its state from 0 to 1, and replies with</strong> <code>**0x01:ACK**</code><strong>.</strong></p>
+<p><strong>The core trap: The server’s reply</strong> <code>**0x01**</code> <strong>means <em>"I am now in state 1."</em> Therefore, the next command the client sends must anticipate the server's <em>next state (2)</em> and send</strong> <code>**0x02:GETFLAG**</code><strong>.</strong></p>
+</blockquote>
+<p>I ask the shore keeper make a py to prove it</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*dbbw7Zpmj1ovIyg77LT5JA.png" /></p>
+<blockquote>
+<h1>!/usr/bin/env python3</h1>
+<p>import socket<br />
+import struct<br />
+import time</p>
+<p>TARGET_IP = “154.57.164.78”<br />
+TARGET_PORT = 30610<br />
+SC_ID = 12<br />
+VC_ID = 4<br />
+APID = 83</p>
+<p>def crc16(data):<br />
+ “””CCITT CRC-16 校验计算”””<br />
+ crc = 0xFFFF<br />
+ for byte in data:<br />
+ crc ^= byte &lt;&lt; 8<br />
+ for _ in range(8):<br />
+ if crc &amp; 0x8000:<br />
+ crc = (crc &lt;&lt; 1) ^ 0x1021<br />
+ else:<br />
+ crc &lt;&lt;= 1<br />
+ crc &amp;= 0xFFFF<br />
+ return crc</p>
+<p>def build_ccsds_tc(payload, seq_count):<br />
+ “””<br />
+ 构造完整的 CCSDS TC 数据帧<br />
+ seq_count 既用于 Space Packet，也用于 Transfer Frame 的 VCFC<br />
+ “””<br />
+ # 1. Space Packet Header (6 bytes)<br />
+ # Version(000) | Type(1=TC) | SecHeader(0) | APID(11b)<br />
+ word0 = (0b000 &lt;&lt; 13) | (1 &lt;&lt; 12) | (0 &lt;&lt; 11) | (APID &amp; 0x7FF)<br />
+ # SeqFlag(11=standalone) | SeqCount(14b)<br />
+ word1 = (0b11 &lt;&lt; 14) | (seq_count &amp; 0x3FFF)<br />
+ # DataLength(16b) = payload_length — 1<br />
+ data_length = len(payload) — 1<br />
+ sp_header = struct.pack(‘&gt;HHH’, word0, word1, data_length)<br />
+ space_packet = sp_header + payload  </p>
+<p># 2. TC Transfer Frame Primary Header (5 bytes)<br />
+ # TFVN(00) | Bypass(0) | CC(1=Cmd) | Res(00) | SCID(10b)<br />
+ b01 = (0b00 &lt;&lt; 14) | (0 &lt;&lt; 13) | (1 &lt;&lt; 12) | (0b00 &lt;&lt; 10) | (SC_ID &amp; 0x3FF)<br />
+ # VCID(6b) | FrameLength(10b) = (Header + Packet + CRC) — 1<br />
+ frame_length = 5 + len(space_packet) + 2–1<br />
+ b23 = ((VC_ID &amp; 0x3F) &lt;&lt; 10) | (frame_length &amp; 0x3FF)<br />
+ # VCFC (8b)<br />
+ b4 = seq_count &amp; 0xFF   </p>
+<p>tc_header = struct.pack(‘&gt;HHB’, b01, b23, b4)  </p>
+<p># 3. 组装并计算 CRC<br />
+ frame_wo_crc = tc_header + space_packet<br />
+ return frame_wo_crc + struct.pack(‘&gt;H’, crc16(frame_wo_crc))</p>
+<p>def main():<br />
+ sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)<br />
+ sock.settimeout(10)  </p>
+<p>print(f”[*] Connecting to spacecraft modem at {TARGET_IP}:{TARGET_PORT}…”)<br />
+ sock.connect((TARGET_IP, TARGET_PORT))<br />
+ print(“[+] Connected.”)  </p>
+<p># ==========================<br />
+ # Step 1: 发送 BEGIN (VCFC=0, Payload Counter=0x00)<br />
+ # ==========================<br />
+ print(“\n[*] Step 1: Sending ‘0x00:BEGIN’ (VCFC=0)”)<br />
+ tc1 = build_ccsds_tc(b”0x00:BEGIN”, 0)<br />
+ sock.send(tc1)<br />
+ time.sleep(1)  </p>
+<p>ack = sock.recv(4096)<br />
+ ack_text = ack.decode(errors=’replace’)<br />
+ print(f” &lt;- Response: {ack_text}”)  </p>
+<p>if “0x01:ACK” not in ack_text:<br />
+ print(“[-] Synchronization failed!”)<br />
+ return  </p>
+<p>print(“[+] Synchronization successful.”)  </p>
+<p># ==========================<br />
+ # Step 2: 发送 GETFLAG (VCFC=1, Payload Counter=0x02)<br />
+ # ==========================<br />
+ print(“\n[*] Step 2: Sending ‘0x02:GETFLAG’ (VCFC=1)”)<br />
+ tc2 = build_ccsds_tc(b”0x02:GETFLAG”, 1)<br />
+ sock.send(tc2)<br />
+ time.sleep(1)  </p>
+<p>full_resp = b””<br />
+ while True:<br />
+ try:<br />
+ chunk = sock.recv(4096)<br />
+ if not chunk: break<br />
+ full_resp += chunk<br />
+ except: break  </p>
+<p>flag_text = full_resp.decode(errors=’replace’)<br />
+ print(f” &lt;- Response: {flag_text}”)  </p>
+<p>if “HTB{“ in flag_text:<br />
+ print(“\n🎉 [+] FLAG CAPTURED SUCCESSFULLY! 🎉”)<br />
+ else:<br />
+ print(“\n[-] Failed to retrieve flag.”)  </p>
+<p>sock.close()</p>
+<p>if <strong>name</strong> == “<strong>main</strong>”:<br />
+ main()</p>
+</blockquote>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*DbzariQ5-Y3ecT8W01s00A.png" /></p>
+
+</article>
+
+</main>
+
+
+<script>
+
+/* ==========================================================
+   Theme
+   ========================================================== */
+
+function toggleTheme() {
+
+    const root =
+        document.documentElement;
+
+    const target =
+        root.getAttribute('data-theme') === 'dark'
+            ? 'light'
+            : 'dark';
+
+    root.setAttribute(
+        'data-theme',
+        target
+    );
+
+    localStorage.setItem(
+        'theme',
+        target
+    );
+
+    const style =
+        document.getElementById(
+            'hljs-style'
+        );
+
+    if (style) {
+
+        style.href =
+            target === 'dark'
+                ? "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css"
+                : "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css";
+    }
+}
+
+
+/* ==========================================================
+   Restore Theme
+   ========================================================== */
+
+try {
+
+    document.documentElement
+        .setAttribute(
+            'data-theme',
+            localStorage.getItem('theme') || 'dark'
+        );
+
+} catch (e) {
+
+    document.documentElement
+        .setAttribute(
+            'data-theme',
+            'dark'
+        );
+}
+
+
+/* ==========================================================
+   Code Highlight
+   ========================================================== */
+
+window.addEventListener(
+    'load',
+    () => {
+
+        if (
+            window.hljs
+        ) {
+
+            document
+                .querySelectorAll(
+                    'pre code'
+                )
+                .forEach(
+                    (el) => {
+                        hljs.highlightElement(el);
+                    }
+                );
+        }
+
+    }
+);
+
+
+/* ==========================================================
+   Reading ID
+   ========================================================== */
+
+document
+    .getElementById('reading-id')
+    .innerText =
+        'SYSTEM: HTB ECHOES IN ORBIT WRITEUP.MD';
+
+
+/* ==========================================================
+   Reading Progress
+   ========================================================== */
+
+window.addEventListener(
+    'scroll',
+    () => {
+
+        const winScroll =
+            document.documentElement.scrollTop;
+
+        const height =
+            document.documentElement.scrollHeight -
+            document.documentElement.clientHeight;
+
+        const percentage =
+            height > 0
+                ? (winScroll / height) * 100
+                : 0;
+
+        document
+            .getElementById('progress')
+            .style.width =
+                percentage + '%';
+
+    }
+);
+
+
+/* ==========================================================
+   Dynamic Background
+   ========================================================== */
+
+const canvas =
+    document.getElementById(
+        'article-canvas'
+    );
+
+const ctx =
+    canvas.getContext('2d');
+
+let fluidNodes = [];
+
+let trailParticles = [];
+
+const mouse = {
+    x: -500,
+    y: -500
+};
+
+
+function initCanvas() {
+
+    canvas.width =
+        window.innerWidth;
+
+    canvas.height =
+        window.innerHeight;
+
+    fluidNodes =
+        Array.from(
+            { length: 3 },
+            () => ({
+
+                x:
+                    Math.random() *
+                    canvas.width,
+
+                y:
+                    Math.random() *
+                    canvas.height,
+
+                vx:
+                    (Math.random() - 0.5) *
+                    0.4,
+
+                vy:
+                    (Math.random() - 0.5) *
+                    0.4,
+
+                size:
+                    Math.random() *
+                    (canvas.width * 0.4) +
+                    canvas.width * 0.3
+            })
+        );
+}
+
+
+window.onmousemove =
+    (e) => {
+
+        mouse.x =
+            e.clientX;
+
+        mouse.y =
+            e.clientY;
+
+        for (
+            let i = 0;
+            i < 2;
+            i++
+        ) {
+
+            trailParticles.push(
+                new Particle(
+                    mouse.x,
+                    mouse.y
+                )
+            );
+        }
+    };
+
+
+class Particle {
+
+    constructor(x, y) {
+
+        this.x = x;
+
+        this.y = y;
+
+        this.vx =
+            (Math.random() - 0.5) *
+            1.5;
+
+        this.vy =
+            (Math.random() - 0.5) *
+            1.5;
+
+        this.life = 1.0;
+
+        this.decay =
+            0.015 +
+            Math.random() * 0.02;
+
+        this.size =
+            Math.random() * 2.5 +
+            0.5;
+    }
+
+    update() {
+
+        this.x += this.vx;
+
+        this.y += this.vy;
+
+        this.life -= this.decay;
+    }
+
+    draw(color) {
+
+        ctx.fillStyle =
+            `rgba(${color}, ${this.life * 0.4})`;
+
+        ctx.beginPath();
+
+        ctx.arc(
+            this.x,
+            this.y,
+            this.size,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fill();
+    }
+}
+
+
+function draw() {
+
+    const isDark =
+        document.documentElement
+            .getAttribute(
+                'data-theme'
+            ) === 'dark';
+
+    ctx.fillStyle =
+        isDark
+            ? "rgba(5, 5, 5, 0.15)"
+            : "rgba(253, 253, 253, 0.15)";
+
+    ctx.fillRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+    ctx.globalCompositeOperation =
+        isDark
+            ? "lighter"
+            : "multiply";
+
+
+    const colorRGB =
+        isDark
+            ? "60, 70, 100"
+            : "200, 210, 240";
+
+
+    fluidNodes.forEach(
+        node => {
+
+            node.x += node.vx;
+
+            node.y += node.vy;
+
+
+            if (
+                node.x < 0 ||
+                node.x > canvas.width
+            ) {
+                node.vx *= -1;
+            }
+
+
+            if (
+                node.y < 0 ||
+                node.y > canvas.height
+            ) {
+                node.vy *= -1;
+            }
+
+
+            const g =
+                ctx.createRadialGradient(
+                    node.x,
+                    node.y,
+                    0,
+                    node.x,
+                    node.y,
+                    node.size
+                );
+
+
+            g.addColorStop(
+                0,
+                `rgba(${colorRGB}, 0.3)`
+            );
+
+            g.addColorStop(
+                1,
+                "transparent"
+            );
+
+
+            ctx.fillStyle = g;
+
+            ctx.beginPath();
+
+            ctx.arc(
+                node.x,
+                node.y,
+                node.size,
+                0,
+                Math.PI * 2
+            );
+
+            ctx.fill();
+
+        }
+    );
+
+
+    ctx.globalCompositeOperation =
+        "source-over";
+
+
+    const particleRGB =
+        isDark
+            ? "255, 255, 255"
+            : "0, 0, 0";
+
+
+    trailParticles.forEach(
+        (p, i) => {
+
+            p.update();
+
+            p.draw(
+                particleRGB
+            );
+
+            if (
+                p.life <= 0
+            ) {
+                trailParticles.splice(
+                    i,
+                    1
+                );
+            }
+        }
+    );
+
+
+    requestAnimationFrame(
+        draw
+    );
+}
+
+
+window.addEventListener(
+    'resize',
+    initCanvas
+);
+
+initCanvas();
+
+draw();
+
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>HTB UPLINK WRITEUP | SYC</title>
+
+<meta
+    name="description"
+    content="Challenge Scenario You, the Manager, control a network of computers, filled with information about your enemies. However, transferring data from one computer to your comp..."
+>
+
+<meta
+    name="robots"
+    content="index, follow"
+>
+
+<link
+    rel="canonical"
+    href="https://syc-sigma.vercel.app/p/HTB%20Uplink%20Writeup"
+>
+
+<meta
+    property="og:title"
+    content="HTB UPLINK WRITEUP | SYC"
+>
+
+<meta
+    property="og:description"
+    content="Challenge Scenario You, the Manager, control a network of computers, filled with information about your enemies. However, transferring data from one computer to your comp..."
+>
+
+<meta
+    property="og:type"
+    content="article"
+>
+
+<meta
+    property="og:url"
+    content="https://syc-sigma.vercel.app/p/HTB%20Uplink%20Writeup"
+>
+
+<meta
+    property="og:site_name"
+    content="SYC"
+>
+
+<meta
+    name="twitter:card"
+    content="summary"
+>
+
+<meta
+    name="twitter:title"
+    content="HTB UPLINK WRITEUP | SYC"
+>
+
+<meta
+    name="twitter:description"
+    content="Challenge Scenario You, the Manager, control a network of computers, filled with information about your enemies. However, transferring data from one computer to your comp..."
+>
+
+<link rel="icon" type="image/png" href="/favicon.png">
+
+<link
+    rel="shortcut icon"
+    href="/favicon.ico"
+    type="image/x-icon"
+>
+
+<link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&family=Fira+Code&display=swap"
+    rel="stylesheet"
+>
+
+<link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css"
+    id="hljs-style"
+>
+
+<script
+    src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"
+    defer
+></script>
+
+
+<style>
+
+:root[data-theme="dark"] {
+    --bg-1: #050505;
+    --bg-2: #0a0c1a;
+    --bg-3: #120d1a;
+    --text-main: #ffffff;
+    --text-dim: rgba(255, 255, 255, 0.5);
+    --accent: #ffffff;
+    --canvas-opacity: 0.9;
+    --code-bg: rgba(0, 0, 0, 0.5);
+}
+
+:root[data-theme="light"] {
+    --bg-1: #fdfdfd;
+    --bg-2: #f0f4ff;
+    --bg-3: #f9f0ff;
+    --text-main: #000000;
+    --text-dim: rgba(0, 0, 0, 0.5);
+    --accent: #000000;
+    --canvas-opacity: 0.5;
+    --code-bg: rgba(0, 0, 0, 0.05);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    transition:
+        background-color 0.6s,
+        color 0.4s;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background:
+        linear-gradient(
+            125deg,
+            var(--bg-1),
+            var(--bg-2),
+            var(--bg-3),
+            var(--bg-1)
+        );
+
+    background-size: 400% 400%;
+
+    animation:
+        spaceFlow 25s ease infinite;
+
+    color: var(--text-main);
+
+    font-family:
+        'Inter',
+        -apple-system,
+        BlinkMacSystemFont,
+        sans-serif;
+
+    line-height: 1.8;
+
+    overflow-x: hidden;
+}
+
+@keyframes spaceFlow {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+#article-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    z-index: -1;
+
+    pointer-events: none;
+
+    opacity: var(--canvas-opacity);
+}
+
+.theme-toggle {
+    position: fixed;
+
+    bottom: 30px;
+    right: 30px;
+
+    width: 48px;
+    height: 48px;
+
+    border-radius: 50%;
+
+    background: var(--text-main);
+    color: var(--bg-1);
+
+    border: none;
+
+    cursor: pointer;
+
+    z-index: 2000;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-family: 'Fira Code';
+
+    font-size: 10px;
+
+    font-weight: bold;
+
+    box-shadow:
+        0 10px 30px rgba(0,0,0,0.2);
+}
+
+#progress {
+    position: fixed;
+
+    top: 0;
+    left: 0;
+
+    height: 3px;
+
+    background: var(--accent);
+
+    width: 0%;
+
+    z-index: 2000;
+}
+
+nav {
+    padding: 25px 40px;
+
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+
+    position: sticky;
+
+    top: 0;
+
+    z-index: 1000;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+}
+
+nav a {
+    color: var(--text-dim);
+
+    text-decoration: none;
+
+    font-size: 11px;
+
+    font-family: 'Fira Code';
+
+    letter-spacing: 1px;
+}
+
+nav a:hover {
+    color: var(--text-main);
+}
+
+.content-wrapper {
+    max-width: 900px;
+
+    margin: 40px auto;
+
+    padding: 40px 24px;
+
+    min-height: 80vh;
+}
+
+.article-header {
+    margin-bottom: 70px;
+}
+
+.article-header h1 {
+    font-size:
+        clamp(32px, 7vw, 64px);
+
+    font-weight: 700;
+
+    color: var(--text-main);
+
+    letter-spacing: -4px;
+
+    line-height: 1;
+
+    text-transform: uppercase;
+}
+
+.article-meta {
+    margin-top: 20px;
+
+    color: var(--text-dim);
+
+    font-family: 'Fira Code';
+
+    font-size: 11px;
+
+    letter-spacing: 1px;
+}
+
+.markdown-body {
+    overflow-wrap: break-word;
+}
+
+.markdown-body img {
+    max-width: 100%;
+
+    height: auto;
+
+    border-radius: 12px;
+
+    margin: 30px 0;
+
+    display: block;
+
+    box-shadow:
+        0 20px 50px rgba(0,0,0,0.1);
+}
+
+.markdown-body h1 {
+    font-size: 38px;
+
+    margin: 50px 0 20px;
+
+    color: var(--text-main);
+}
+
+.markdown-body h2 {
+    font-size: 28px;
+
+    margin: 50px 0 20px;
+
+    color: var(--text-main);
+
+    border-bottom:
+        1px solid var(--text-dim);
+
+    padding-bottom: 8px;
+}
+
+.markdown-body h3 {
+    font-size: 22px;
+
+    margin: 40px 0 15px;
+
+    color: var(--text-main);
+}
+
+.markdown-body p {
+    margin-bottom: 25px;
+
+    font-size: 17px;
+
+    opacity: 0.85;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+    margin: 20px 0 25px;
+
+    padding-left: 30px;
+}
+
+.markdown-body li {
+    margin-bottom: 8px;
+}
+
+.markdown-body a {
+    color: var(--text-main);
+
+    text-decoration:
+        underline;
+
+    text-underline-offset: 4px;
+}
+
+.markdown-body blockquote {
+    margin: 25px 0;
+
+    padding: 15px 20px;
+
+    border-left:
+        3px solid var(--text-main);
+
+    color: var(--text-dim);
+}
+
+.markdown-body pre {
+    background:
+        var(--code-bg) !important;
+
+    padding: 25px;
+
+    border:
+        1px solid var(--text-dim);
+
+    border-radius: 12px;
+
+    margin: 30px 0;
+
+    overflow-x: auto;
+
+    backdrop-filter: blur(10px);
+}
+
+.markdown-body code {
+    font-family: 'Fira Code';
+
+    font-size: 14px;
+
+    background:
+        rgba(128,128,128,0.1);
+
+    padding: 3px 6px;
+
+    border-radius: 4px;
+}
+
+.markdown-body pre code {
+    background: transparent;
+
+    padding: 0;
+}
+
+.markdown-body table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    margin: 30px 0;
+
+    overflow-x: auto;
+}
+
+.markdown-body th,
+.markdown-body td {
+    border:
+        1px solid var(--text-dim);
+
+    padding: 10px;
+
+    text-align: left;
+}
+
+.markdown-body th {
+    color: var(--text-main);
+}
+
+@media (max-width: 768px) {
+
+    .content-wrapper {
+        padding: 20px;
+    }
+
+    nav {
+        padding: 15px 20px;
+    }
+
+    .article-header h1 {
+        letter-spacing: -2px;
+    }
+
+    .markdown-body p {
+        font-size: 16px;
+    }
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+<div id="progress"></div>
+
+<canvas id="article-canvas"></canvas>
+
+
+<button
+    class="theme-toggle"
+    onclick="toggleTheme()"
+>
+    MODE
+</button>
+
+
+<nav>
+
+<a href="/">
+    &lt;- BACK_TO_TERMINAL
+</a>
+
+<span
+    id="reading-id"
+    style="
+        font-family:'Fira Code';
+        font-size:10px;
+        color:var(--text-dim);
+    "
+>
+    SYSTEM: SYNCED
+</span>
+
+</nav>
+
+
+<main class="content-wrapper">
+
+<header class="article-header">
+
+<h1>
+HTB UPLINK WRITEUP
+</h1>
+
+<div class="article-meta">
+    HTB UPLINK WRITEUP.MD
+</div>
+
+</header>
+
+
+<article class="markdown-body">
+
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*D-qV283o8yn8-c2eaHUMGg.png" /></p>
+<h4>Challenge Scenario</h4>
+<hr />
+<p>You, the Manager, control a network of computers, filled with information about your enemies. However, transferring data from one computer to your computer is taking too long. Figure out the least amount of time required to transfer information from a computer to your computer for all computers.</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*NoKxMbJfqNoOl80_LDe3aA.png" /></p>
+<p>this is pertty hard</p>
+<p>so i asked ai for help</p>
+<p>and here is the py</p>
+<blockquote>
+<p><strong><em>import sys<br />
+sys.setrecursionlimit(1000000)</em></strong></p>
+<p>**_def solve():<br />
+ input_data = sys.stdin.read().split()<br />
+ if not input_data:<br />
+ return  </p>
+<p>N = int(input_data[0])  </p>
+<p>parent = [0] * (N + 1)<br />
+ dist = [0] * (N + 1)<br />
+ transfer = [0] * (N + 1)<br />
+ prep = [0] * (N + 1)<br />
+ receive = [0] * (N + 1)  </p>
+<p>children = [[] for _ in range(N + 1)]  </p>
+<p>idx = 1<br />
+ for i in range(1, N + 1):<br />
+ parent[i] = int(input_data[idx])<br />
+ dist[i] = int(input_data[idx+1])<br />
+ transfer[i] = int(input_data[idx+2])<br />
+ prep[i] = int(input_data[idx+3])<br />
+ receive[i] = int(input_data[idx+4])<br />
+ idx += 5<br />
+ if i &gt; 1:<br />
+ children[parent[i]].append(i)  </p>
+<p>dis_from_root = [0] * (N + 1)<br />
+ dp = [0] * (N + 1)  </p>
+<p>hull_m = [0] * (N + 1)<br />
+ hull_c = [0] * (N + 1)<br />
+ hull_size = 0<br />
+ def is_bad(m1, c1, m2, c2, m3, c3):<br />
+ return (c2 — c1) * (m2 — m3) &gt;= (c3 — c2) * (m1 — m2)_**</p>
+<p><strong><em>def query(x):<br />
+ low = 0<br />
+ high = hull_size — 1<br />
+ while low &lt; high:<br />
+ mid = (low + high) // 2<br />
+ val_mid = hull_m[mid] * x + hull_c[mid]<br />
+ val_next = hull_m[mid + 1] * x + hull_c[mid + 1]<br />
+ if val_mid &gt;= val_next:<br />
+ low = mid + 1<br />
+ else:<br />
+ high = mid<br />
+ return hull_m[low] * x + hull_c[low]</em></strong></p>
+<p>**_def dfs(u):<br />
+ nonlocal hull_size  </p>
+<p>if u != 1:<br />
+ best_val = query(transfer[u])<br />
+ dp[u] = best_val + dis_from_root[u] * transfer[u] + prep[u]<br />
+ else:<br />
+ dp[u] = 0  </p>
+<p>nm = -dis_from_root[u]<br />
+ nc = dp[u] + receive[u]  </p>
+<p>orig_size = hull_size  </p>
+<p>low = 1<br />
+ high = orig_size — 1<br />
+ insert_pos = orig_size  </p>
+<p>while low &lt;= high:<br />
+ mid = (low + high) // 2<br />
+ if is_bad(hull_m[mid — 1], hull_c[mid — 1], hull_m[mid], hull_c[mid], nm, nc):<br />
+ insert_pos = mid<br />
+ high = mid — 1<br />
+ else:<br />
+ low = mid + 1  </p>
+<p>if insert_pos &gt; 0 and hull_m[insert_pos — 1] == nm:<br />
+ if nc &gt;= hull_c[insert_pos — 1]:<br />
+ for v in children[u]:<br />
+ dis_from_root[v] = dis_from_root[u] + dist[v]<br />
+ dfs(v)<br />
+ return<br />
+ else:<br />
+ insert_pos -= 1<br />
+ saved_m = hull_m[insert_pos:orig_size]<br />
+ saved_c = hull_c[insert_pos:orig_size]  </p>
+<p>hull_size = insert_pos + 1<br />
+ hull_m[insert_pos] = nm<br />
+ hull_c[insert_pos] = nc  </p>
+<p>for v in children[u]:<br />
+ dis_from_root[v] = dis_from_root[u] + dist[v]<br />
+ dfs(v)  </p>
+<p>hull_size = orig_size<br />
+ hull_m[insert_pos:orig_size] = saved_m<br />
+ hull_c[insert_pos:orig_size] = saved_c_**</p>
+<p><strong><em>dfs(1)<br />
+ print(*(dp[2:]))</em></strong></p>
+<p><strong><em>if <strong>name</strong> == ‘<strong>main</strong>’:<br />
+ solve()</em></strong></p>
+</blockquote>
+<h3>1. The Core Equation: What are we calculating?</h3>
+<p>Each computer node $u$ needs to find the best ancestor node $v$ to jump to. Data will be sent from $u$ to $v$, and then from $v$ to the root computer.</p>
+<p>If we expand, rearrange, and group the time formula, an interesting pattern emerges:</p>
+<p>$$\text{Total Time} = \underbrace{(-\text{dist}<em m="m">v)}</em>} \cdot \underbrace{(\text{transfer<em x="x">u)}</em>} + \underbrace{(DP_v + \text{receive<em c="c">v)}</em> u$$} + \text{fixed constants of node </p>
+<p>This is exactly the standard linear equation from algebra: $y = m \cdot x + c$.</p>
+<ul>
+<li>Every ancestor $v$ whose answer is already calculated represents <strong>a straight line</strong> (with a fixed slope $m$ and y-intercept $c$).</li>
+<li>The current node $u$ provides a <strong>horizontal coordinate $x$</strong> (its transfer speed).</li>
+<li><strong>Our Goal</strong>: Find which line gives the minimum $y$ value (the shortest time) at this specific coordinate $x$.</li>
+</ul>
+<h3>2. Convex Hull Trick: How do we avoid checking every ancestor?</h3>
+<p>If there are 500,000 nodes, checking every single ancestor for each node would take $O(N²)$ time and cause a timeout.</p>
+<p>Geometrically, as the tree grows deeper, the path distances increase, meaning the slopes ($m = -\text{dist}_v$) of the ancestor lines are monotonically decreasing. When these lines intersect, they form a bowl-like boundary at the very bottom called the <strong>Lower Convex Hull</strong>.</p>
+<p>Lines that end up completely above this boundary can never yield the minimum time and are discarded. We use a <strong>monotonic stack</strong> to store only the lines that form this bottom envelope.</p>
+<p>When a new node $u$ wants to find its optimal path, it doesn’t need to loop through all ancestors. Because the lines on the lower hull are sorted by slope, we can use <strong>binary search</strong> to find the absolute lowest line in just $O(\log N)$ time.</p>
+<h3>3. Tree DFS and “Trace-Free” Backtracking</h3>
+<p>Because this is a branching <strong>tree</strong> rather than a straight line, we explore paths using <strong>DFS (Depth-First Search)</strong>:</p>
+<ol>
+<li><strong>Query</strong>: Use the current node’s transfer speed ($x$) to binary search the lower hull stack for the best $dp[u]$ value.</li>
+<li><strong>Insert</strong>: Turn the current node into a new line ($y = mx + c$) and insert it at the end of the hull stack (knocking out any older lines that become redundant).</li>
+<li><strong>Recurse</strong>: Travel down into the node’s children carrying this updated hull.</li>
+<li><strong>Backtrack (The Crucial Step)</strong>: When we finish exploring a subtree and want to backtrack to check a sibling branch, <strong>the stack must be restored exactly to the state it was in before entering this node</strong>.</li>
+</ol>
+<p>The critical fix in the code is taking a <strong>full slice backup</strong> of all old lines that were overwritten or knocked out by the new line. When backtracking, we paste this slice back into place. This guarantees that data from one branch never corrupts another.</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*c6Gf2pZIWA72K54ipMYJKA.png" /></p>
+<p><strong><em>HTB{5UCC355FU11Y_RU1N3D_3N3M135_C0MP4N135_R0xIRg}</em></strong></p>
+
+</article>
+
+</main>
+
+
+<script>
+
+/* ==========================================================
+   Theme
+   ========================================================== */
+
+function toggleTheme() {
+
+    const root =
+        document.documentElement;
+
+    const target =
+        root.getAttribute('data-theme') === 'dark'
+            ? 'light'
+            : 'dark';
+
+    root.setAttribute(
+        'data-theme',
+        target
+    );
+
+    localStorage.setItem(
+        'theme',
+        target
+    );
+
+    const style =
+        document.getElementById(
+            'hljs-style'
+        );
+
+    if (style) {
+
+        style.href =
+            target === 'dark'
+                ? "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css"
+                : "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css";
+    }
+}
+
+
+/* ==========================================================
+   Restore Theme
+   ========================================================== */
+
+try {
+
+    document.documentElement
+        .setAttribute(
+            'data-theme',
+            localStorage.getItem('theme') || 'dark'
+        );
+
+} catch (e) {
+
+    document.documentElement
+        .setAttribute(
+            'data-theme',
+            'dark'
+        );
+}
+
+
+/* ==========================================================
+   Code Highlight
+   ========================================================== */
+
+window.addEventListener(
+    'load',
+    () => {
+
+        if (
+            window.hljs
+        ) {
+
+            document
+                .querySelectorAll(
+                    'pre code'
+                )
+                .forEach(
+                    (el) => {
+                        hljs.highlightElement(el);
+                    }
+                );
+        }
+
+    }
+);
+
+
+/* ==========================================================
+   Reading ID
+   ========================================================== */
+
+document
+    .getElementById('reading-id')
+    .innerText =
+        'SYSTEM: HTB UPLINK WRITEUP.MD';
+
+
+/* ==========================================================
+   Reading Progress
+   ========================================================== */
+
+window.addEventListener(
+    'scroll',
+    () => {
+
+        const winScroll =
+            document.documentElement.scrollTop;
+
+        const height =
+            document.documentElement.scrollHeight -
+            document.documentElement.clientHeight;
+
+        const percentage =
+            height > 0
+                ? (winScroll / height) * 100
+                : 0;
+
+        document
+            .getElementById('progress')
+            .style.width =
+                percentage + '%';
+
+    }
+);
+
+
+/* ==========================================================
+   Dynamic Background
+   ========================================================== */
+
+const canvas =
+    document.getElementById(
+        'article-canvas'
+    );
+
+const ctx =
+    canvas.getContext('2d');
+
+let fluidNodes = [];
+
+let trailParticles = [];
+
+const mouse = {
+    x: -500,
+    y: -500
+};
+
+
+function initCanvas() {
+
+    canvas.width =
+        window.innerWidth;
+
+    canvas.height =
+        window.innerHeight;
+
+    fluidNodes =
+        Array.from(
+            { length: 3 },
+            () => ({
+
+                x:
+                    Math.random() *
+                    canvas.width,
+
+                y:
+                    Math.random() *
+                    canvas.height,
+
+                vx:
+                    (Math.random() - 0.5) *
+                    0.4,
+
+                vy:
+                    (Math.random() - 0.5) *
+                    0.4,
+
+                size:
+                    Math.random() *
+                    (canvas.width * 0.4) +
+                    canvas.width * 0.3
+            })
+        );
+}
+
+
+window.onmousemove =
+    (e) => {
+
+        mouse.x =
+            e.clientX;
+
+        mouse.y =
+            e.clientY;
+
+        for (
+            let i = 0;
+            i < 2;
+            i++
+        ) {
+
+            trailParticles.push(
+                new Particle(
+                    mouse.x,
+                    mouse.y
+                )
+            );
+        }
+    };
+
+
+class Particle {
+
+    constructor(x, y) {
+
+        this.x = x;
+
+        this.y = y;
+
+        this.vx =
+            (Math.random() - 0.5) *
+            1.5;
+
+        this.vy =
+            (Math.random() - 0.5) *
+            1.5;
+
+        this.life = 1.0;
+
+        this.decay =
+            0.015 +
+            Math.random() * 0.02;
+
+        this.size =
+            Math.random() * 2.5 +
+            0.5;
+    }
+
+    update() {
+
+        this.x += this.vx;
+
+        this.y += this.vy;
+
+        this.life -= this.decay;
+    }
+
+    draw(color) {
+
+        ctx.fillStyle =
+            `rgba(${color}, ${this.life * 0.4})`;
+
+        ctx.beginPath();
+
+        ctx.arc(
+            this.x,
+            this.y,
+            this.size,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fill();
+    }
+}
+
+
+function draw() {
+
+    const isDark =
+        document.documentElement
+            .getAttribute(
+                'data-theme'
+            ) === 'dark';
+
+    ctx.fillStyle =
+        isDark
+            ? "rgba(5, 5, 5, 0.15)"
+            : "rgba(253, 253, 253, 0.15)";
+
+    ctx.fillRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+    ctx.globalCompositeOperation =
+        isDark
+            ? "lighter"
+            : "multiply";
+
+
+    const colorRGB =
+        isDark
+            ? "60, 70, 100"
+            : "200, 210, 240";
+
+
+    fluidNodes.forEach(
+        node => {
+
+            node.x += node.vx;
+
+            node.y += node.vy;
+
+
+            if (
+                node.x < 0 ||
+                node.x > canvas.width
+            ) {
+                node.vx *= -1;
+            }
+
+
+            if (
+                node.y < 0 ||
+                node.y > canvas.height
+            ) {
+                node.vy *= -1;
+            }
+
+
+            const g =
+                ctx.createRadialGradient(
+                    node.x,
+                    node.y,
+                    0,
+                    node.x,
+                    node.y,
+                    node.size
+                );
+
+
+            g.addColorStop(
+                0,
+                `rgba(${colorRGB}, 0.3)`
+            );
+
+            g.addColorStop(
+                1,
+                "transparent"
+            );
+
+
+            ctx.fillStyle = g;
+
+            ctx.beginPath();
+
+            ctx.arc(
+                node.x,
+                node.y,
+                node.size,
+                0,
+                Math.PI * 2
+            );
+
+            ctx.fill();
+
+        }
+    );
+
+
+    ctx.globalCompositeOperation =
+        "source-over";
+
+
+    const particleRGB =
+        isDark
+            ? "255, 255, 255"
+            : "0, 0, 0";
+
+
+    trailParticles.forEach(
+        (p, i) => {
+
+            p.update();
+
+            p.draw(
+                particleRGB
+            );
+
+            if (
+                p.life <= 0
+            ) {
+                trailParticles.splice(
+                    i,
+                    1
+                );
+            }
+        }
+    );
+
+
+    requestAnimationFrame(
+        draw
+    );
+}
+
+
+window.addEventListener(
+    'resize',
+    initCanvas
+);
+
+initCanvas();
+
+draw();
+
+</script>
+
+</body>
+
+</html>

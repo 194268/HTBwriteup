@@ -1,4 +1,3 @@
 User-agent: *
 Allow: /
-
 Sitemap: https://syc-sigma.vercel.app/sitemap.xml

