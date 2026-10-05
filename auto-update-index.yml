@@ -1,57 +1,177 @@
-name: 📝 Auto Update Index
+```yaml
+name: 📝 Auto Update Index & SEO Pages
 
 on:
+
   push:
     branches:
       - main
+
     paths:
       - 'posts/**'
+      - 'update_index.py'
+      - '.github/workflows/auto-update-index.yml'
+
   workflow_dispatch:
 
+
+permissions:
+  contents: write
+
+
+concurrency:
+
+  group: auto-update-index-${{ github.ref }}
+
+  cancel-in-progress: true
+
+
 jobs:
+
   update-index:
+
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    
+
+
     steps:
+
+      # ======================================================
+      # Checkout
+      # ======================================================
+
       - name: 📥 Checkout Code
+
         uses: actions/checkout@v4
+
         with:
+
           fetch-depth: 0
-      
+
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+
+      # ======================================================
+      # Python
+      # ======================================================
+
       - name: 🐍 Setup Python
-        uses: actions/setup-python@v4
+
+        uses: actions/setup-python@v5
+
         with:
+
           python-version: '3.11'
-      
-      - name: ⚡ Run Index Generator
+
+
+      # ======================================================
+      # Install Markdown
+      # ======================================================
+
+      - name: 📦 Install Python Dependencies
+
         run: |
-          cd ${{ github.workspace }}
+
+          python -m pip install --upgrade pip
+
+          pip install markdown
+
+
+      # ======================================================
+      # Generate
+      # ======================================================
+
+      - name: ⚡ Generate Site Assets
+
+        run: |
+
           python update_index.py
-      
+
+
+      # ======================================================
+      # Check Changes
+      # ======================================================
+
       - name: 📊 Check for Changes
+
         id: changes
+
         run: |
+
           if git diff --quiet; then
+
             echo "changed=false" >> $GITHUB_OUTPUT
+
           else
+
             echo "changed=true" >> $GITHUB_OUTPUT
+
           fi
-      
+
+
+      # ======================================================
+      # Commit
+      # ======================================================
+
       - name: 🔄 Auto Commit & Push
+
         if: steps.changes.outputs.changed == 'true'
+
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action Bot"
-          git add list.json sitemap.xml robots.txt
-          git commit -m "🤖 [AUTO] Update index: $(date +'%Y-%m-%d %H:%M:%S')"
-          git push
-      
+
+          git config --local \
+            user.email \
+            "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git config --local \
+            user.name \
+            "github-actions[bot]"
+
+
+          git add \
+            list.json \
+            sitemap.xml \
+            robots.txt \
+            .post_timestamps.json \
+            articles/
+
+
+          git commit \
+            -m "🤖 [AUTO] Update index & SEO pages: $(date +'%Y-%m-%d %H:%M:%S')"
+
+
+          git pull origin main --rebase
+
+
+          git push origin main
+
+
+      # ======================================================
+      # Summary
+      # ======================================================
+
       - name: ✅ Summary
+
         run: |
-          echo "✅ Index update completed successfully!"
-          echo "📝 Updated files:"
-          echo "  - list.json"
-          echo "  - sitemap.xml"
-          echo "  - robots.txt"
+
+          echo "======================================"
+
+          echo "✅ Index & SEO generation completed!"
+
+          echo "======================================"
+
+          echo ""
+
+          echo "Generated:"
+
+          echo " - list.json"
+
+          echo " - sitemap.xml"
+
+          echo " - robots.txt"
+
+          echo " - .post_timestamps.json"
+
+          echo " - articles/*/index.html"
+
+          echo ""
+```
