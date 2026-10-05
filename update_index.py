@@ -1435,8 +1435,7 @@ def generate_article_pages(files_with_time):
             # 删除空目录
             for directory in dirs:
 
-                directory_path =
-                    os.path.join(
+                directory_path =                    os.path.join(
                         root,
                         directory
                     )
@@ -1475,8 +1474,7 @@ def generate_site_assets():
         )
 
 
-    time_cache =
-        safe_load_time_cache(
+    time_cache =        safe_load_time_cache(
             TIME_CACHE_FILE
         )
 
@@ -1520,8 +1518,7 @@ def generate_site_assets():
         )
 
 
-        file_path =
-            os.path.join(
+        file_path =            os.path.join(
                 POSTS_DIR,
                 file_name
             )
@@ -1532,8 +1529,7 @@ def generate_site_assets():
 
             try:
 
-                timestamp =
-                    int(
+                timestamp =                    int(
                         time_cache[
                             file_name
                         ]
@@ -1562,16 +1558,14 @@ def generate_site_assets():
         # 2. 从 Git 获取
         if timestamp is None:
 
-            git_timestamp =
-                get_first_git_timestamp(
+            git_timestamp =                get_first_git_timestamp(
                     file_path
                 )
 
 
             if git_timestamp:
 
-                timestamp =
-                    git_timestamp
+                timestamp =                    git_timestamp
 
                 print(
                     f"[+] 使用 Git 首次提交时间: "
@@ -1582,8 +1576,7 @@ def generate_site_assets():
             else:
 
                 # 3. 最终兜底
-                timestamp =
-                    int(
+                timestamp =                    int(
                         datetime.now(
                             TZ
                         ).timestamp()
@@ -1624,8 +1617,7 @@ def generate_site_assets():
     }
 
 
-    time_cache =
-        cleaned_time_cache
+    time_cache =        cleaned_time_cache
 
 
     # ========================================================
@@ -1676,43 +1668,36 @@ def generate_site_assets():
 
     for file_name, timestamp in files_with_time:
 
-        dt =
-            datetime.fromtimestamp(
+        dt =            datetime.fromtimestamp(
                 timestamp,
                 TZ
             )
 
 
-        date_str =
-            dt.strftime(
+        date_str =            dt.strftime(
                 "%Y-%m-%d"
             )
 
 
-        time_str =
-            dt.strftime(
+        time_str =            dt.strftime(
                 "%H:%M:%S"
             )
 
 
-        clean_name =
-            file_name[:-3]
+        clean_name =            file_name[:-3]
 
 
-        display_title =
-            get_display_title(
+        display_title =            get_display_title(
                 file_name
             )
 
 
-        page_url =
-            get_page_url(
+        page_url =            get_page_url(
                 file_name
             )
 
 
-        static_url =
-            f"{BASE_URL}{page_url}"
+        static_url =            f"{BASE_URL}{page_url}"
 
 
         posts_data.append({
