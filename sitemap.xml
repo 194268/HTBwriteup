@@ -5,6 +5,11 @@
     <priority>1.0</priority>
   </url>
   <url>
+    <loc>https://syc-sigma.vercel.app/p/HTB%20SSOS%20writeup</loc>
+    <lastmod>2026-10-11</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://syc-sigma.vercel.app/p/HTB%20DoxPit%20writeup</loc>
     <lastmod>2026-10-08</lastmod>
     <priority>0.8</priority>
