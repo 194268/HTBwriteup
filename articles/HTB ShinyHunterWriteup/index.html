@@ -590,11 +590,11 @@ SEARCH_AHEAD = 120</em></strong></p>
  p = remote(HOST, PORT)<br />
  conn_time = time.time()</em></strong></p>
 <p><strong><em>data = p.recvuntil(b”Enter your name:”, timeout=90).decode(errors=”ignore”)</em></strong></p>
-<p><strong><em>m = re.search(r”Mac Address:\s*([0–9a-fA-F:]{17})”, data)<br />
+<p><em><em>_m = re.search(r”Mac Address:\s</em>([0–9a-fA-F:]{17})”, data)<br />
  if not m:<br />
  print(“[-] 没找到 MAC，重连”)<br />
  p.close()<br />
- continue</em></strong></p>
+ continue_</em>*</p>
 <p><strong><em>mac = m.group(1)<br />
  mac_int = int(mac.replace(“:”, “”), 16)</em></strong></p>
 <p><strong><em>local_elapsed = int(time.time() — conn_time)</em></strong></p>
@@ -624,8 +624,8 @@ SEARCH_AHEAD = 120</em></strong></p>
  print(“[-] 这个 MAC 附近没有合适 shiny，重连”)<br />
  p.close()<br />
  continue</em></strong></p>
-<p><strong><em>candidates.sort()<br />
-</em>, wait_time, guess_now, target_time, choice, name = candidates[0]_</strong></p>
+<p><strong>_candidates.sort()<br />
+<em>, wait_time, guess_now, target_time, choice, name = candidates[0]</em></strong></p>
 <p><strong><em>print(f”[+] 使用 guess_now = {guess_now}”)<br />
  print(f”[+] Shiny 时间点 = 第 {target_time} 秒”)<br />
  print(f”[+] 等待 = {wait_time} 秒”)<br />

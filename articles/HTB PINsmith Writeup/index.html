@@ -543,10 +543,10 @@ HTB PINSMITH WRITEUP
 <p><img alt="" src="https://cdn-images-1.medium.com/max/1000/1*qfyyaIcu0-kiFmoUarO-Rg.png" /></p>
 <blockquote>
 <p><strong><em>from itertools import product</em></strong></p>
-<p>*<em>_def generate_pins(template: str):<br />
+<p>**_def generate_pins(template: str):<br />
  n = len(template)<br />
- positions = [i for i, ch in enumerate(template) if ch == ‘</em>’]<br />
- fixed = [(i, int(template[i])) for i in range(n) if template[i] != ‘*’]  </p>
+ positions = [i for i, ch in enumerate(template) if ch == ‘<em>’]<br />
+ fixed = [(i, int(template[i])) for i in range(n) if template[i] != ‘</em>’]  </p>
 <p>results = []  </p>
 <p>for combo in product(‘0123456789’, repeat=len(positions)):<br />
  pin = list(template)<br />

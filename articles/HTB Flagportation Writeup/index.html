@@ -595,9 +595,9 @@ import time</strong></p>
  buffer += chunk<br />
  print(chunk, end=””)  </p>
 <p># 解析 Basis 和测量结果<br />
- basis_match = re.search(r”Basis\s<em>:\s</em>([ZX])”, buffer)<br />
- q0_match = re.search(r”Measurement of qubit 0\s<em>:\s</em>([01])”, buffer)<br />
- q1_match = re.search(r”Measurement of qubit 1\s<em>:\s</em>([01])”, buffer)  </p>
+ basis_match = re.search(r”Basis\s*:\s*([ZX])”, buffer)<br />
+ q0_match = re.search(r”Measurement of qubit 0\s*:\s*([01])”, buffer)<br />
+ q1_match = re.search(r”Measurement of qubit 1\s*:\s*([01])”, buffer)  </p>
 <p>if not (basis_match and q0_match and q1_match):<br />
  print(“解析失败，原始数据：”)<br />
  print(buffer)<br />
@@ -667,7 +667,7 @@ import time</strong></p>
  content = f.read()</p>
 <h1>1. 提取所有 Basis 和 Qubit 2 结果</h1>
 <p># 我们先拿到所有的匹配对，确保存储顺序与日志一致<br />
- matches = re.findall(r”Basis\s<em>:\s</em>([ZX]).<em>?Measurement of qubit 2\s</em>:\s*([01])”, content, re.DOTALL)  </p>
+ matches = re.findall(r”Basis\s*:\s*([ZX]).<em>?Measurement of qubit 2\s</em>:\s*([01])”, content, re.DOTALL)  </p>
 <p># 尝试方案：标准顺序 (Basis_bit, Q2_bit)<br />
  bits = []<br />
  for basis, q2 in matches:<br />
